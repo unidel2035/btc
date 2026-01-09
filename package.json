@@ -26,7 +26,12 @@
     "example:sentiment": "tsx examples/sentiment-analyzer-example.ts",
     "example:risk": "tsx examples/risk-manager-example.ts",
     "example:strategies": "tsx examples/strategies-example.ts",
-    "example:backtest": "tsx examples/backtest-example.ts"
+    "example:backtest": "tsx examples/backtest-example.ts",
+    "example:database": "tsx examples/database-example.ts",
+    "db:migrate": "tsx src/database/migrate.ts",
+    "db:seed": "tsx src/database/seed.ts",
+    "db:backup": "tsx src/database/backup.ts",
+    "test:database": "tsx tests/database/database.test.ts"
   },
   "keywords": [
     "bitcoin",
@@ -42,6 +47,7 @@
   "devDependencies": {
     "@types/node": "^20.11.5",
     "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.10.9",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
@@ -53,7 +59,9 @@
   },
   "dependencies": {
     "dotenv": "^16.3.1",
+    "ioredis": "^5.3.2",
     "node-cron": "^4.2.1",
+    "pg": "^8.11.3",
     "playwright": "^1.57.0",
     "rss-parser": "^3.13.0"
   },
