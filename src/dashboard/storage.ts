@@ -109,7 +109,10 @@ class DashboardStorage {
     const position = this.positions.get(id);
     if (!position) return null;
 
-    const pnl = position.side === 'LONG' ? (exitPrice - position.entryPrice) * position.size : (position.entryPrice - exitPrice) * position.size;
+    const pnl =
+      position.side === 'LONG'
+        ? (exitPrice - position.entryPrice) * position.size
+        : (position.entryPrice - exitPrice) * position.size;
 
     const pnlPercent = (pnl / (position.entryPrice * position.size)) * 100;
 
@@ -212,12 +215,15 @@ class DashboardStorage {
 
     // Считаем дневной PnL (последние 24 часа)
     const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-    const recentTrades = this.tradeHistory.filter((t) => new Date(t.closedAt).getTime() > oneDayAgo);
+    const recentTrades = this.tradeHistory.filter(
+      (t) => new Date(t.closedAt).getTime() > oneDayAgo,
+    );
     const dailyPnl = recentTrades.reduce((sum, t) => sum + t.pnl, 0);
     const dailyPnlPercent = (dailyPnl / this.balance) * 100;
 
     const winningTrades = this.tradeHistory.filter((t) => t.pnl > 0).length;
-    const winRate = this.tradeHistory.length > 0 ? (winningTrades / this.tradeHistory.length) * 100 : 0;
+    const winRate =
+      this.tradeHistory.length > 0 ? (winningTrades / this.tradeHistory.length) * 100 : 0;
 
     return {
       balance: this.balance,
@@ -248,7 +254,9 @@ class DashboardStorage {
     // Упрощенный расчет Sharpe ratio
     const returns = this.tradeHistory.map((t) => t.pnlPercent);
     const avgReturn = returns.length > 0 ? returns.reduce((a, b) => a + b, 0) / returns.length : 0;
-    const stdDev = Math.sqrt(returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length);
+    const stdDev = Math.sqrt(
+      returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length,
+    );
     const sharpeRatio = stdDev > 0 ? (avgReturn / stdDev) * Math.sqrt(252) : 0;
 
     // Максимальная просадка
@@ -264,7 +272,8 @@ class DashboardStorage {
       totalTrades: this.tradeHistory.length,
       winningTrades: winningTrades.length,
       losingTrades: losingTrades.length,
-      winRate: this.tradeHistory.length > 0 ? (winningTrades.length / this.tradeHistory.length) * 100 : 0,
+      winRate:
+        this.tradeHistory.length > 0 ? (winningTrades.length / this.tradeHistory.length) * 100 : 0,
       averageWin,
       averageLoss,
       profitFactor,

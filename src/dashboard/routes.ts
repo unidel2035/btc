@@ -47,7 +47,7 @@ export function setupRoutes(router: Router): void {
 
   router.post('/api/positions/:id/close', (req: Request, res: Response): void => {
     try {
-      const { exitPrice, reason } = req.body;
+      const { exitPrice, reason } = req.body as { exitPrice?: number; reason?: string };
       if (!exitPrice) {
         res.status(400).json({ error: 'exitPrice is required' });
         return;
@@ -67,8 +67,18 @@ export function setupRoutes(router: Router): void {
 
   router.patch('/api/positions/:id', (req: Request, res: Response): void => {
     try {
-      const { stopLoss, takeProfit, currentPrice } = req.body;
-      const updates: any = {};
+      const { stopLoss, takeProfit, currentPrice } = req.body as {
+        stopLoss?: number;
+        takeProfit?: number;
+        currentPrice?: number;
+      };
+      const updates: {
+        stopLoss?: number;
+        takeProfit?: number;
+        currentPrice?: number;
+        pnl?: number;
+        pnlPercent?: number;
+      } = {};
 
       if (stopLoss !== undefined) updates.stopLoss = stopLoss;
       if (takeProfit !== undefined) updates.takeProfit = takeProfit;
@@ -176,7 +186,10 @@ export function setupRoutes(router: Router): void {
 
   router.patch('/api/strategies/:name', (req: Request, res: Response): void => {
     try {
-      const strategy = storage.updateStrategyConfig(req.params.name || '', req.body);
+      const strategy = storage.updateStrategyConfig(
+        req.params.name || '',
+        req.body as Record<string, unknown>,
+      );
       if (!strategy) {
         res.status(404).json({ error: 'Strategy not found' });
         return;
@@ -199,7 +212,7 @@ export function setupRoutes(router: Router): void {
 
   router.patch('/api/settings/risk', (req: Request, res: Response) => {
     try {
-      const config = storage.updateRiskConfig(req.body);
+      const config = storage.updateRiskConfig(req.body as Record<string, unknown>);
       res.json(config);
     } catch (error) {
       res.status(500).json({ error: 'Failed to update risk config' });
@@ -210,30 +223,35 @@ export function setupRoutes(router: Router): void {
   router.post('/api/settings', (req: Request, res: Response): void => {
     try {
       // Обновляем различные настройки в зависимости от типа
-      const { type, ...settings } = req.body;
+      const { type, ...settings } = req.body as {
+        type?: string;
+        name?: string;
+        [key: string]: unknown;
+      };
 
       switch (type) {
-        case 'risk':
-          {
-            const riskConfig = storage.updateRiskConfig(settings);
-            res.json(riskConfig);
-            return;
-          }
+        case 'risk': {
+          const riskConfig = storage.updateRiskConfig(settings as Record<string, unknown>);
+          res.json(riskConfig);
+          return;
+        }
 
-        case 'strategy':
-          {
-            if (!settings.name) {
-              res.status(400).json({ error: 'Strategy name is required' });
-              return;
-            }
-            const strategyConfig = storage.updateStrategyConfig(settings.name, settings);
-            if (!strategyConfig) {
-              res.status(404).json({ error: 'Strategy not found' });
-              return;
-            }
-            res.json(strategyConfig);
+        case 'strategy': {
+          if (!settings.name) {
+            res.status(400).json({ error: 'Strategy name is required' });
             return;
           }
+          const strategyConfig = storage.updateStrategyConfig(
+            String(settings.name),
+            settings as Record<string, unknown>,
+          );
+          if (!strategyConfig) {
+            res.status(404).json({ error: 'Strategy not found' });
+            return;
+          }
+          res.json(strategyConfig);
+          return;
+        }
 
         default:
           res.status(400).json({ error: 'Invalid settings type' });
