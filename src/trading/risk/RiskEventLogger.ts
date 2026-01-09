@@ -217,7 +217,8 @@ export class RiskEventLogger {
       byType,
       bySymbol,
       oldestEvent: this.events.length > 0 ? this.events[0]!!.timestamp : undefined,
-      newestEvent: this.events.length > 0 ? this.events[this.events.length - 1]!!.timestamp : undefined,
+      newestEvent:
+        this.events.length > 0 ? this.events[this.events.length - 1]!!.timestamp : undefined,
     };
   }
 }

@@ -70,18 +70,27 @@ export class RiskManager {
       // 1. Валидация параметров
       const sizingValidation = PositionSizing.validateParams(sizingParams);
       if (!sizingValidation.valid) {
-        return { success: false, error: `Invalid sizing params: ${sizingValidation.errors.join(', ')}` };
+        return {
+          success: false,
+          error: `Invalid sizing params: ${sizingValidation.errors.join(', ')}`,
+        };
       }
 
       const slValidation = StopLossManager.validateParams(stopLossParams);
       if (!slValidation.valid) {
-        return { success: false, error: `Invalid stop loss params: ${slValidation.errors.join(', ')}` };
+        return {
+          success: false,
+          error: `Invalid stop loss params: ${slValidation.errors.join(', ')}`,
+        };
       }
 
       if (takeProfitParams) {
         const tpValidation = TakeProfitManager.validateParams(takeProfitParams);
         if (!tpValidation.valid) {
-          return { success: false, error: `Invalid take profit params: ${tpValidation.errors.join(', ')}` };
+          return {
+            success: false,
+            error: `Invalid take profit params: ${tpValidation.errors.join(', ')}`,
+          };
         }
       }
 
@@ -146,8 +155,7 @@ export class RiskManager {
         takeProfitLevels = takeProfitParams.levels;
       } else {
         // Используем дефолтный TP из конфига
-        const defaultTP =
-          sizingParams.entryPrice * (1 + this.config.defaultTakeProfit / 100);
+        const defaultTP = sizingParams.entryPrice * (1 + this.config.defaultTakeProfit / 100);
         takeProfit = [defaultTP];
       }
 
@@ -238,11 +246,9 @@ export class RiskManager {
 
     // Расчет unrealized PnL
     if (position.side === 'long') {
-      position.unrealizedPnL =
-        (currentPrice - position.entryPrice) * position.remainingQuantity;
+      position.unrealizedPnL = (currentPrice - position.entryPrice) * position.remainingQuantity;
     } else {
-      position.unrealizedPnL =
-        (position.entryPrice - currentPrice) * position.remainingQuantity;
+      position.unrealizedPnL = (position.entryPrice - currentPrice) * position.remainingQuantity;
     }
 
     // Проверка стоп-лосса
@@ -255,18 +261,14 @@ export class RiskManager {
     // Обновление трейлинг стопа
     if (position.trailingStopActive) {
       // Проверяем активацию трейлинг стопа
-      const profitPercent =
-        ((currentPrice - position.entryPrice) / position.entryPrice) * 100;
+      const profitPercent = ((currentPrice - position.entryPrice) / position.entryPrice) * 100;
 
       if (profitPercent >= this.config.trailingStopActivation) {
         // Обновляем highest/lowest price
         if (position.side === 'long') {
           position.highestPrice = Math.max(position.highestPrice || 0, currentPrice);
         } else {
-          position.lowestPrice = Math.min(
-            position.lowestPrice || Number.MAX_VALUE,
-            currentPrice,
-          );
+          position.lowestPrice = Math.min(position.lowestPrice || Number.MAX_VALUE, currentPrice);
         }
 
         // Обновляем трейлинг стоп
@@ -299,10 +301,7 @@ export class RiskManager {
     // Проверка тейк-профита
     const tpCheck = TakeProfitManager.checkTriggeredLevels(position, currentPrice);
     if (tpCheck.triggered && tpCheck.levelIndex !== null) {
-      const closeQuantity = TakeProfitManager.calculateCloseQuantity(
-        position,
-        tpCheck.levelIndex,
-      );
+      const closeQuantity = TakeProfitManager.calculateCloseQuantity(position, tpCheck.levelIndex);
 
       await this.partialClosePosition(
         positionId,
@@ -352,7 +351,8 @@ export class RiskManager {
     // Обновляем позицию
     position.remainingQuantity -= closeQuantity;
     position.realizedPnL += pnl;
-    position.status = position.remainingQuantity === 0 ? PositionStatus.CLOSED : PositionStatus.PARTIALLY_CLOSED;
+    position.status =
+      position.remainingQuantity === 0 ? PositionStatus.CLOSED : PositionStatus.PARTIALLY_CLOSED;
 
     if (position.remainingQuantity === 0) {
       position.closedAt = new Date();

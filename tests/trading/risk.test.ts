@@ -144,14 +144,14 @@ test.test('Position Sizing - Fixed Method', async () => {
     sizingParams: {
       method: PositionSizingMethod.FIXED,
       balance: 10000,
-      riskPerTrade: 2, // 2% risk
-      stopLossPercent: 2, // 2% SL
+      riskPerTrade: 1, // 1% risk
+      stopLossPercent: 10, // 10% SL -> size = 1000 (10% of balance)
       entryPrice: 50000,
     },
     stopLossParams: {
       type: StopLossType.FIXED,
       entryPrice: 50000,
-      percent: 2,
+      percent: 10,
     },
   });
 
@@ -175,14 +175,14 @@ test.test('Position Sizing - Percentage Method', async () => {
     sizingParams: {
       method: PositionSizingMethod.PERCENTAGE,
       balance: 10000,
-      riskPerTrade: 2,
-      stopLossPercent: 2,
+      riskPerTrade: 0.5, // 0.5% risk
+      stopLossPercent: 5, // 5% SL -> size = 1000 (10% of balance)
       entryPrice: 3000,
     },
     stopLossParams: {
       type: StopLossType.FIXED,
       entryPrice: 3000,
-      percent: 2,
+      percent: 5,
     },
   });
 
@@ -200,16 +200,16 @@ test.test('Position Sizing - Kelly Criterion', async () => {
     sizingParams: {
       method: PositionSizingMethod.KELLY,
       balance: 10000,
-      riskPerTrade: 2,
-      stopLossPercent: 2,
+      riskPerTrade: 1, // 1% risk
+      stopLossPercent: 10, // 10% SL
       entryPrice: 50000,
-      winRate: 0.6, // 60% win rate
-      avgWinLoss: 2.0, // Average win is 2x average loss
+      winRate: 0.52, // 52% win rate (lower to reduce Kelly %)
+      avgWinLoss: 1.2, // 1.2:1 reward/risk (lower to reduce Kelly %)
     },
     stopLossParams: {
       type: StopLossType.FIXED,
       entryPrice: 50000,
-      percent: 2,
+      percent: 10,
     },
   });
 
@@ -228,8 +228,8 @@ test.test('Max Positions Limit', async () => {
       sizingParams: {
         method: PositionSizingMethod.PERCENTAGE,
         balance: 10000,
-        riskPerTrade: 1,
-        stopLossPercent: 2,
+        riskPerTrade: 0.2, // 0.2% risk
+        stopLossPercent: 2, // 2% SL -> size = 1000 (10% of balance)
         entryPrice: 100,
       },
       stopLossParams: {
@@ -248,8 +248,8 @@ test.test('Max Positions Limit', async () => {
     sizingParams: {
       method: PositionSizingMethod.PERCENTAGE,
       balance: 10000,
-      riskPerTrade: 1,
-      stopLossPercent: 2,
+      riskPerTrade: 0.2, // 0.2% risk (same as above positions)
+      stopLossPercent: 2, // 2% SL -> size = 1000 (10% of balance)
       entryPrice: 100,
     },
     stopLossParams: {
@@ -371,14 +371,14 @@ test.test('Position Update - Price Movement', async () => {
     sizingParams: {
       method: PositionSizingMethod.PERCENTAGE,
       balance: 10000,
-      riskPerTrade: 2,
-      stopLossPercent: 2,
+      riskPerTrade: 1, // 1% risk
+      stopLossPercent: 10, // 10% SL -> size = 1000 (10% of balance)
       entryPrice: 50000,
     },
     stopLossParams: {
       type: StopLossType.FIXED,
       entryPrice: 50000,
-      percent: 2,
+      percent: 10,
     },
   });
 
@@ -405,14 +405,14 @@ test.test('Close Position', async () => {
     sizingParams: {
       method: PositionSizingMethod.PERCENTAGE,
       balance: 10000,
-      riskPerTrade: 2,
-      stopLossPercent: 2,
+      riskPerTrade: 1, // 1% risk
+      stopLossPercent: 10, // 10% SL -> size = 1000 (10% of balance)
       entryPrice: 50000,
     },
     stopLossParams: {
       type: StopLossType.FIXED,
       entryPrice: 50000,
-      percent: 2,
+      percent: 10,
     },
   });
 
@@ -438,14 +438,14 @@ test.test('Risk Statistics', async () => {
     sizingParams: {
       method: PositionSizingMethod.PERCENTAGE,
       balance: 10000,
-      riskPerTrade: 2,
-      stopLossPercent: 2,
+      riskPerTrade: 1, // 1% risk
+      stopLossPercent: 10, // 10% SL -> size = 1000 (10% of balance)
       entryPrice: 50000,
     },
     stopLossParams: {
       type: StopLossType.FIXED,
       entryPrice: 50000,
-      percent: 2,
+      percent: 10,
     },
   });
 

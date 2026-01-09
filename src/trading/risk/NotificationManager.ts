@@ -35,11 +35,7 @@ export class NotificationManager {
   /**
    * Отправка предупреждения о приближении к лимиту
    */
-  async sendWarning(warning: {
-    type: string;
-    message: string;
-    percent: number;
-  }): Promise<void> {
+  async sendWarning(warning: { type: string; message: string; percent: number }): Promise<void> {
     if (!this.config.enabled) {
       return;
     }

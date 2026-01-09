@@ -131,10 +131,7 @@ export class CorrelationAnalysis {
   /**
    * Получение всех коррелированных пар для данного актива
    */
-  getCorrelatedAssets(
-    symbol: string,
-    options: CorrelationAnalysisOptions,
-  ): CorrelationResult[] {
+  getCorrelatedAssets(symbol: string, options: CorrelationAnalysisOptions): CorrelationResult[] {
     const results: CorrelationResult[] = [];
     const symbols = Array.from(this.priceData.keys());
 
@@ -176,9 +173,7 @@ export class CorrelationAnalysis {
     }
 
     // Считаем, сколько открытых позиций коррелированы с новым активом
-    const openSymbols = positions
-      .filter((pos) => pos.status === 'open')
-      .map((pos) => pos.symbol);
+    const openSymbols = positions.filter((pos) => pos.status === 'open').map((pos) => pos.symbol);
 
     let correlatedCount = 0;
     const correlatedSymbols: string[] = [];
@@ -256,7 +251,9 @@ export class CorrelationAnalysis {
     const uniqueAssets = uniqueSymbols.size;
 
     if (uniqueAssets < minAssets) {
-      warnings.push(`Portfolio has only ${uniqueAssets} unique assets (recommended: ${minAssets}+)`);
+      warnings.push(
+        `Portfolio has only ${uniqueAssets} unique assets (recommended: ${minAssets}+)`,
+      );
     }
 
     // Средняя корреляция между активами

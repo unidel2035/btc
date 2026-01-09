@@ -1,8 +1,4 @@
-import type {
-  PositionSizingMethod,
-  PositionSizingParams,
-  PositionSizeResult,
-} from './types.js';
+import type { PositionSizingMethod, PositionSizingParams, PositionSizeResult } from './types.js';
 
 /**
  * Модуль расчета размера позиции
@@ -123,9 +119,7 @@ export class PositionSizing {
    * Размер с учетом волатильности
    * Увеличиваем размер при низкой волатильности, уменьшаем при высокой
    */
-  private static calculateVolatilityAdjusted(
-    params: PositionSizingParams,
-  ): PositionSizeResult {
+  private static calculateVolatilityAdjusted(params: PositionSizingParams): PositionSizeResult {
     const { balance, riskPerTrade, volatility, baseVolatility, stopLossPercent, entryPrice } =
       params;
 

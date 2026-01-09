@@ -1,8 +1,4 @@
-import type {
-  StopLossParams,
-  TakeProfitParams,
-  Position,
-} from './types.js';
+import type { StopLossParams, TakeProfitParams, Position } from './types.js';
 import { StopLossType } from './types.js';
 
 /**
@@ -197,9 +193,7 @@ export class TakeProfitManager {
     // Проверяем, что сумма closePercent = 100%
     const totalClosePercent = levels.reduce((sum, level) => sum + level.closePercent, 0);
     if (Math.abs(totalClosePercent - 100) > 0.01) {
-      throw new Error(
-        `Sum of closePercent must equal 100%, got ${totalClosePercent.toFixed(2)}%`,
-      );
+      throw new Error(`Sum of closePercent must equal 100%, got ${totalClosePercent.toFixed(2)}%`);
     }
 
     // Рассчитываем цены уровней
