@@ -37,6 +37,7 @@ export class RateLimiter {
     if (this.requests.length >= this.maxRequests) {
       // Вычисляем время ожидания
       const oldestRequest = this.requests[0];
+      if (!oldestRequest) return;
       const waitTime = this.interval - (now - oldestRequest);
 
       if (waitTime > 0) {

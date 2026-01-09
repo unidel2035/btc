@@ -6,17 +6,13 @@
 import { BaseExchange, BaseExchangeConfig } from '../BaseExchange';
 import {
   Candle,
-  CandleInterval,
   OrderBook,
   Trade,
   Ticker,
-  OrderRequest,
   Order,
   Balance,
   Position,
-  WebSocketEventType,
   ExchangeInfo,
-  MarketType,
   ExchangeError,
 } from '../types';
 
@@ -27,15 +23,13 @@ interface OKXConfig extends Omit<BaseExchangeConfig, 'name'> {}
  * Примечание: Требует passphrase в конфигурации
  */
 export class OKXExchange extends BaseExchange {
-  private readonly baseUrl: string;
-
   constructor(config: OKXConfig) {
     super({
       ...config,
       name: 'OKX',
     });
 
-    this.baseUrl = config.testnet ? 'https://www.okx.com' : 'https://www.okx.com';
+    // baseUrl would be: config.testnet ? 'https://www.okx.com' : 'https://www.okx.com'
 
     if (!this.passphrase) {
       console.warn(`[${this.name}] Warning: OKX requires passphrase for authenticated requests`);
@@ -58,10 +52,10 @@ export class OKXExchange extends BaseExchange {
   }
 
   protected async makeRequest<T>(
-    method: string,
-    endpoint: string,
-    params?: Record<string, unknown>,
-    signed = false,
+    _method: string,
+    _endpoint: string,
+    _params?: Record<string, unknown>,
+    _signed = false,
   ): Promise<T> {
     // TODO: Implement OKX request signing
     throw new ExchangeError('OKX exchange not fully implemented yet');

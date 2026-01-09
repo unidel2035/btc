@@ -15,7 +15,6 @@ import {
   OrderRequest,
   Order,
   Balance,
-  Position,
   WebSocketEventType,
   ExchangeInfo,
   ExchangeError,

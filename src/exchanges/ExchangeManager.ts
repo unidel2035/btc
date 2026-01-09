@@ -143,10 +143,12 @@ export class ExchangeManager {
    */
   listExchanges(): Array<{ name: string; marketType: MarketType; initialized: boolean }> {
     const list = Array.from(this.exchanges.entries()).map(([key, exchange]) => {
-      const [name, marketType] = key.split(':');
+      const parts = key.split(':');
+      const name = parts[0] || '';
+      const marketType = (parts[1] || MarketType.SPOT) as MarketType;
       return {
         name,
-        marketType: marketType as MarketType,
+        marketType,
         initialized: exchange.isInitialized(),
       };
     });
@@ -170,10 +172,12 @@ export class ExchangeManager {
     for (const [key, exchange] of this.exchanges.entries()) {
       try {
         const balances = await exchange.getBalance();
-        const [name, marketType] = key.split(':');
+        const parts = key.split(':');
+        const name = parts[0] || '';
+        const marketType = (parts[1] || MarketType.SPOT) as MarketType;
         results.push({
           exchange: name,
-          marketType: marketType as MarketType,
+          marketType,
           balances,
         });
       } catch (error) {
@@ -211,10 +215,12 @@ export class ExchangeManager {
 
       try {
         const ticker = await exchange.getTicker(symbol);
-        const [name, marketType] = key.split(':');
+        const parts = key.split(':');
+        const name = parts[0] || '';
+        const marketType = (parts[1] || MarketType.SPOT) as MarketType;
         results.push({
           exchange: name,
-          marketType: marketType as MarketType,
+          marketType,
           lastPrice: ticker.lastPrice,
           bidPrice: ticker.bidPrice,
           askPrice: ticker.askPrice,
@@ -256,6 +262,10 @@ export class ExchangeManager {
     });
 
     const best = sorted[0];
+    if (!best) {
+      return null;
+    }
+
     return {
       exchange: best.exchange,
       marketType: best.marketType,
@@ -273,7 +283,9 @@ export class ExchangeManager {
     for (const [key, exchange] of this.exchanges.entries()) {
       try {
         const orderBook = await exchange.getOrderBook(symbol, depth);
-        const [name, marketType] = key.split(':');
+        const parts = key.split(':');
+      const name = parts[0] || '';
+      const marketType = (parts[1] || MarketType.SPOT) as MarketType;
         orderBooks.push({
           exchange: name,
           marketType: marketType as MarketType,

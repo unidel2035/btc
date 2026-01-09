@@ -29,7 +29,7 @@ interface BybitConfig extends Omit<BaseExchangeConfig, 'name'> {}
 
 export class BybitExchange extends BaseExchange {
   private readonly baseUrl: string;
-  private readonly wsBaseUrl: string;
+  // private readonly wsBaseUrl: string;
 
   constructor(config: BybitConfig) {
     super({
@@ -39,7 +39,7 @@ export class BybitExchange extends BaseExchange {
 
     // Bybit использует одинаковый URL для spot и futures
     this.baseUrl = config.testnet ? 'https://api-testnet.bybit.com' : 'https://api.bybit.com';
-    this.wsBaseUrl = config.testnet ? 'wss://stream-testnet.bybit.com' : 'wss://stream.bybit.com';
+    // this.wsBaseUrl = config.testnet ? 'wss://stream-testnet.bybit.com' : 'wss://stream.bybit.com';
   }
 
   async initialize(): Promise<void> {
@@ -95,7 +95,7 @@ export class BybitExchange extends BaseExchange {
 
     url.search = queryParams.toString();
 
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
 
@@ -107,15 +107,17 @@ export class BybitExchange extends BaseExchange {
 
     const data = await response.json();
 
-    if (!response.ok || (data.ret_code !== undefined && data.ret_code !== 0)) {
+    const errorData = data as { ret_code?: number; code?: number; ret_msg?: string; message?: string; result?: unknown };
+
+    if (!response.ok || (errorData.ret_code !== undefined && errorData.ret_code !== 0)) {
       throw new ExchangeError(
-        data.ret_msg || data.message || 'Unknown error',
-        data.ret_code || data.code,
+        errorData.ret_msg || errorData.message || 'Unknown error',
+        errorData.ret_code || errorData.code,
         response.status,
       );
     }
 
-    return (data.result || data) as T;
+    return (errorData.result || data) as T;
   }
 
   // Market Data - Simplified implementations
@@ -527,23 +529,23 @@ export class BybitExchange extends BaseExchange {
 
   // WebSocket - Stub implementations
 
-  subscribeToTrades(symbol: string, callback: (trade: Trade) => void): void {
+  subscribeToTrades(_symbol: string, _callback: (trade: Trade) => void): void {
     console.warn(`[${this.name}] WebSocket not implemented`);
   }
 
-  subscribeToTicker(symbol: string, callback: (ticker: Ticker) => void): void {
+  subscribeToTicker(_symbol: string, _callback: (ticker: Ticker) => void): void {
     console.warn(`[${this.name}] WebSocket not implemented`);
   }
 
-  subscribeToOrderBook(symbol: string, callback: (orderBook: OrderBook) => void): void {
+  subscribeToOrderBook(_symbol: string, _callback: (orderBook: OrderBook) => void): void {
     console.warn(`[${this.name}] WebSocket not implemented`);
   }
 
-  subscribeToCandles(symbol: string, interval: CandleInterval, callback: (candle: Candle) => void): void {
+  subscribeToCandles(_symbol: string, _interval: CandleInterval, _callback: (candle: Candle) => void): void {
     console.warn(`[${this.name}] WebSocket not implemented`);
   }
 
-  unsubscribe(symbol: string, event: WebSocketEventType): void {}
+  unsubscribe(_symbol: string, _event: WebSocketEventType): void {}
 
   unsubscribeAll(): void {}
 

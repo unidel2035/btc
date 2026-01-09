@@ -3,7 +3,7 @@
  * Поддержка Spot и Futures рынков
  */
 
-import crypto from 'crypto';
+// import crypto from 'crypto';
 import { BaseExchange, BaseExchangeConfig } from '../BaseExchange';
 import {
   Candle,
@@ -35,7 +35,7 @@ interface BinanceConfig extends Omit<BaseExchangeConfig, 'name'> {
 
 export class BinanceExchange extends BaseExchange {
   private readonly baseUrl: string;
-  private readonly wsBaseUrl: string;
+  // private readonly wsBaseUrl: string;
   private readonly recvWindow: number;
   private wsConnections = new Map<string, WebSocket>();
 
@@ -52,17 +52,13 @@ export class BinanceExchange extends BaseExchange {
       this.baseUrl = config.testnet
         ? 'https://testnet.binance.vision/api/v3'
         : 'https://api.binance.com/api/v3';
-      this.wsBaseUrl = config.testnet
-        ? 'wss://testnet.binance.vision/ws'
-        : 'wss://stream.binance.com:9443/ws';
+      // wsBaseUrl for SPOT would be: config.testnet ? 'wss://testnet.binance.vision/ws' : 'wss://stream.binance.com:9443/ws';
     } else {
       // Futures
       this.baseUrl = config.testnet
         ? 'https://testnet.binancefuture.com/fapi/v1'
         : 'https://fapi.binance.com/fapi/v1';
-      this.wsBaseUrl = config.testnet
-        ? 'wss://stream.binancefuture.com/ws'
-        : 'wss://fstream.binance.com/ws';
+      // wsBaseUrl for FUTURES would be: config.testnet ? 'wss://stream.binancefuture.com/ws' : 'wss://fstream.binance.com/ws';
     }
   }
 
@@ -131,7 +127,7 @@ export class BinanceExchange extends BaseExchange {
 
     url.search = queryParams.toString();
 
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
 
@@ -148,7 +144,7 @@ export class BinanceExchange extends BaseExchange {
     const data = await response.json();
 
     if (!response.ok) {
-      this.handleBinanceError(data, response.status);
+      this.handleBinanceError(data as { code: number; msg: string }, response.status);
     }
 
     return data as T;
@@ -157,8 +153,9 @@ export class BinanceExchange extends BaseExchange {
   /**
    * Обработка ошибок Binance API
    */
-  private handleBinanceError(error: { code: number; msg: string }, status: number): never {
-    const { code, msg } = error;
+  private handleBinanceError(error: { code?: number; msg?: string }, status: number): never {
+    const code = error.code || 0;
+    const msg = error.msg || 'Unknown error';
 
     if (code === -2015 || code === -1022) {
       throw new AuthenticationError(msg);
@@ -372,7 +369,7 @@ export class BinanceExchange extends BaseExchange {
       averagePrice = totalCost / totalQty;
 
       commission = data.fills.reduce((sum, fill) => sum + parseFloat(fill.commission), 0);
-      commissionAsset = data.fills[0].commissionAsset;
+      commissionAsset = data.fills[0]?.commissionAsset;
     }
 
     const executedQty = parseFloat(data.executedQty);
@@ -671,31 +668,27 @@ export class BinanceExchange extends BaseExchange {
 
   // WebSocket Methods (simplified implementation)
 
-  subscribeToTrades(symbol: string, callback: (trade: Trade) => void): void {
+  subscribeToTrades(_symbol: string, _callback: (trade: Trade) => void): void {
     console.warn(`[${this.name}] WebSocket subscriptions not fully implemented yet`);
     // TODO: Implement WebSocket for trades
   }
 
-  subscribeToTicker(symbol: string, callback: (ticker: Ticker) => void): void {
+  subscribeToTicker(_symbol: string, _callback: (ticker: Ticker) => void): void {
     console.warn(`[${this.name}] WebSocket subscriptions not fully implemented yet`);
     // TODO: Implement WebSocket for ticker
   }
 
-  subscribeToOrderBook(symbol: string, callback: (orderBook: OrderBook) => void): void {
+  subscribeToOrderBook(_symbol: string, _callback: (orderBook: OrderBook) => void): void {
     console.warn(`[${this.name}] WebSocket subscriptions not fully implemented yet`);
     // TODO: Implement WebSocket for order book
   }
 
-  subscribeToCandles(
-    symbol: string,
-    interval: CandleInterval,
-    callback: (candle: Candle) => void,
-  ): void {
+  subscribeToCandles(_symbol: string, _interval: CandleInterval, _callback: (candle: Candle) => void): void {
     console.warn(`[${this.name}] WebSocket subscriptions not fully implemented yet`);
     // TODO: Implement WebSocket for candles
   }
 
-  unsubscribe(symbol: string, event: WebSocketEventType): void {
+  unsubscribe(_symbol: string, _event: WebSocketEventType): void {
     // TODO: Implement unsubscribe
   }
 
