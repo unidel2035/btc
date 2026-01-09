@@ -1,0 +1,108 @@
+{
+  "dashboard": {
+    "title": "BTC Trading Bot Dashboard",
+    "tags": ["btc", "trading", "bot"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Bot Uptime",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "btc_bot_uptime_seconds",
+            "legendFormat": "Uptime"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Memory Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "btc_bot_memory_usage_bytes{type=\"heapUsed\"}",
+            "legendFormat": "Heap Used"
+          },
+          {
+            "expr": "btc_bot_memory_usage_bytes{type=\"heapTotal\"}",
+            "legendFormat": "Heap Total"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 4
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Service Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"btc-bot\"}",
+            "legendFormat": "Bot"
+          },
+          {
+            "expr": "up{job=\"sentiment-analyzer\"}",
+            "legendFormat": "Sentiment"
+          },
+          {
+            "expr": "up{job=\"postgres\"}",
+            "legendFormat": "PostgreSQL"
+          },
+          {
+            "expr": "up{job=\"redis\"}",
+            "legendFormat": "Redis"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "type": "value",
+                "options": {
+                  "0": {
+                    "text": "Down",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "Up",
+                    "color": "green"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 27,
+    "version": 1
+  }
+}

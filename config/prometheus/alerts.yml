@@ -1,0 +1,63 @@
+groups:
+  - name: btc_bot_alerts
+    interval: 30s
+    rules:
+      # Bot is down
+      - alert: BotDown
+        expr: up{job="btc-bot"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "BTC Trading Bot is down"
+          description: "The BTC Trading Bot has been down for more than 1 minute."
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: btc_bot_memory_usage_bytes{type="heapUsed"} / btc_bot_memory_usage_bytes{type="heapTotal"} > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 90% for more than 5 minutes."
+
+      # Sentiment analyzer is down
+      - alert: SentimentAnalyzerDown
+        expr: up{job="sentiment-analyzer"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Sentiment Analyzer is down"
+          description: "The Sentiment Analyzer service has been down for more than 2 minutes."
+
+      # PostgreSQL is down
+      - alert: PostgresDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been down for more than 1 minute."
+
+      # Redis is down
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache has been down for more than 1 minute."
+
+      # Bot restarted
+      - alert: BotRestarted
+        expr: btc_bot_uptime_seconds < 300
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: "Bot was recently restarted"
+          description: "The bot has been running for less than 5 minutes."

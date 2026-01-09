@@ -1,0 +1,97 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      version:
+        description: 'Version to rollback to (optional, defaults to previous)'
+        required: false
+
+jobs:
+  rollback:
+    name: Rollback ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Confirm rollback
+        run: |
+          echo "⚠️  Rolling back ${{ github.event.inputs.environment }} environment"
+          echo "Version: ${{ github.event.inputs.version || 'previous backup' }}"
+
+      - name: Execute rollback
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_HOST || secrets.STAGING_HOST }}
+          username: ${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_USERNAME || secrets.STAGING_USERNAME }}
+          key: ${{ github.event.inputs.environment == 'production' && secrets.PRODUCTION_SSH_KEY || secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /opt/btc-trading-bot
+
+            ENV="${{ github.event.inputs.environment }}"
+            VERSION="${{ github.event.inputs.version }}"
+
+            echo "Starting rollback for $ENV environment..."
+
+            # Stop current services
+            docker-compose -f docker-compose.$ENV.yml down
+
+            # Restore from backup
+            if [ -n "$VERSION" ]; then
+              echo "Rolling back to specific version: $VERSION"
+              docker pull ${{ secrets.REGISTRY_URL }}/btc-trading-bot:$VERSION
+              docker tag ${{ secrets.REGISTRY_URL }}/btc-trading-bot:$VERSION btc-trading-bot:$ENV
+            else
+              echo "Rolling back to previous backup"
+              if docker images | grep -q "btc-trading-bot:$ENV-backup"; then
+                docker tag btc-trading-bot:$ENV-backup btc-trading-bot:$ENV
+              else
+                echo "No backup found!"
+                exit 1
+              fi
+            fi
+
+            # Restart services
+            docker-compose -f docker-compose.$ENV.yml up -d
+
+            # Wait for services to start
+            echo "Waiting for services to start..."
+            sleep 30
+
+            # Health check
+            if curl -f http://localhost:3000/health; then
+              echo "✅ Rollback successful! Services are healthy."
+            else
+              echo "❌ Rollback completed but health check failed!"
+              docker-compose -f docker-compose.$ENV.yml logs --tail=50
+              exit 1
+            fi
+
+      - name: Verify rollback
+        run: |
+          sleep 10
+          if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            curl -f https://bot.example.com/health || exit 1
+          else
+            curl -f https://staging.example.com/health || exit 1
+          fi
+          echo "Rollback verification passed"
+
+      - name: Notify rollback status
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Rollback of ${{ github.event.inputs.environment }}: ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}

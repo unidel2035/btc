@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: btc-trading-bot-staging
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3000}:3000"
+      - "${DASHBOARD_PORT:-8080}:8080"
+    environment:
+      NODE_ENV: staging
+      TRADING_MODE: paper
+    env_file:
+      - .env.staging
+    volumes:
+      - ./data/staging:/app/data
+      - ./logs/staging:/app/logs
+      - ./config:/app/config
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      sentiment-analyzer:
+        condition: service_healthy
+    networks:
+      - btc-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  sentiment-analyzer:
+    build:
+      context: ./python-services/sentiment-analyzer
+      dockerfile: Dockerfile
+    container_name: btc-sentiment-analyzer-staging
+    restart: unless-stopped
+    ports:
+      - "${SENTIMENT_API_PORT:-8000}:8000"
+    environment:
+      PYTHONUNBUFFERED: 1
+      ENV: staging
+    volumes:
+      - sentiment_models_staging:/root/.cache/huggingface
+      - sentiment_spacy_staging:/root/.spacy
+    networks:
+      - btc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: btc-postgres-staging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-btc_trading_bot_staging}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data_staging:/var/lib/postgresql/data
+    networks:
+      - btc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: btc-redis-staging
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data_staging:/data
+    networks:
+      - btc-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: btc-prometheus-staging
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data_staging:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - btc-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: btc-grafana-staging
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: ""
+    volumes:
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - grafana_data_staging:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - btc-network
+
+volumes:
+  postgres_data_staging:
+  redis_data_staging:
+  prometheus_data_staging:
+  grafana_data_staging:
+  sentiment_models_staging:
+  sentiment_spacy_staging:
+
+networks:
+  btc-network:
+    driver: bridge

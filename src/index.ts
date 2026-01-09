@@ -1,4 +1,5 @@
 import { config } from 'dotenv';
+import { startApiServer } from './api/server.js';
 
 // Загружаем переменные окружения
 config();
@@ -12,12 +13,15 @@ async function main(): Promise<void> {
   console.info(`Trading enabled: ${process.env.TRADING_ENABLED === 'true'}`);
   console.info(`Paper trading: ${process.env.PAPER_TRADING === 'true'}`);
 
+  // Запуск API сервера для health checks и метрик
+  const apiPort = parseInt(process.env.API_PORT || '3000', 10);
+  await startApiServer(apiPort);
+
   // TODO: Инициализация модулей
   // - Подключение к базе данных
   // - Инициализация коллекторов данных
   // - Запуск анализаторов
   // - Настройка торговых стратегий
-  // - Запуск API сервера
 
   console.info('✅ BTC Trading Bot started successfully');
   console.info('Press Ctrl+C to stop');
