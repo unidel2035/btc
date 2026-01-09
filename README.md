@@ -154,9 +154,105 @@ POST /api/settings         # Обновить настройки
 - Логирование всех действий
 - Prometheus метрики
 
+## Модули
+
+### Модуль мониторинга социальных сетей (Social Collector)
+
+Реализованный модуль для сбора данных из социальных сетей:
+
+**Платформы:**
+- ✅ Twitter/X API v2 - отслеживание аккаунтов и хештегов
+- ✅ Reddit API - мониторинг r/Bitcoin, r/CryptoCurrency, r/CryptoMarkets
+- ✅ Telegram - подписка на публичные каналы
+
+**Функционал:**
+- Real-time сбор данных с настраиваемыми интервалами
+- Rate limiting для соблюдения лимитов API
+- Retry logic с экспоненциальной задержкой
+- Агрегация данных со всех платформ через оркестратор
+- Статистика работы коллекторов
+- Автоматическое сохранение данных в JSON
+
+**Пример использования:**
+
+```typescript
+import { TwitterCollector, RedditCollector, SocialCollectorOrchestrator } from './src/collectors/social';
+
+// Создать оркестратор
+const orchestrator = new SocialCollectorOrchestrator({
+  persistData: true,
+  onDataCollected: (result) => {
+    console.log(`Collected ${result.count} posts from ${result.platform}`);
+  }
+});
+
+// Зарегистрировать коллекторы
+const twitterCollector = new TwitterCollector({
+  bearerToken: process.env.TWITTER_BEARER_TOKEN!,
+  accounts: ['whale_alert', 'VitalikButerin'],
+  hashtags: ['Bitcoin', 'BTC'],
+});
+
+const redditCollector = new RedditCollector({
+  clientId: process.env.REDDIT_CLIENT_ID!,
+  clientSecret: process.env.REDDIT_CLIENT_SECRET!,
+  username: process.env.REDDIT_USERNAME!,
+  password: process.env.REDDIT_PASSWORD!,
+  userAgent: 'btc-trading-bot/0.1.0',
+  subreddits: ['Bitcoin', 'CryptoCurrency'],
+});
+
+orchestrator.registerCollector('twitter', twitterCollector);
+orchestrator.registerCollector('reddit', redditCollector);
+
+// Инициализировать и запустить
+await orchestrator.initializeAll();
+await orchestrator.startAll();
+```
+
+Полные примеры использования доступны в директории [examples/](./examples/).
+
+**Структура данных:**
+
+```typescript
+interface SocialPost {
+  id: string;
+  platform: 'twitter' | 'reddit' | 'telegram';
+  author: string;
+  authorFollowers?: number;
+  content: string;
+  engagement: {
+    likes: number;
+    comments: number;
+    shares: number;
+  };
+  timestamp: Date;
+  url: string;
+}
+```
+
+**Тестирование:**
+
+```bash
+# Запустить unit-тесты
+npm test
+
+# Пример использования Twitter коллектора
+ts-node examples/twitter-collector-example.ts
+
+# Пример с оркестратором (все платформы)
+ts-node examples/orchestrator-example.ts
+```
+
 ## Roadmap
 
 - [x] Базовая архитектура проекта
+- [x] Модуль мониторинга социальных сетей
+  - [x] Twitter/X API v2 интеграция
+  - [x] Reddit API интеграция
+  - [x] Telegram интеграция
+  - [x] Rate limiting и retry logic
+  - [x] Оркестратор для управления коллекторами
 - [ ] Модуль сбора новостей
 - [ ] Sentiment анализ
 - [ ] Интеграция с биржами
