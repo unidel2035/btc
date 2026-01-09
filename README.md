@@ -163,18 +163,22 @@ npm run test
 npm run test:sentiment
 npm run test:risk
 npm run test:strategies
+npm run test:backtest
 
 # Примеры использования
 npm run example:news
 npm run example:sentiment
 npm run example:risk
 npm run example:strategies
+npm run example:backtest
 
 # Только анализ (требует запущенный sentiment-analyzer)
 npm run analyze
 
 # Backtesting
-npm run backtest --strategy=news-momentum --from=2024-01-01
+npm run backtest --strategy=news-momentum --symbol=BTCUSDT --from=2024-01-01 --to=2024-12-31
+npm run backtest --strategy=sentiment-swing --params='{"threshold": 0.7}'
+npm run backtest --symbols=BTCUSDT,ETHUSDT,SOLUSDT --capital=50000
 
 # Dashboard
 npm run dashboard
@@ -204,8 +208,8 @@ POST /api/settings         # Обновить настройки
 - [x] Sentiment анализ
 - [x] Риск-менеджмент модуль
 - [x] Торговые стратегии (News Momentum, Sentiment Swing)
+- [x] Backtesting engine
 - [ ] Интеграция с биржами
-- [ ] Backtesting engine
 - [ ] Веб-интерфейс
 - [ ] Paper trading режим
 - [ ] Production deployment
