@@ -1,5 +1,4 @@
 import type { StopLossParams, TakeProfitParams, Position } from './types.js';
-import { StopLossType } from './types.js';
 
 /**
  * Модуль управления Stop-Loss и Take-Profit
