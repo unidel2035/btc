@@ -19,8 +19,10 @@
     "dashboard": "tsx src/dashboard/server.ts",
     "test": "tsx tests/collectors/news.test.ts",
     "test:sentiment": "tsx tests/analyzers/sentiment.test.ts",
+    "test:exchanges": "tsx tests/exchanges/exchange.test.ts",
     "example:news": "tsx examples/news-collector-example.ts",
-    "example:sentiment": "tsx examples/sentiment-analyzer-example.ts"
+    "example:sentiment": "tsx examples/sentiment-analyzer-example.ts",
+    "example:exchanges": "tsx examples/exchange-example.ts"
   },
   "keywords": [
     "bitcoin",
@@ -36,6 +38,7 @@
   "devDependencies": {
     "@types/node": "^20.11.5",
     "@types/node-cron": "^3.0.11",
+    "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
@@ -49,7 +52,8 @@
     "dotenv": "^16.3.1",
     "node-cron": "^4.2.1",
     "playwright": "^1.57.0",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "ws": "^8.16.0"
   },
   "engines": {
     "node": ">=20.0.0",
