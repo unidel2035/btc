@@ -355,6 +355,79 @@ npm run db:backup restore ./backups/backup_file.sql
 npm run db:backup redis
 ```
 
+## CI/CD и Deployment
+
+Проект включает полностью автоматизированный CI/CD пайплайн с GitHub Actions.
+
+### CI Pipeline
+
+Автоматические проверки при каждом pull request и push:
+
+- ✅ **Lint & Type Check** - ESLint, Prettier, TypeScript
+- ✅ **Unit Tests** - Тесты стратегий, риск-менеджмента, paper trading
+- ✅ **Integration Tests** - Тесты БД, dashboard, notifications
+- ✅ **Build** - TypeScript компиляция
+- ✅ **Docker Build** - Сборка и кеширование образов
+
+### Deployment
+
+#### Staging (автоматический)
+- **Trigger**: Push в `develop` или `staging` ветку
+- **Режим**: Paper trading с тестовыми деньгами
+- **URL**: `https://staging.btc-trading-bot.example.com`
+
+#### Production (автоматический)
+- **Trigger**: Push в `main` ветку или тег `v*`
+- **Режим**: Live trading с реальными деньгами
+- **Стратегия**: Blue-green deployment (zero downtime)
+- **Rollback**: Автоматический при неудаче
+- **URL**: `https://btc-trading-bot.example.com`
+
+### Окружения
+
+Все окружения изолированы и имеют отдельные конфигурации:
+
+```bash
+# Development (локальная разработка)
+docker-compose up -d
+
+# Staging (тестирование)
+docker-compose -f docker-compose.staging.yml up -d
+
+# Production (реальная торговля)
+docker-compose -f docker-compose.production.yml up -d
+```
+
+### Мониторинг и логирование
+
+- **Prometheus** — метрики приложения и системы (`:9090`)
+- **Grafana** — дашборды и визуализация (`:3000`)
+- **Alertmanager** — уведомления о проблемах (`:9093`)
+- **Structured Logging** — JSON логи с разными уровнями
+
+#### Health Checks
+
+```bash
+# General health
+GET /health
+
+# Readiness (для load balancers)
+GET /ready
+
+# Liveness (для orchestrators)
+GET /live
+```
+
+### Безопасность
+
+- Автоматические бекапы БД перед деплоем
+- Хранение только 7 последних бекапов
+- SSH ключи для деплоя
+- Secrets management через GitHub Secrets
+- Resource limits в production
+
+Подробная документация: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+
 ## Roadmap
 
 - [x] Базовая архитектура проекта
@@ -366,8 +439,10 @@ npm run db:backup redis
 - [x] База данных и хранение данных
 - [x] Веб-интерфейс (Dashboard)
 - [x] Paper trading режим
+- [x] CI/CD пайплайн и деплой
+- [x] Мониторинг (Prometheus, Grafana)
+- [x] Структурированное логирование
 - [ ] Интеграция с биржами
-- [ ] Production deployment
 
 ## Лицензия
 

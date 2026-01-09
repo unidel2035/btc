@@ -332,6 +332,11 @@ class DashboardStorage {
   setBalance(balance: number): void {
     this.balance = balance;
   }
+
+  // Health check method
+  isInitialized(): boolean {
+    return this.equityHistory.length > 0;
+  }
 }
 
 // Singleton instance

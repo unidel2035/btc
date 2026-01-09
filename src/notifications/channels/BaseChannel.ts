@@ -33,7 +33,10 @@ export abstract class BaseNotificationChannel implements INotificationChannel {
   protected enabled: boolean;
   protected minImportance: NotificationImportance;
 
-  constructor(enabled: boolean = true, minImportance: NotificationImportance = NotificationImportance.LOW) {
+  constructor(
+    enabled: boolean = true,
+    minImportance: NotificationImportance = NotificationImportance.LOW,
+  ) {
     this.enabled = enabled;
     this.minImportance = minImportance;
   }

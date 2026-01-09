@@ -5,7 +5,8 @@ import { TradingMode } from './types.js';
  * Load paper trading configuration from environment variables
  */
 export function loadPaperTradingConfig(): PaperTradingConfig {
-  const mode = process.env.TRADING_MODE?.toLowerCase() === 'live' ? TradingMode.LIVE : TradingMode.PAPER;
+  const mode =
+    process.env.TRADING_MODE?.toLowerCase() === 'live' ? TradingMode.LIVE : TradingMode.PAPER;
 
   const config: PaperTradingConfig = {
     mode,
@@ -128,7 +129,9 @@ export function validateModeSwitch(config: PaperTradingConfig): void {
 
     if (!explicitLiveMode) {
       console.error('❌ ERROR: Live trading mode requires explicit confirmation');
-      console.error('   Use --mode=live CLI argument or set TRADING_MODE=live environment variable\n');
+      console.error(
+        '   Use --mode=live CLI argument or set TRADING_MODE=live environment variable\n',
+      );
       throw new Error('Live trading mode requires explicit confirmation');
     }
   } else {

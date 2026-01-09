@@ -1,0 +1,158 @@
+{
+  "dashboard": {
+    "title": "BTC Trading Bot - Overview",
+    "tags": ["trading", "btc", "crypto"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Trading Performance",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "btc_trading_pnl_total",
+            "legendFormat": "Total P&L"
+          },
+          {
+            "expr": "btc_trading_win_rate",
+            "legendFormat": "Win Rate %"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Open Positions",
+        "type": "stat",
+        "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "btc_trading_positions_open",
+            "legendFormat": "Open Positions"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Account Balance",
+        "type": "stat",
+        "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "btc_trading_balance_total",
+            "legendFormat": "Balance (USDT)"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Trade Volume (24h)",
+        "type": "stat",
+        "gridPos": {"x": 12, "y": 4, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "rate(btc_trading_volume_total[24h])",
+            "legendFormat": "Volume"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Win Rate",
+        "type": "gauge",
+        "gridPos": {"x": 18, "y": 4, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "btc_trading_win_rate",
+            "legendFormat": "Win Rate %"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Sentiment Scores",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "btc_sentiment_score_avg",
+            "legendFormat": "Average Sentiment"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "News Articles Processed",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(btc_news_articles_total[1h])",
+            "legendFormat": "Articles/hour"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "System Health",
+        "type": "table",
+        "gridPos": {"x": 0, "y": 16, "w": 12, "h": 6},
+        "targets": [
+          {
+            "expr": "up{job=~\"btc.*\"}",
+            "legendFormat": "{{service}}"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "API Response Time",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 16, "w": 12, "h": 6},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "99th percentile"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Error Rate",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 22, "w": 12, "h": 6},
+        "targets": [
+          {
+            "expr": "rate(btc_errors_total[5m])",
+            "legendFormat": "Errors/sec"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Database Connections",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 22, "w": 12, "h": 6},
+        "targets": [
+          {
+            "expr": "pg_stat_database_numbackends{datname=\"btc_trading_bot\"}",
+            "legendFormat": "Active Connections"
+          }
+        ]
+      }
+    ],
+    "refresh": "10s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+    },
+    "version": 1
+  }
+}

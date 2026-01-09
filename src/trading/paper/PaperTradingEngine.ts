@@ -101,7 +101,9 @@ export class PaperTradingEngine {
 
     // Check if we have enough balance
     if (side === OrderSide.BUY && totalCost > this.balance.available) {
-      console.error(`❌ Insufficient balance. Required: ${totalCost}, Available: ${this.balance.available}`);
+      console.error(
+        `❌ Insufficient balance. Required: ${totalCost}, Available: ${this.balance.available}`,
+      );
       return null;
     }
 
@@ -167,14 +169,21 @@ export class PaperTradingEngine {
   /**
    * Place a limit order
    */
-  placeLimitOrder(symbol: string, side: OrderSide, quantity: number, price: number): PaperOrder | null {
+  placeLimitOrder(
+    symbol: string,
+    side: OrderSide,
+    quantity: number,
+    price: number,
+  ): PaperOrder | null {
     const orderValue = quantity * price;
     const fees = (orderValue * this.config.fees.maker) / 100;
     const totalCost = orderValue + fees;
 
     // Check if we have enough balance for buy orders
     if (side === OrderSide.BUY && totalCost > this.balance.available) {
-      console.error(`❌ Insufficient balance. Required: ${totalCost}, Available: ${this.balance.available}`);
+      console.error(
+        `❌ Insufficient balance. Required: ${totalCost}, Available: ${this.balance.available}`,
+      );
       return null;
     }
 
@@ -267,7 +276,9 @@ export class PaperTradingEngine {
 
     this.positions.set(position.id, position);
 
-    console.log(`📈 Position opened: LONG ${order.quantity} ${order.symbol} @ ${order.averagePrice}`);
+    console.log(
+      `📈 Position opened: LONG ${order.quantity} ${order.symbol} @ ${order.averagePrice}`,
+    );
 
     this.emitEvent({
       type: 'position',
@@ -369,7 +380,9 @@ export class PaperTradingEngine {
     order.fees = fees;
     order.filledAt = new Date();
 
-    console.log(`✅ Limit order filled: ${order.side} ${order.quantity} ${order.symbol} @ ${executionPrice}`);
+    console.log(
+      `✅ Limit order filled: ${order.side} ${order.quantity} ${order.symbol} @ ${executionPrice}`,
+    );
 
     this.emitEvent({
       type: 'order',
@@ -483,8 +496,10 @@ export class PaperTradingEngine {
     const avgWin = winningTrades.length > 0 ? grossProfit / winningTrades.length : 0;
     const avgLoss = losingTrades.length > 0 ? grossLoss / losingTrades.length : 0;
 
-    const largestWin = winningTrades.length > 0 ? Math.max(...winningTrades.map((t) => t.pnl ?? 0)) : 0;
-    const largestLoss = losingTrades.length > 0 ? Math.min(...losingTrades.map((t) => t.pnl ?? 0)) : 0;
+    const largestWin =
+      winningTrades.length > 0 ? Math.max(...winningTrades.map((t) => t.pnl ?? 0)) : 0;
+    const largestLoss =
+      losingTrades.length > 0 ? Math.min(...losingTrades.map((t) => t.pnl ?? 0)) : 0;
 
     const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : 0;
     const winRate = trades.length > 0 ? (winningTrades.length / trades.length) * 100 : 0;
@@ -575,7 +590,10 @@ export class PaperTradingEngine {
    * Check stop-loss and take-profit levels
    */
   checkStopLossTakeProfit(): void {
-    const positionsToClose: Array<{ position: PaperPosition; reason: 'stop-loss' | 'take-profit' }> = [];
+    const positionsToClose: Array<{
+      position: PaperPosition;
+      reason: 'stop-loss' | 'take-profit';
+    }> = [];
 
     for (const position of this.positions.values()) {
       if (!position.currentPrice) continue;
@@ -600,7 +618,9 @@ export class PaperTradingEngine {
 
     // Close positions
     for (const { position, reason } of positionsToClose) {
-      console.log(`⚠️ ${reason === 'stop-loss' ? 'Stop-loss' : 'Take-profit'} triggered for ${position.symbol}`);
+      console.log(
+        `⚠️ ${reason === 'stop-loss' ? 'Stop-loss' : 'Take-profit'} triggered for ${position.symbol}`,
+      );
 
       // Create exit order
       const exitOrder = this.placeMarketOrder(position.symbol, OrderSide.SELL, position.quantity);

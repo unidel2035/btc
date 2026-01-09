@@ -21,7 +21,9 @@ export class Visualizer {
       : result.config.symbol;
     console.log(`   Symbol(s): ${symbols}`);
     console.log(`   Strategy: ${result.config.strategyName}`);
-    console.log(`   Period: ${result.config.startDate.toISOString().split('T')[0]} to ${result.config.endDate.toISOString().split('T')[0]}`);
+    console.log(
+      `   Period: ${result.config.startDate.toISOString().split('T')[0]} to ${result.config.endDate.toISOString().split('T')[0]}`,
+    );
     console.log(`   Initial Capital: $${result.config.initialCapital.toLocaleString()}`);
     console.log(`   Fees: ${result.config.fees.maker}% maker, ${result.config.fees.taker}% taker`);
     console.log(`   Slippage: ${result.config.slippage}%\n`);
@@ -40,9 +42,13 @@ export class Visualizer {
     // Trading
     console.log('📊 Trading Statistics:');
     console.log(`   Total Trades: ${result.totalTrades}`);
-    console.log(`   Winning Trades: ${result.winningTrades} (${this.formatPercent(result.winRate)})`);
+    console.log(
+      `   Winning Trades: ${result.winningTrades} (${this.formatPercent(result.winRate)})`,
+    );
     console.log(`   Losing Trades: ${result.losingTrades}`);
-    console.log(`   Profit Factor: ${result.profitFactor === Infinity ? '∞' : result.profitFactor.toFixed(2)}`);
+    console.log(
+      `   Profit Factor: ${result.profitFactor === Infinity ? '∞' : result.profitFactor.toFixed(2)}`,
+    );
     console.log(`   Avg Trade Duration: ${result.avgTradeDuration.toFixed(1)} hours`);
     console.log(`   Avg Win: ${this.formatPercent(result.avgWin)}`);
     console.log(`   Avg Loss: ${this.formatPercent(result.avgLoss)}`);
@@ -60,7 +66,11 @@ export class Visualizer {
   /**
    * Print equity curve as ASCII chart
    */
-  static printEquityCurve(equityCurve: EquityPoint[], height: number = 15, width: number = 60): void {
+  static printEquityCurve(
+    equityCurve: EquityPoint[],
+    height: number = 15,
+    width: number = 60,
+  ): void {
     if (equityCurve.length === 0) return;
 
     console.log('\n📈 Equity Curve:\n');
@@ -106,14 +116,21 @@ export class Visualizer {
     console.log(`   ${''.padStart(10)} └${'─'.repeat(width)}`);
 
     const firstDate = equityCurve[0]?.timestamp.toISOString().split('T')[0] ?? '';
-    const lastDate = equityCurve[equityCurve.length - 1]?.timestamp.toISOString().split('T')[0] ?? '';
-    console.log(`   ${''.padStart(12)}${firstDate}${' '.repeat(width - firstDate.length - lastDate.length)}${lastDate}\n`);
+    const lastDate =
+      equityCurve[equityCurve.length - 1]?.timestamp.toISOString().split('T')[0] ?? '';
+    console.log(
+      `   ${''.padStart(12)}${firstDate}${' '.repeat(width - firstDate.length - lastDate.length)}${lastDate}\n`,
+    );
   }
 
   /**
    * Print drawdown chart
    */
-  static printDrawdownChart(equityCurve: EquityPoint[], height: number = 10, width: number = 60): void {
+  static printDrawdownChart(
+    equityCurve: EquityPoint[],
+    height: number = 10,
+    width: number = 60,
+  ): void {
     if (equityCurve.length === 0) return;
 
     console.log('\n📉 Drawdown Chart:\n');
@@ -179,7 +196,20 @@ export class Visualizer {
     }
 
     // Print header
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     console.log(`   ${'Year'.padEnd(6)} ${months.join('  ')}`);
     console.log(`   ${'─'.repeat(6 + 3 * 12 + 11)}`);
 
@@ -262,7 +292,9 @@ export class Visualizer {
     const lines: string[] = [];
 
     // Header
-    lines.push('Trade ID,Symbol,Direction,Entry Time,Entry Price,Exit Time,Exit Price,Quantity,Position Size %,P&L,P&L %,Fees,Exit Reason,Strategy');
+    lines.push(
+      'Trade ID,Symbol,Direction,Entry Time,Entry Price,Exit Time,Exit Price,Quantity,Position Size %,P&L,P&L %,Fees,Exit Reason,Strategy',
+    );
 
     // Trades
     for (const trade of result.trades) {
