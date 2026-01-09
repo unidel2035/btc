@@ -163,6 +163,7 @@ npm run test
 npm run test:sentiment
 npm run test:risk
 npm run test:strategies
+npm run test:dashboard
 npm run test:backtest
 
 # Примеры использования
@@ -180,8 +181,35 @@ npm run backtest --strategy=news-momentum --symbol=BTCUSDT --from=2024-01-01 --t
 npm run backtest --strategy=sentiment-swing --params='{"threshold": 0.7}'
 npm run backtest --symbols=BTCUSDT,ETHUSDT,SOLUSDT --capital=50000
 
-# Dashboard
+# Dashboard (веб-интерфейс)
 npm run dashboard
+
+# Примеры использования
+npm run example:dashboard
+```
+
+## Dashboard Веб-интерфейс
+
+Полнофункциональный веб-интерфейс для мониторинга и управления ботом:
+
+### Возможности
+- **Dashboard** — общий обзор с метриками, графиком equity, открытыми позициями
+- **Signals** — real-time лента торговых сигналов с фильтрами
+- **Positions** — управление позициями (просмотр, редактирование SL/TP, закрытие)
+- **News Feed** — лента новостей с sentiment analysis
+- **Analytics** — подробная статистика производительности, trade journal
+- **Settings** — настройка риск-менеджмента и стратегий
+
+### Технологии
+- **Backend**: Express.js + WebSocket для real-time обновлений
+- **Frontend**: HTML/CSS/JavaScript (vanilla) с Chart.js
+- **Storage**: In-memory (для демо)
+- **API**: RESTful endpoints
+
+### Запуск
+```bash
+npm run dashboard
+# Откройте http://localhost:8080 в браузере
 ```
 
 ## API Endpoints
@@ -256,8 +284,8 @@ npm run db:backup redis
 - [x] Торговые стратегии (News Momentum, Sentiment Swing)
 - [x] Backtesting engine
 - [x] База данных и хранение данных
+- [x] Веб-интерфейс (Dashboard)
 - [ ] Интеграция с биржами
-- [ ] Веб-интерфейс
 - [ ] Paper trading режим
 - [ ] Production deployment
 
