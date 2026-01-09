@@ -5,7 +5,7 @@ config();
 /**
  * Запуск анализаторов
  */
-async function runAnalyzers(): Promise<void> {
+function runAnalyzers(): void {
   console.info('🔍 Starting analyzers...');
 
   // TODO: Инициализация и запуск анализаторов
@@ -16,7 +16,9 @@ async function runAnalyzers(): Promise<void> {
   console.info('✅ Analyzers started');
 }
 
-runAnalyzers().catch((error: Error) => {
+try {
+  runAnalyzers();
+} catch (error) {
   console.error('Failed to run analyzers:', error);
   process.exit(1);
-});
+}

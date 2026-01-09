@@ -5,7 +5,7 @@ config();
 /**
  * Запуск коллекторов данных
  */
-async function runCollectors(): Promise<void> {
+function runCollectors(): void {
   console.info('📊 Starting data collectors...');
 
   // TODO: Инициализация и запуск коллекторов
@@ -16,7 +16,9 @@ async function runCollectors(): Promise<void> {
   console.info('✅ Data collectors started');
 }
 
-runCollectors().catch((error: Error) => {
+try {
+  runCollectors();
+} catch (error) {
   console.error('Failed to run collectors:', error);
   process.exit(1);
-});
+}

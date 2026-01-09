@@ -5,7 +5,7 @@ config();
 /**
  * Веб-интерфейс Dashboard
  */
-async function startDashboard(): Promise<void> {
+function startDashboard(): void {
   const port = process.env.DASHBOARD_PORT || 8080;
   const host = process.env.DASHBOARD_HOST || 'localhost';
 
@@ -21,7 +21,9 @@ async function startDashboard(): Promise<void> {
   console.info('✅ Dashboard server started');
 }
 
-startDashboard().catch((error: Error) => {
+try {
+  startDashboard();
+} catch (error) {
   console.error('Failed to start dashboard:', error);
   process.exit(1);
-});
+}

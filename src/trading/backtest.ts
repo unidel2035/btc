@@ -5,7 +5,7 @@ config();
 /**
  * Backtesting engine для тестирования торговых стратегий
  */
-async function runBacktest(): Promise<void> {
+function runBacktest(): void {
   console.info('📈 Starting backtesting...');
 
   // Парсинг аргументов командной строки
@@ -24,7 +24,9 @@ async function runBacktest(): Promise<void> {
   console.info('✅ Backtesting completed');
 }
 
-runBacktest().catch((error: Error) => {
+try {
+  runBacktest();
+} catch (error) {
   console.error('Failed to run backtest:', error);
   process.exit(1);
-});
+}
