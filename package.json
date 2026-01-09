@@ -42,7 +42,10 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "snoowrap": "^1.23.0",
+    "telegraf": "^4.16.3",
+    "twitter-api-v2": "^1.28.0"
   },
   "engines": {
     "node": ">=20.0.0",
