@@ -1,6 +1,5 @@
 import type { Candle, DataLoader } from './types.js';
 import { readFile } from 'fs/promises';
-import { parse } from 'path';
 
 /**
  * CSV Data Loader
@@ -93,7 +92,7 @@ export class MockDataLoader implements DataLoader {
    * Generate synthetic candles with random walk
    */
   async loadCandles(
-    symbol: string,
+    _symbol: string,
     startDate: Date,
     endDate: Date,
     timeframe: string = '1h',
@@ -164,13 +163,15 @@ export class MockDataLoader implements DataLoader {
  * Parquet Data Loader (placeholder for future implementation)
  */
 export class ParquetDataLoader implements DataLoader {
-  constructor(private dataDir: string = './data') {}
+  constructor(_dataDir: string = './data') {
+    // Store for future use when Parquet support is added
+  }
 
   async loadCandles(
-    symbol: string,
-    startDate: Date,
-    endDate: Date,
-    timeframe: string = '1h',
+    _symbol: string,
+    _startDate: Date,
+    _endDate: Date,
+    _timeframe: string = '1h',
   ): Promise<Candle[]> {
     // TODO: Implement Parquet loading when parquet library is added
     throw new Error('Parquet data loader not yet implemented. Use CSV or Mock loader instead.');

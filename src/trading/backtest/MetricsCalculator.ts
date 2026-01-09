@@ -307,7 +307,7 @@ export class MetricsCalculator {
     }
 
     // Calculate win rates
-    for (const [key, data] of monthlyData.entries()) {
+    for (const [_key, data] of monthlyData.entries()) {
       const monthTrades = trades.filter((t) => {
         if (!t.exitTime) return false;
         const year = t.exitTime.getFullYear();

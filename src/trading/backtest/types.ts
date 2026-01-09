@@ -61,7 +61,7 @@ export interface BacktestConfig {
 
   // Data settings
   timeframe?: string; // candle timeframe (1m, 5m, 15m, 1h, 4h, 1d)
-  dataSource?: 'binance' | 'csv' | 'parquet' | 'custom';
+  dataSource?: 'binance' | 'csv' | 'parquet' | 'custom' | 'mock';
 }
 
 /**
