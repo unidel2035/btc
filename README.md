@@ -52,9 +52,11 @@ btc/
 - Официальные блоги проектов
 
 ### Социальные сети
-- Twitter/X (ключевые аккаунты, хештеги)
-- Reddit (r/Bitcoin, r/CryptoCurrency)
-- Telegram каналы
+- ✅ **Twitter/X API v2** — мониторинг ключевых аккаунтов и хештегов
+- ✅ **Reddit API** — мониторинг r/Bitcoin, r/CryptoCurrency, r/CryptoMarkets
+- ✅ **Telegram** — мониторинг публичных каналов (требует дополнительной библиотеки)
+
+Подробная документация: [src/collectors/social/README.md](src/collectors/social/README.md)
 
 ### Рыночные данные
 - Биржевые API (свечи, orderbook, trades)
@@ -141,6 +143,16 @@ TWITTER_BEARER_TOKEN=
 NEWS_API_KEY=
 ENABLE_NEWS_SCHEDULER=false
 
+# Социальные сети
+REDDIT_CLIENT_ID=
+REDDIT_CLIENT_SECRET=
+REDDIT_USERNAME=
+REDDIT_PASSWORD=
+TELEGRAM_API_ID=
+TELEGRAM_API_HASH=
+ENABLE_SOCIAL_TWITTER=false
+ENABLE_SOCIAL_REDDIT=false
+
 # Sentiment Analysis
 SENTIMENT_API_URL=http://localhost:8000
 
@@ -166,6 +178,8 @@ npm run test:strategies
 npm run test:dashboard
 npm run test:backtest
 npm run test:paper
+npm run test:social:retry
+npm run test:social:orchestrator
 
 # Примеры использования
 npm run example:news
@@ -174,6 +188,9 @@ npm run example:risk
 npm run example:strategies
 npm run example:backtest
 npm run example:paper
+npm run example:twitter
+npm run example:reddit
+npm run example:social
 
 # Только анализ (требует запущенный sentiment-analyzer)
 npm run analyze
