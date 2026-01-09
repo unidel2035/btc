@@ -15,7 +15,11 @@ export function isTransientError(error: Error): boolean {
   const message = error.message.toLowerCase();
 
   // Network errors
-  if (message.includes('network') || message.includes('timeout') || message.includes('econnreset')) {
+  if (
+    message.includes('network') ||
+    message.includes('timeout') ||
+    message.includes('econnreset')
+  ) {
     return true;
   }
 
@@ -25,7 +29,12 @@ export function isTransientError(error: Error): boolean {
   }
 
   // Server errors (5xx)
-  if (message.includes('500') || message.includes('502') || message.includes('503') || message.includes('504')) {
+  if (
+    message.includes('500') ||
+    message.includes('502') ||
+    message.includes('503') ||
+    message.includes('504')
+  ) {
     return true;
   }
 
@@ -59,7 +68,9 @@ export async function withRetry<T>(
       }
 
       // Логирование повторной попытки
-      console.warn(`Attempt ${attempt}/${options.maxAttempts} failed: ${lastError.message}. Retrying in ${delay}ms...`);
+      console.warn(
+        `Attempt ${attempt}/${options.maxAttempts} failed: ${lastError.message}. Retrying in ${delay}ms...`,
+      );
 
       // Ожидание перед следующей попыткой
       await new Promise((resolve) => setTimeout(resolve, delay));

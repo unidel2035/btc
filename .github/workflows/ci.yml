@@ -7,56 +7,56 @@ on:
     branches: [main]
 
 jobs:
-   lint-and-typecheck:
-     name: Lint & Type Check
-     runs-on: ubuntu-latest
+  lint-and-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
 
-     steps:
-       - name: Checkout code
-         uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-       - name: Setup Node.js
-         uses: actions/setup-node@v4
-         with:
-           node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-       - name: Install dependencies
-         run: npm install
+      - name: Install dependencies
+        run: npm install
 
-       - name: Run ESLint
-         run: npm run lint
+      - name: Run ESLint
+        run: npm run lint
 
-       - name: Check code formatting
-         run: npm run format:check
+      - name: Check code formatting
+        run: npm run format:check
 
-       - name: Run TypeScript type check
-         run: npm run type-check
+      - name: Run TypeScript type check
+        run: npm run type-check
 
-   unit-tests:
-     name: Unit Tests
-     runs-on: ubuntu-latest
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
 
-     steps:
-       - name: Checkout code
-         uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-       - name: Setup Node.js
-         uses: actions/setup-node@v4
-         with:
-           node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-       - name: Install dependencies
-         run: npm install
+      - name: Install dependencies
+        run: npm install
 
-       - name: Run unit tests
-         run: |
-           npm run test:sentiment
-           npm run test:risk
-           npm run test:strategies
-           npm run test:paper
-           npm run test:social:retry
-           npm run test:social:orchestrator
-           npm run test:exchanges
+      - name: Run unit tests
+        run: |
+          npm run test:sentiment
+          npm run test:risk
+          npm run test:strategies
+          npm run test:paper
+          npm run test:social:retry
+          npm run test:social:orchestrator
+          npm run test:exchanges
 
   integration-tests:
     name: Integration Tests

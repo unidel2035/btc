@@ -107,7 +107,13 @@ export class BybitExchange extends BaseExchange {
 
     const data = await response.json();
 
-    const errorData = data as { ret_code?: number; code?: number; ret_msg?: string; message?: string; result?: unknown };
+    const errorData = data as {
+      ret_code?: number;
+      code?: number;
+      ret_msg?: string;
+      message?: string;
+      result?: unknown;
+    };
 
     if (!response.ok || (errorData.ret_code !== undefined && errorData.ret_code !== 0)) {
       throw new ExchangeError(
@@ -140,11 +146,9 @@ export class BybitExchange extends BaseExchange {
 
     if (startTime) params.start = startTime;
 
-    const data = await this.request<{ list: Array<[string, string, string, string, string, string, string]> }>(
-      'GET',
-      '/v5/market/kline',
-      params,
-    );
+    const data = await this.request<{
+      list: Array<[string, string, string, string, string, string, string]>;
+    }>('GET', '/v5/market/kline', params);
 
     return data.list.map((candle) => ({
       timestamp: parseInt(candle[0]),
@@ -502,12 +506,17 @@ export class BybitExchange extends BaseExchange {
     this.requireInitialized();
     this.requireApiKeys();
 
-    await this.request('POST', '/v5/position/set-leverage', {
-      category: 'linear',
-      symbol,
-      buyLeverage: String(leverage),
-      sellLeverage: String(leverage),
-    }, true);
+    await this.request(
+      'POST',
+      '/v5/position/set-leverage',
+      {
+        category: 'linear',
+        symbol,
+        buyLeverage: String(leverage),
+        sellLeverage: String(leverage),
+      },
+      true,
+    );
   }
 
   async setMarginType(symbol: string, marginType: 'isolated' | 'cross'): Promise<void> {
@@ -518,13 +527,18 @@ export class BybitExchange extends BaseExchange {
     this.requireInitialized();
     this.requireApiKeys();
 
-    await this.request('POST', '/v5/position/switch-isolated', {
-      category: 'linear',
-      symbol,
-      tradeMode: marginType === 'isolated' ? 1 : 0,
-      buyLeverage: '10',
-      sellLeverage: '10',
-    }, true);
+    await this.request(
+      'POST',
+      '/v5/position/switch-isolated',
+      {
+        category: 'linear',
+        symbol,
+        tradeMode: marginType === 'isolated' ? 1 : 0,
+        buyLeverage: '10',
+        sellLeverage: '10',
+      },
+      true,
+    );
   }
 
   // WebSocket - Stub implementations
@@ -541,7 +555,11 @@ export class BybitExchange extends BaseExchange {
     console.warn(`[${this.name}] WebSocket not implemented`);
   }
 
-  subscribeToCandles(_symbol: string, _interval: CandleInterval, _callback: (candle: Candle) => void): void {
+  subscribeToCandles(
+    _symbol: string,
+    _interval: CandleInterval,
+    _callback: (candle: Candle) => void,
+  ): void {
     console.warn(`[${this.name}] WebSocket not implemented`);
   }
 
