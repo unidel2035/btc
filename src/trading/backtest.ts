@@ -16,7 +16,7 @@ function parseArguments(): {
   from: string;
   to: string;
   params?: Record<string, unknown>;
-  dataSource: 'csv' | 'binance' | 'parquet' | 'custom' | 'mock';
+  dataSource: 'csv' | 'mock';
   initialCapital: number;
   timeframe: string;
 } {
@@ -42,18 +42,14 @@ function parseArguments(): {
   const params = paramsArg ? (JSON.parse(paramsArg) as Record<string, unknown>) : undefined;
 
   const dataSource =
-    (args.find((arg) => arg.startsWith('--data='))?.split('=')[1] as
-      | 'csv'
-      | 'binance'
-      | 'parquet'
-      | 'custom'
-      | 'mock'
-      | undefined) ?? 'mock';
+    (args.find((arg) => arg.startsWith('--data='))?.split('=')[1] as 'csv' | 'mock' | undefined) ??
+    'mock';
 
   const capitalArg = args.find((arg) => arg.startsWith('--capital='))?.split('=')[1];
   const initialCapital = capitalArg ? parseFloat(capitalArg) : 10000;
 
-  const timeframe = args.find((arg) => arg.startsWith('--timeframe='))?.split('=')[1] ?? '1h';
+  const timeframe: string =
+    args.find((arg) => arg.startsWith('--timeframe='))?.split('=')[1] ?? '1h';
 
   return { strategy, symbol, from, to, params, dataSource, initialCapital, timeframe };
 }

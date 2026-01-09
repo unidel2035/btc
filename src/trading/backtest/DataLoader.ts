@@ -164,7 +164,7 @@ export class MockDataLoader implements DataLoader {
  */
 export class ParquetDataLoader implements DataLoader {
   constructor(_dataDir: string = './data') {
-    // Store for future use when Parquet support is added
+    // dataDir parameter reserved for future parquet implementation
   }
 
   async loadCandles(
