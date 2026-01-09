@@ -18,7 +18,12 @@
     "backtest": "tsx src/trading/backtest.ts",
     "dashboard": "tsx src/dashboard/server.ts",
     "test": "tsx tests/collectors/news.test.ts",
-    "example:news": "tsx examples/news-collector-example.ts"
+    "example:news": "tsx examples/news-collector-example.ts",
+    "example:sentiment": "tsx examples/sentiment-analyzer-example.ts",
+    "sentiment:start": "cd src/analyzers/sentiment/python && python -m uvicorn main:app --reload",
+    "sentiment:test": "cd src/analyzers/sentiment/python && python test_analyzer.py",
+    "sentiment:docker": "docker-compose up sentiment",
+    "sentiment:docker:build": "docker-compose build sentiment"
   },
   "keywords": [
     "bitcoin",

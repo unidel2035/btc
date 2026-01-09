@@ -1,4 +1,15 @@
 /**
+ * Sentiment metadata for news
+ */
+export interface SentimentData {
+  confidence: number;
+  label: 'positive' | 'negative' | 'neutral';
+  entities: string[];
+  impact: 'low' | 'medium' | 'high';
+  keywords: string[];
+}
+
+/**
  * Структура новости
  */
 export interface NewsItem {
@@ -10,7 +21,8 @@ export interface NewsItem {
   publishedAt: Date;
   collectedAt: Date;
   tags: string[];
-  sentiment?: number;
+  sentiment?: number; // -1 to 1 sentiment score
+  sentimentData?: SentimentData; // Detailed sentiment analysis
 }
 
 /**

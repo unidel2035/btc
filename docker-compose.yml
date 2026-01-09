@@ -10,6 +10,7 @@ services:
       - "${DASHBOARD_PORT:-8080}:8080"
     environment:
       NODE_ENV: ${NODE_ENV:-development}
+      SENTIMENT_API_URL: http://sentiment:8000
     env_file:
       - .env
     volumes:
@@ -19,8 +20,35 @@ services:
     depends_on:
       - postgres
       - redis
+      - sentiment
     networks:
       - btc-network
+
+  sentiment:
+    build:
+      context: ./src/analyzers/sentiment/python
+      dockerfile: Dockerfile
+    container_name: btc-sentiment
+    restart: unless-stopped
+    ports:
+      - "${SENTIMENT_PORT:-8000}:8000"
+    environment:
+      SENTIMENT_HOST: 0.0.0.0
+      SENTIMENT_PORT: 8000
+      DEVICE: ${SENTIMENT_DEVICE:-cpu}
+    env_file:
+      - .env
+    volumes:
+      - sentiment_models:/root/.cache/huggingface
+      - sentiment_data:/root/.cache/spacy
+    networks:
+      - btc-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   postgres:
     image: postgres:16-alpine
@@ -71,6 +99,8 @@ volumes:
   postgres_data:
   redis_data:
   prometheus_data:
+  sentiment_models:
+  sentiment_data:
 
 networks:
   btc-network:
