@@ -19,10 +19,12 @@
     "dashboard": "tsx src/dashboard/server.ts",
     "test": "tsx tests/collectors/news.test.ts",
     "test:sentiment": "tsx tests/analyzers/sentiment.test.ts",
+    "test:risk": "tsx tests/trading/risk.test.ts",
     "test:strategies": "tsx tests/trading/strategies.test.ts",
     "test:backtest": "tsx tests/trading/backtest.test.ts",
     "example:news": "tsx examples/news-collector-example.ts",
     "example:sentiment": "tsx examples/sentiment-analyzer-example.ts",
+    "example:risk": "tsx examples/risk-manager-example.ts",
     "example:strategies": "tsx examples/strategies-example.ts",
     "example:backtest": "tsx examples/backtest-example.ts"
   },
