@@ -134,6 +134,9 @@ npm run test
 # Пример использования news collector
 npm run example:news
 
+# Пример использования торговых стратегий
+npm run example:strategies
+
 # Только анализ
 npm run analyze
 
@@ -165,9 +168,9 @@ POST /api/settings         # Обновить настройки
 
 - [x] Базовая архитектура проекта
 - [x] Модуль сбора новостей
+- [x] Торговые стратегии (News Momentum, Sentiment Swing)
 - [ ] Sentiment анализ
 - [ ] Интеграция с биржами
-- [ ] Торговые стратегии
 - [ ] Backtesting engine
 - [ ] Веб-интерфейс
 - [ ] Paper trading режим

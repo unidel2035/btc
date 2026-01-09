@@ -18,7 +18,9 @@
     "backtest": "tsx src/trading/backtest.ts",
     "dashboard": "tsx src/dashboard/server.ts",
     "test": "tsx tests/collectors/news.test.ts",
-    "example:news": "tsx examples/news-collector-example.ts"
+    "test:strategies": "tsx tests/trading/strategies.test.ts",
+    "example:news": "tsx examples/news-collector-example.ts",
+    "example:strategies": "tsx examples/strategies-example.ts"
   },
   "keywords": [
     "bitcoin",
