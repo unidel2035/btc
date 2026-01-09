@@ -78,7 +78,7 @@ export class SentimentAnalyzerClient {
    * Батч-анализ нескольких текстов
    */
   async analyzeBatch(
-    texts: Array<{ text: string; type?: 'news' | 'social' | 'other' }>
+    texts: Array<{ text: string; type?: 'news' | 'social' | 'other' }>,
   ): Promise<BatchAnalysisResult> {
     if (texts.length === 0) {
       return {

@@ -214,8 +214,9 @@ export class StrategyManager {
     }
 
     // Определяем направление
-    const direction: TradeDirection =
-      (longWeight > shortWeight ? 'long' : 'short') as TradeDirection;
+    const direction: TradeDirection = (
+      longWeight > shortWeight ? 'long' : 'short'
+    ) as TradeDirection;
     const dominantWeight = Math.max(longWeight, shortWeight);
     const confidence = dominantWeight / totalWeight;
 
