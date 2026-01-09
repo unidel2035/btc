@@ -80,7 +80,7 @@ export interface StrategyConfig {
   enabled: boolean;
   riskPerTrade: number;
   maxPositions: number;
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
 }
 
 export interface RiskConfig {
@@ -110,6 +110,6 @@ export interface PerformanceStats {
 
 export interface WebSocketMessage {
   type: 'metrics' | 'position' | 'signal' | 'news' | 'price' | 'notification' | 'pong';
-  data: any;
+  data: unknown;
   timestamp: string;
 }

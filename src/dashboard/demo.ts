@@ -16,6 +16,7 @@ export class DemoDataGenerator {
   }
 
   start(): void {
+    // eslint-disable-next-line no-console
     console.log('🎲 Starting demo data generator...');
 
     // Добавляем начальные позиции
@@ -66,6 +67,7 @@ export class DemoDataGenerator {
       pnlPercent: 3.33,
     });
 
+    // eslint-disable-next-line no-console
     console.log('✅ Added initial positions:', btcPosition.id, ethPosition.id);
   }
 
@@ -94,6 +96,7 @@ export class DemoDataGenerator {
       this.generateNews();
     }
 
+    // eslint-disable-next-line no-console
     console.log('✅ Generated initial demo data');
   }
 
@@ -118,6 +121,7 @@ export class DemoDataGenerator {
       this.ws.broadcastSignal(signal);
     }
 
+    // eslint-disable-next-line no-console
     console.log('📊 Generated signal:', signal.type, signal.symbol, signal.action);
   }
 
@@ -140,7 +144,8 @@ export class DemoDataGenerator {
     const randomSentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
     const newsItem = storage.addNews({
       title: titles[Math.floor(Math.random() * titles.length)] as string,
-      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      content:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
       source: sources[Math.floor(Math.random() * sources.length)] as string,
       url: `https://example.com/news/${Date.now()}`,
       sentiment: randomSentiment!,
@@ -152,6 +157,7 @@ export class DemoDataGenerator {
       this.ws.broadcastNews(newsItem);
     }
 
+    // eslint-disable-next-line no-console
     console.log('📰 Generated news:', newsItem.title, newsItem.sentiment);
   }
 

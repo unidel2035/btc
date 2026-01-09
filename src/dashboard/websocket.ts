@@ -3,6 +3,7 @@
  * Real-time обновления для клиентов
  */
 
+/* eslint-disable no-console */
 import { WebSocketServer, WebSocket } from 'ws';
 import type { Server } from 'http';
 import type { WebSocketMessage } from './types.js';
@@ -31,7 +32,7 @@ export class DashboardWebSocket {
 
       ws.on('message', (data: Buffer) => {
         try {
-          const message = JSON.parse(data.toString());
+          const message = JSON.parse(data.toString()) as { type?: string };
           this.handleMessage(ws, message);
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
@@ -73,7 +74,7 @@ export class DashboardWebSocket {
     });
   }
 
-  private handleMessage(ws: WebSocket, message: any): void {
+  private handleMessage(ws: WebSocket, message: { type?: string }): void {
     console.log('📨 Received message:', message);
 
     switch (message.type) {
@@ -167,7 +168,7 @@ export class DashboardWebSocket {
   }
 
   // Публичные методы для отправки уведомлений
-  public broadcastSignal(signal: any): void {
+  public broadcastSignal(signal: unknown): void {
     this.broadcast({
       type: 'signal',
       data: signal,
@@ -175,7 +176,7 @@ export class DashboardWebSocket {
     });
   }
 
-  public broadcastPosition(position: any): void {
+  public broadcastPosition(position: unknown): void {
     this.broadcast({
       type: 'position',
       data: position,
@@ -183,7 +184,7 @@ export class DashboardWebSocket {
     });
   }
 
-  public broadcastNews(news: any): void {
+  public broadcastNews(news: unknown): void {
     this.broadcast({
       type: 'news',
       data: news,
@@ -191,7 +192,7 @@ export class DashboardWebSocket {
     });
   }
 
-  public broadcastNotification(notification: any): void {
+  public broadcastNotification(notification: unknown): void {
     this.broadcast({
       type: 'notification',
       data: notification,
