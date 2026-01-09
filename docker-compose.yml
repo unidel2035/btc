@@ -19,8 +19,31 @@ services:
     depends_on:
       - postgres
       - redis
+      - sentiment-analyzer
     networks:
       - btc-network
+
+  sentiment-analyzer:
+    build:
+      context: ./python-services/sentiment-analyzer
+      dockerfile: Dockerfile
+    container_name: btc-sentiment-analyzer
+    restart: unless-stopped
+    ports:
+      - "${SENTIMENT_API_PORT:-8000}:8000"
+    environment:
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - sentiment_models:/root/.cache/huggingface
+      - sentiment_spacy:/root/.spacy
+    networks:
+      - btc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   postgres:
     image: postgres:16-alpine
@@ -71,6 +94,8 @@ volumes:
   postgres_data:
   redis_data:
   prometheus_data:
+  sentiment_models:
+  sentiment_spacy:
 
 networks:
   btc-network:

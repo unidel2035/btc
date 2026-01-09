@@ -18,8 +18,10 @@
     "backtest": "tsx src/trading/backtest.ts",
     "dashboard": "tsx src/dashboard/server.ts",
     "test": "tsx tests/collectors/news.test.ts",
+    "test:sentiment": "tsx tests/analyzers/sentiment.test.ts",
     "test:strategies": "tsx tests/trading/strategies.test.ts",
     "example:news": "tsx examples/news-collector-example.ts",
+    "example:sentiment": "tsx examples/sentiment-analyzer-example.ts",
     "example:strategies": "tsx examples/strategies-example.ts"
   },
   "keywords": [

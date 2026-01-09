@@ -114,6 +114,9 @@ TWITTER_BEARER_TOKEN=
 NEWS_API_KEY=
 ENABLE_NEWS_SCHEDULER=false
 
+# Sentiment Analysis
+SENTIMENT_API_URL=http://localhost:8000
+
 # Telegram уведомления
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
@@ -130,14 +133,15 @@ npm run collect
 
 # Запуск тестов
 npm run test
+npm run test:sentiment
+npm run test:strategies
 
-# Пример использования news collector
+# Примеры использования
 npm run example:news
-
-# Пример использования торговых стратегий
+npm run example:sentiment
 npm run example:strategies
 
-# Только анализ
+# Только анализ (требует запущенный sentiment-analyzer)
 npm run analyze
 
 # Backtesting
@@ -168,8 +172,8 @@ POST /api/settings         # Обновить настройки
 
 - [x] Базовая архитектура проекта
 - [x] Модуль сбора новостей
+- [x] Sentiment анализ
 - [x] Торговые стратегии (News Momentum, Sentiment Swing)
-- [ ] Sentiment анализ
 - [ ] Интеграция с биржами
 - [ ] Backtesting engine
 - [ ] Веб-интерфейс
