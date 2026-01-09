@@ -164,18 +164,22 @@ npm run test:sentiment
 npm run test:risk
 npm run test:strategies
 npm run test:dashboard
+npm run test:backtest
 
 # Примеры использования
 npm run example:news
 npm run example:sentiment
 npm run example:risk
 npm run example:strategies
+npm run example:backtest
 
 # Только анализ (требует запущенный sentiment-analyzer)
 npm run analyze
 
 # Backtesting
-npm run backtest --strategy=news-momentum --from=2024-01-01
+npm run backtest --strategy=news-momentum --symbol=BTCUSDT --from=2024-01-01 --to=2024-12-31
+npm run backtest --strategy=sentiment-swing --params='{"threshold": 0.7}'
+npm run backtest --symbols=BTCUSDT,ETHUSDT,SOLUSDT --capital=50000
 
 # Dashboard (веб-интерфейс)
 npm run dashboard
@@ -225,6 +229,52 @@ POST /api/settings         # Обновить настройки
 - Логирование всех действий
 - Prometheus метрики
 
+## База данных
+
+Проект использует PostgreSQL для хранения данных и Redis для кеширования.
+
+### Быстрый старт
+
+```bash
+# Запуск PostgreSQL и Redis через Docker
+docker-compose up -d postgres redis
+
+# Применение миграций
+npm run db:migrate
+
+# (Опционально) Заполнение тестовыми данными
+npm run db:seed
+
+# Тестирование подключения
+npm run test:database
+
+# Примеры использования
+npm run example:database
+```
+
+### Структура базы данных
+
+- **news** — новостные статьи из различных источников
+- **social_posts** — посты из Twitter, Reddit, Telegram
+- **signals** — торговые сигналы от различных анализаторов
+- **trades** — история торговых позиций
+- **candles** — OHLCV данные для технического анализа
+
+Подробная документация: [src/database/README.md](src/database/README.md)
+
+### Бекапы
+
+```bash
+# Создание бекапа
+npm run db:backup create
+
+# Восстановление из бекапа
+npm run db:backup restore ./backups/backup_file.sql
+
+# Бекап Redis
+npm run db:backup redis
+```
+
 ## Roadmap
 
 - [x] Базовая архитектура проекта
@@ -233,6 +283,7 @@ POST /api/settings         # Обновить настройки
 - [x] Риск-менеджмент модуль
 - [x] Торговые стратегии (News Momentum, Sentiment Swing)
 - [x] Backtesting engine
+- [x] База данных и хранение данных
 - [x] Веб-интерфейс (Dashboard)
 - [ ] Интеграция с биржами
 - [ ] Paper trading режим
