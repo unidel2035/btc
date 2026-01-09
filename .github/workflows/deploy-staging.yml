@@ -1,0 +1,93 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [develop, staging]
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.btc-trading-bot.example.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push main app image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/btc-trading-bot:staging
+            ${{ secrets.DOCKER_USERNAME }}/btc-trading-bot:staging-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push sentiment analyzer image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./python-services/sentiment-analyzer
+          file: ./python-services/sentiment-analyzer/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/btc-sentiment-analyzer:staging
+            ${{ secrets.DOCKER_USERNAME }}/btc-sentiment-analyzer:staging-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to staging server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /opt/btc-trading-bot
+
+            # Pull latest images
+            docker-compose -f docker-compose.staging.yml pull
+
+            # Stop old containers
+            docker-compose -f docker-compose.staging.yml down
+
+            # Start new containers
+            docker-compose -f docker-compose.staging.yml up -d
+
+            # Wait for services to be healthy
+            sleep 10
+
+            # Check health
+            docker-compose -f docker-compose.staging.yml ps
+
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f ${{ secrets.STAGING_URL }}/health || exit 1
+
+      - name: Notify deployment
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Staging Deployment ${{ job.status }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

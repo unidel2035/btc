@@ -1,0 +1,217 @@
+version: '3.8'
+
+services:
+  app:
+    image: ${DOCKER_USERNAME}/btc-trading-bot:latest
+    container_name: btc-trading-bot-production
+    restart: always
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    environment:
+      NODE_ENV: production
+      TRADING_MODE: live
+      LOG_LEVEL: info
+    env_file:
+      - .env.production
+    volumes:
+      - ./data/production:/app/data
+      - ./logs/production:/app/logs
+      - ./config:/app/config
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      sentiment-analyzer:
+        condition: service_healthy
+    networks:
+      - btc-network-production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  sentiment-analyzer:
+    image: ${DOCKER_USERNAME}/btc-sentiment-analyzer:latest
+    container_name: btc-sentiment-analyzer-production
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONUNBUFFERED: 1
+      LOG_LEVEL: info
+    volumes:
+      - sentiment_models_production:/root/.cache/huggingface
+      - sentiment_spacy_production:/root/.spacy
+    networks:
+      - btc-network-production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 4G
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: btc-postgres-production
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-btc_trading_bot}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_production:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - btc-network-production
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  redis:
+    image: redis:7-alpine
+    container_name: btc-redis-production
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_production:/data
+    networks:
+      - btc-network-production
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: btc-prometheus-production
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data_production:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--web.enable-lifecycle'
+    networks:
+      - btc-network-production
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: btc-grafana-production
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-piechart-panel
+      GF_SERVER_ROOT_URL: https://monitoring.btc-trading-bot.example.com
+    volumes:
+      - grafana_data_production:/var/lib/grafana
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - btc-network-production
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: btc-alertmanager-production
+    restart: always
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data_production:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    networks:
+      - btc-network-production
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: btc-node-exporter-production
+    restart: always
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - btc-network-production
+
+volumes:
+  postgres_data_production:
+  redis_data_production:
+  prometheus_data_production:
+  grafana_data_production:
+  alertmanager_data_production:
+  sentiment_models_production:
+  sentiment_spacy_production:
+
+networks:
+  btc-network-production:
+    driver: bridge

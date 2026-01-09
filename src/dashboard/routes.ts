@@ -9,7 +9,33 @@ import { storage } from './storage.js';
 export function setupRoutes(router: Router): void {
   // Health check
   router.get('/health', (_req: Request, res: Response) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      environment: process.env.NODE_ENV || 'development',
+    });
+  });
+
+  // Readiness check (для Kubernetes/Docker)
+  router.get('/ready', (_req: Request, res: Response) => {
+    try {
+      // Проверяем, что основные компоненты работают
+      const isReady = storage.isInitialized();
+      if (isReady) {
+        res.json({ status: 'ready', timestamp: new Date().toISOString() });
+      } else {
+        res.status(503).json({ status: 'not ready', timestamp: new Date().toISOString() });
+      }
+    } catch (error) {
+      res.status(503).json({ status: 'not ready', error: String(error) });
+    }
+  });
+
+  // Liveness check (для Kubernetes/Docker)
+  router.get('/live', (_req: Request, res: Response) => {
+    res.json({ status: 'alive', timestamp: new Date().toISOString() });
   });
 
   // Metrics

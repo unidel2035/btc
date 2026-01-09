@@ -68,9 +68,7 @@ export class CSVDataLoader implements DataLoader {
     const numTimestamp = parseFloat(timestampStr);
     if (!isNaN(numTimestamp)) {
       // If number is less than year 2100 in seconds, it's in seconds
-      return numTimestamp < 4102444800
-        ? new Date(numTimestamp * 1000)
-        : new Date(numTimestamp);
+      return numTimestamp < 4102444800 ? new Date(numTimestamp * 1000) : new Date(numTimestamp);
     }
 
     // Try parsing as ISO string
