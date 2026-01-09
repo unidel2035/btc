@@ -1,183 +1,159 @@
 import { TwitterApi, TweetV2, UserV2 } from 'twitter-api-v2';
-import { SocialPost, TwitterConfig } from '../../types/social.js';
-import { AbstractCollector, SocialCollector, withRetry } from '../base.js';
+import type { SocialPost, TwitterCollectorConfig, CollectionResult, Engagement } from './types.js';
+import { withRetry, SocialRateLimiter, extractHashtags, extractMentions } from './utils.js';
 
 /**
- * Коллектор для Twitter/X API v2
+ * Коллектор данных из Twitter/X
  */
-export class TwitterCollector extends AbstractCollector implements SocialCollector {
-  private client: TwitterApi | null = null;
-  private config: TwitterConfig;
-  private subscribers: Array<(post: SocialPost) => void> = [];
-  private pollInterval: NodeJS.Timeout | null = null;
-  private lastTweetId: string | null = null;
+export class TwitterCollector {
+  private client: TwitterApi;
+  private config: TwitterCollectorConfig;
+  private rateLimiter: SocialRateLimiter;
+  private isRunning: boolean;
+  private intervalId?: NodeJS.Timeout;
 
-  constructor(config: TwitterConfig) {
-    super('TwitterCollector');
-    this.config = config;
+  constructor(config: TwitterCollectorConfig, rateLimiter: SocialRateLimiter) {
+    this.config = {
+      maxResults: 10,
+      pollInterval: 60000, // 1 минута по умолчанию
+      ...config,
+    };
+    this.client = new TwitterApi(config.bearerToken);
+    this.rateLimiter = rateLimiter;
+    this.isRunning = false;
+
+    // Создаем rate limiter для Twitter
+    this.rateLimiter.createTwitterLimiter();
   }
 
+  /**
+   * Запускает мониторинг Twitter
+   */
   async start(): Promise<void> {
-    if (this.running) {
-      console.warn(`${this.name} is already running`);
+    if (this.isRunning) {
+      console.warn('Twitter collector is already running');
       return;
     }
 
-    try {
-      // Инициализация клиента Twitter API
-      this.client = new TwitterApi(this.config.bearerToken);
+    this.isRunning = true;
+    console.info('🐦 Twitter collector started');
 
-      console.info(`${this.name} started successfully`);
-      this.setRunning(true);
+    // Первый сбор данных сразу
+    await this.collect();
 
-      // Запуск polling для получения новых твитов
-      this.startPolling();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Failed to start ${this.name}: ${message}`);
-    }
+    // Затем периодический сбор
+    this.intervalId = setInterval(() => {
+      void this.collect();
+    }, this.config.pollInterval);
   }
 
-  async stop(): Promise<void> {
-    if (!this.running) {
-      console.warn(`${this.name} is not running`);
+  /**
+   * Останавливает мониторинг Twitter
+   */
+  stop(): void {
+    if (!this.isRunning) {
       return;
     }
 
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-      this.pollInterval = null;
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = undefined;
     }
 
-    this.client = null;
-    this.setRunning(false);
-    console.info(`${this.name} stopped`);
+    this.isRunning = false;
+    console.info('🛑 Twitter collector stopped');
   }
 
-  async fetchPosts(limit = 10): Promise<SocialPost[]> {
-    if (!this.client) {
-      throw new Error('Twitter client is not initialized');
-    }
-
+  /**
+   * Собирает данные из Twitter
+   */
+  async collect(): Promise<CollectionResult> {
     const posts: SocialPost[] = [];
+    const errors: Error[] = [];
 
     try {
-      // Поиск по хештегам
-      if (this.config.hashtags.length > 0) {
-        const hashtagPosts = await this.fetchByHashtags(limit);
-        posts.push(...hashtagPosts);
-      }
-
-      // Получение твитов от отслеживаемых аккаунтов
+      // Мониторинг аккаунтов
       if (this.config.accounts.length > 0) {
-        const accountPosts = await this.fetchByAccounts(limit);
-        posts.push(...accountPosts);
+        try {
+          const accountPosts = await this.collectFromAccounts();
+          posts.push(...accountPosts);
+        } catch (error) {
+          const err = error instanceof Error ? error : new Error(String(error));
+          errors.push(err);
+          console.error('Error collecting from accounts:', err.message);
+        }
       }
 
-      // Удаление дубликатов и сортировка по времени
-      const uniquePosts = this.deduplicatePosts(posts);
-      return uniquePosts
-        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-        .slice(0, limit);
+      // Мониторинг хештегов
+      if (this.config.hashtags.length > 0) {
+        try {
+          const hashtagPosts = await this.collectFromHashtags();
+          posts.push(...hashtagPosts);
+        } catch (error) {
+          const err = error instanceof Error ? error : new Error(String(error));
+          errors.push(err);
+          console.error('Error collecting from hashtags:', err.message);
+        }
+      }
+
+      console.info(`📊 Collected ${posts.length} posts from Twitter`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Failed to fetch Twitter posts: ${message}`);
+      const err = error instanceof Error ? error : new Error(String(error));
+      errors.push(err);
+      console.error('Error in Twitter collection:', err.message);
     }
-  }
 
-  subscribe(callback: (post: SocialPost) => void): void {
-    this.subscribers.push(callback);
-  }
-
-  unsubscribe(): void {
-    this.subscribers = [];
+    return {
+      platform: 'twitter',
+      posts,
+      collectedAt: new Date(),
+      count: posts.length,
+      errors: errors.length > 0 ? errors : undefined,
+    };
   }
 
   /**
-   * Поиск твитов по хештегам
+   * Собирает твиты от указанных аккаунтов
    */
-  private async fetchByHashtags(limit: number): Promise<SocialPost[]> {
-    if (!this.client) {
-      throw new Error('Twitter client is not initialized');
-    }
-
-    const query = this.config.hashtags.map((tag) => `#${tag}`).join(' OR ');
-
-    const result = await withRetry(
-      async () => {
-        return await this.client!.v2.search(query, {
-          max_results: Math.min(limit, 100),
-          'tweet.fields': ['created_at', 'public_metrics', 'author_id', 'text'],
-          expansions: ['author_id'],
-          'user.fields': ['username', 'public_metrics'],
-        });
-      },
-      {
-        maxRetries: 3,
-        initialDelayMs: 1000,
-        maxDelayMs: 10000,
-        backoffMultiplier: 2,
-      },
-      'fetchByHashtags',
-    );
-
-    return this.convertTweetsToPosts(result.data.data || [], result.includes);
-  }
-
-  /**
-   * Получение твитов от отслеживаемых аккаунтов
-   */
-  private async fetchByAccounts(limit: number): Promise<SocialPost[]> {
-    if (!this.client) {
-      throw new Error('Twitter client is not initialized');
-    }
-
+  private async collectFromAccounts(): Promise<SocialPost[]> {
     const posts: SocialPost[] = [];
 
     for (const username of this.config.accounts) {
       try {
-        const user = await withRetry(
+        const userPosts = await withRetry(
           async () => {
-            return await this.client!.v2.userByUsername(username, {
-              'user.fields': ['public_metrics'],
+            return await this.rateLimiter.execute('twitter', async () => {
+              // Получаем информацию о пользователе
+              const user = await this.client.v2.userByUsername(username, {
+                'user.fields': ['public_metrics'],
+              });
+
+              if (!user.data) {
+                throw new Error(`User ${username} not found`);
+              }
+
+              // Получаем последние твиты пользователя
+              const tweets = await this.client.v2.userTimeline(user.data.id, {
+                max_results: this.config.maxResults,
+                'tweet.fields': ['created_at', 'public_metrics', 'entities'],
+                expansions: ['attachments.media_keys'],
+                'media.fields': ['url', 'preview_image_url', 'type'],
+              });
+
+              return { user: user.data, tweets: tweets.data.data };
             });
           },
-          {
-            maxRetries: 3,
-            initialDelayMs: 1000,
-            maxDelayMs: 10000,
-            backoffMultiplier: 2,
-          },
-          `fetchUser:${username}`,
+          { maxRetries: 3 },
         );
 
-        if (!user.data) {
-          console.warn(`User ${username} not found`);
-          continue;
+        if (userPosts.tweets) {
+          const convertedPosts = userPosts.tweets.map((tweet) =>
+            this.convertTweetToPost(tweet, userPosts.user),
+          );
+          posts.push(...convertedPosts);
         }
-
-        const timeline = await withRetry(
-          async () => {
-            return await this.client!.v2.userTimeline(user.data.id, {
-              max_results: Math.min(limit, 100),
-              'tweet.fields': ['created_at', 'public_metrics', 'text'],
-            });
-          },
-          {
-            maxRetries: 3,
-            initialDelayMs: 1000,
-            maxDelayMs: 10000,
-            backoffMultiplier: 2,
-          },
-          `fetchTimeline:${username}`,
-        );
-
-        const userPosts = this.convertTweetsToPosts(timeline.data.data || [], {
-          users: [user.data],
-        });
-        posts.push(...userPosts);
       } catch (error) {
-        console.error(`Error fetching tweets from ${username}:`, error);
+        console.error(`Error collecting tweets from @${username}:`, error);
       }
     }
 
@@ -185,79 +161,86 @@ export class TwitterCollector extends AbstractCollector implements SocialCollect
   }
 
   /**
-   * Конвертация твитов в SocialPost
+   * Собирает твиты по хештегам
    */
-  private convertTweetsToPosts(
-    tweets: TweetV2[],
-    includes?: { users?: UserV2[] },
-  ): SocialPost[] {
-    return tweets.map((tweet) => {
-      const author = includes?.users?.find((u) => u.id === tweet.author_id)?.username || 'unknown';
-      const authorFollowers = includes?.users?.find((u) => u.id === tweet.author_id)?.public_metrics
-        ?.followers_count;
+  private async collectFromHashtags(): Promise<SocialPost[]> {
+    const posts: SocialPost[] = [];
 
-      return {
-        id: tweet.id,
-        platform: 'twitter' as const,
-        author,
-        authorFollowers,
-        content: tweet.text,
-        engagement: {
-          likes: tweet.public_metrics?.like_count || 0,
-          comments: tweet.public_metrics?.reply_count || 0,
-          shares: tweet.public_metrics?.retweet_count || 0,
-        },
-        timestamp: tweet.created_at ? new Date(tweet.created_at) : new Date(),
-        url: `https://twitter.com/${author}/status/${tweet.id}`,
-      };
-    });
-  }
-
-  /**
-   * Удаление дубликатов постов
-   */
-  private deduplicatePosts(posts: SocialPost[]): SocialPost[] {
-    const seen = new Set<string>();
-    return posts.filter((post) => {
-      if (seen.has(post.id)) {
-        return false;
-      }
-      seen.add(post.id);
-      return true;
-    });
-  }
-
-  /**
-   * Запуск polling для получения новых твитов
-   */
-  private startPolling(): void {
-    const interval = this.config.pollingInterval || 60000; // По умолчанию 1 минута
-
-    this.pollInterval = setInterval(async () => {
+    for (const hashtag of this.config.hashtags) {
       try {
-        const posts = await this.fetchPosts(this.config.maxResults || 10);
+        const tweets = await withRetry(
+          async () => {
+            return await this.rateLimiter.execute('twitter', async () => {
+              const query = hashtag.startsWith('#') ? hashtag : `#${hashtag}`;
+              const result = await this.client.v2.search(query, {
+                max_results: this.config.maxResults,
+                'tweet.fields': ['created_at', 'public_metrics', 'entities', 'author_id'],
+                expansions: ['author_id', 'attachments.media_keys'],
+                'user.fields': ['public_metrics', 'username'],
+                'media.fields': ['url', 'preview_image_url', 'type'],
+              });
 
-        // Уведомление подписчиков о новых постах
-        for (const post of posts) {
-          // Проверка, что пост новый (после последнего известного ID)
-          if (!this.lastTweetId || post.id > this.lastTweetId) {
-            for (const subscriber of this.subscribers) {
-              try {
-                subscriber(post);
-              } catch (error) {
-                console.error('Error in subscriber callback:', error);
-              }
-            }
+              return result;
+            });
+          },
+          { maxRetries: 3 },
+        );
+
+        if (tweets.data.data) {
+          for (const tweet of tweets.data.data) {
+            // Находим автора из includes
+            const author = tweets.includes?.users?.find((u) => u.id === tweet.author_id);
+            const post = this.convertTweetToPost(tweet, author);
+            posts.push(post);
           }
         }
-
-        // Обновление последнего ID
-        if (posts.length > 0) {
-          this.lastTweetId = posts[0]!.id;
-        }
       } catch (error) {
-        console.error('Error in polling:', error);
+        console.error(`Error collecting tweets for hashtag ${hashtag}:`, error);
       }
-    }, interval);
+    }
+
+    return posts;
+  }
+
+  /**
+   * Конвертирует твит в SocialPost
+   */
+  private convertTweetToPost(tweet: TweetV2, author?: UserV2): SocialPost {
+    const engagement: Engagement = {
+      likes: tweet.public_metrics?.like_count ?? 0,
+      comments: tweet.public_metrics?.reply_count ?? 0,
+      shares: tweet.public_metrics?.retweet_count ?? 0,
+      views: tweet.public_metrics?.impression_count,
+    };
+
+    const hashtags = extractHashtags(tweet.text);
+    const mentions = extractMentions(tweet.text);
+
+    return {
+      id: `twitter_${tweet.id}`,
+      platform: 'twitter',
+      author: author?.username ?? 'unknown',
+      authorFollowers: author?.public_metrics?.followers_count,
+      content: tweet.text,
+      engagement,
+      timestamp: tweet.created_at ? new Date(tweet.created_at) : new Date(),
+      url: `https://twitter.com/${author?.username ?? 'i'}/status/${tweet.id}`,
+      hashtags: hashtags.length > 0 ? hashtags : undefined,
+      mentions: mentions.length > 0 ? mentions : undefined,
+    };
+  }
+
+  /**
+   * Проверяет соединение с Twitter API
+   */
+  async testConnection(): Promise<boolean> {
+    try {
+      await this.client.v2.me();
+      console.info('✅ Twitter API connection successful');
+      return true;
+    } catch (error) {
+      console.error('❌ Twitter API connection failed:', error);
+      return false;
+    }
   }
 }

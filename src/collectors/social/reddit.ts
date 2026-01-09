@@ -1,185 +1,269 @@
-import Snoowrap, { Submission } from 'snoowrap';
-import { SocialPost, RedditConfig } from '../../types/social.js';
-import { AbstractCollector, SocialCollector, withRetry } from '../base.js';
+import Snoowrap, { Submission, Comment } from 'snoowrap';
+import type { SocialPost, RedditCollectorConfig, CollectionResult, Engagement } from './types.js';
+import { withRetry, SocialRateLimiter, extractHashtags, extractMentions } from './utils.js';
 
 /**
- * Коллектор для Reddit API
+ * Коллектор данных из Reddit
  */
-export class RedditCollector extends AbstractCollector implements SocialCollector {
-  private client: Snoowrap | null = null;
-  private config: RedditConfig;
-  private subscribers: Array<(post: SocialPost) => void> = [];
-  private pollInterval: NodeJS.Timeout | null = null;
-  private lastPostIds: Set<string> = new Set();
+export class RedditCollector {
+  private client: Snoowrap;
+  private config: RedditCollectorConfig;
+  private rateLimiter: SocialRateLimiter;
+  private isRunning: boolean;
+  private intervalId?: NodeJS.Timeout;
 
-  constructor(config: RedditConfig) {
-    super('RedditCollector');
-    this.config = config;
+  constructor(config: RedditCollectorConfig, rateLimiter: SocialRateLimiter) {
+    this.config = {
+      sortBy: 'hot',
+      limit: 25,
+      pollInterval: 120000, // 2 минуты по умолчанию
+      ...config,
+    };
+
+    this.client = new Snoowrap({
+      userAgent: config.userAgent,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+      // Reddit требует refresh token для OAuth, но для read-only доступа можно использовать client credentials
+      username: '',
+      password: '',
+    });
+
+    // Настройка для избежания слишком частых запросов
+    this.client.config({
+      requestDelay: 1000,
+      warnings: false,
+      continueAfterRatelimitError: true,
+    });
+
+    this.rateLimiter = rateLimiter;
+    this.isRunning = false;
+
+    // Создаем rate limiter для Reddit
+    this.rateLimiter.createRedditLimiter();
   }
 
+  /**
+   * Запускает мониторинг Reddit
+   */
   async start(): Promise<void> {
-    if (this.running) {
-      console.warn(`${this.name} is already running`);
+    if (this.isRunning) {
+      console.warn('Reddit collector is already running');
       return;
     }
 
-    try {
-      // Инициализация клиента Reddit API
-      this.client = new Snoowrap({
-        userAgent: 'btc-trading-bot/1.0.0',
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
-        username: this.config.username,
-        password: this.config.password,
-      });
+    this.isRunning = true;
+    console.info('🤖 Reddit collector started');
 
-      // Настройка rate limiting
-      this.client.config({
-        requestDelay: 1000, // 1 секунда между запросами
-        continueAfterRatelimitError: true,
-        warnings: false,
-      });
+    // Первый сбор данных сразу
+    await this.collect();
 
-      console.info(`${this.name} started successfully`);
-      this.setRunning(true);
-
-      // Запуск polling для получения новых постов
-      this.startPolling();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Failed to start ${this.name}: ${message}`);
-    }
+    // Затем периодический сбор
+    this.intervalId = setInterval(() => {
+      void this.collect();
+    }, this.config.pollInterval);
   }
 
-  async stop(): Promise<void> {
-    if (!this.running) {
-      console.warn(`${this.name} is not running`);
+  /**
+   * Останавливает мониторинг Reddit
+   */
+  stop(): void {
+    if (!this.isRunning) {
       return;
     }
 
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-      this.pollInterval = null;
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = undefined;
     }
 
-    this.client = null;
-    this.setRunning(false);
-    console.info(`${this.name} stopped`);
+    this.isRunning = false;
+    console.info('🛑 Reddit collector stopped');
   }
 
-  async fetchPosts(limit = 25): Promise<SocialPost[]> {
-    if (!this.client) {
-      throw new Error('Reddit client is not initialized');
-    }
-
+  /**
+   * Собирает данные из Reddit
+   */
+  async collect(): Promise<CollectionResult> {
     const posts: SocialPost[] = [];
+    const errors: Error[] = [];
 
     try {
       for (const subreddit of this.config.subreddits) {
-        const subredditPosts = await this.fetchSubredditPosts(subreddit, limit);
-        posts.push(...subredditPosts);
+        try {
+          const subredditPosts = await this.collectFromSubreddit(subreddit);
+          posts.push(...subredditPosts);
+        } catch (error) {
+          const err = error instanceof Error ? error : new Error(String(error));
+          errors.push(err);
+          console.error(`Error collecting from r/${subreddit}:`, err.message);
+        }
       }
 
-      // Сортировка по времени и ограничение количества
-      return posts.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, limit);
+      console.info(`📊 Collected ${posts.length} posts from Reddit`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Failed to fetch Reddit posts: ${message}`);
-    }
-  }
-
-  subscribe(callback: (post: SocialPost) => void): void {
-    this.subscribers.push(callback);
-  }
-
-  unsubscribe(): void {
-    this.subscribers = [];
-  }
-
-  /**
-   * Получение постов из конкретного subreddit
-   */
-  private async fetchSubredditPosts(subredditName: string, limit: number): Promise<SocialPost[]> {
-    if (!this.client) {
-      throw new Error('Reddit client is not initialized');
+      const err = error instanceof Error ? error : new Error(String(error));
+      errors.push(err);
+      console.error('Error in Reddit collection:', err.message);
     }
 
-    try {
-      const submissions = await withRetry(
-        async () => {
-          const subreddit = this.client!.getSubreddit(subredditName);
-          return await subreddit.getHot({ limit: Math.min(limit, 100) });
-        },
-        {
-          maxRetries: 3,
-          initialDelayMs: 2000,
-          maxDelayMs: 20000,
-          backoffMultiplier: 2,
-        },
-        `fetchSubreddit:${subredditName}`,
-      );
-
-      return submissions.map((submission) => this.convertSubmissionToPost(submission));
-    } catch (error) {
-      console.error(`Error fetching posts from r/${subredditName}:`, error);
-      return [];
-    }
-  }
-
-  /**
-   * Конвертация Reddit submission в SocialPost
-   */
-  private convertSubmissionToPost(submission: Submission): SocialPost {
     return {
-      id: submission.id,
-      platform: 'reddit' as const,
-      author: submission.author.name,
-      authorFollowers: undefined, // Reddit не предоставляет количество подписчиков автора
-      content: submission.title + (submission.selftext ? `\n\n${submission.selftext}` : ''),
-      engagement: {
-        likes: submission.ups,
-        comments: submission.num_comments,
-        shares: 0, // Reddit не предоставляет информацию о репостах
-      },
-      timestamp: new Date(submission.created_utc * 1000),
-      url: `https://reddit.com${submission.permalink}`,
+      platform: 'reddit',
+      posts,
+      collectedAt: new Date(),
+      count: posts.length,
+      errors: errors.length > 0 ? errors : undefined,
     };
   }
 
   /**
-   * Запуск polling для получения новых постов
+   * Собирает посты из конкретного subreddit
    */
-  private startPolling(): void {
-    const interval = this.config.pollingInterval || 120000; // По умолчанию 2 минуты
+  private async collectFromSubreddit(subredditName: string): Promise<SocialPost[]> {
+    const posts: SocialPost[] = [];
 
-    this.pollInterval = setInterval(async () => {
-      try {
-        const posts = await this.fetchPosts(this.config.limit || 25);
+    try {
+      const submissions = await withRetry(
+        async () => {
+          return await this.rateLimiter.execute('reddit', async () => {
+            const subreddit = this.client.getSubreddit(subredditName);
+            let listing;
 
-        // Уведомление подписчиков о новых постах
-        for (const post of posts) {
-          // Проверка, что пост новый
-          if (!this.lastPostIds.has(post.id)) {
-            this.lastPostIds.add(post.id);
-
-            for (const subscriber of this.subscribers) {
-              try {
-                subscriber(post);
-              } catch (error) {
-                console.error('Error in subscriber callback:', error);
-              }
+            switch (this.config.sortBy) {
+              case 'hot':
+                listing = await subreddit.getHot({ limit: this.config.limit });
+                break;
+              case 'new':
+                listing = await subreddit.getNew({ limit: this.config.limit });
+                break;
+              case 'top':
+                listing = await subreddit.getTop({
+                  time: this.config.timeFilter ?? 'day',
+                  limit: this.config.limit,
+                });
+                break;
+              case 'rising':
+                listing = await subreddit.getRising({ limit: this.config.limit });
+                break;
+              default:
+                listing = await subreddit.getHot({ limit: this.config.limit });
             }
-          }
-        }
 
-        // Ограничение размера кеша известных постов
-        if (this.lastPostIds.size > 1000) {
-          const ids = Array.from(this.lastPostIds);
-          this.lastPostIds = new Set(ids.slice(-500));
-        }
-      } catch (error) {
-        console.error('Error in polling:', error);
+            return listing;
+          });
+        },
+        { maxRetries: 3 },
+      );
+
+      for (const submission of submissions) {
+        const post = this.convertSubmissionToPost(submission);
+        posts.push(post);
       }
-    }, interval);
+    } catch (error) {
+      console.error(`Error collecting from r/${subredditName}:`, error);
+    }
+
+    return posts;
+  }
+
+  /**
+   * Собирает комментарии из поста (опционально)
+   */
+  async collectComments(submissionId: string): Promise<SocialPost[]> {
+    const posts: SocialPost[] = [];
+
+    try {
+      const sub = this.client.getSubmission(submissionId);
+      // @ts-expect-error - snoowrap type definitions issue with Submission.fetch()
+      const submission: Submission = await sub.fetch();
+
+      // Получаем комментарии
+      const comments = await submission.comments.fetchAll();
+
+      for (const comment of comments) {
+        if (comment instanceof Comment) {
+          const post = this.convertCommentToPost(comment);
+          posts.push(post);
+        }
+      }
+    } catch (error) {
+      console.error(`Error collecting comments from ${submissionId}:`, error);
+    }
+
+    return posts;
+  }
+
+  /**
+   * Конвертирует Reddit submission в SocialPost
+   */
+  private convertSubmissionToPost(submission: Submission): SocialPost {
+    const engagement: Engagement = {
+      likes: submission.ups - submission.downs,
+      comments: submission.num_comments,
+      shares: 0, // Reddit не предоставляет информацию о shares
+    };
+
+    const content = submission.selftext
+      ? `${submission.title}\n\n${submission.selftext}`
+      : submission.title;
+
+    const hashtags = extractHashtags(content);
+    const mentions = extractMentions(content);
+
+    return {
+      id: `reddit_${submission.id}`,
+      platform: 'reddit',
+      author: submission.author.name,
+      authorFollowers: undefined, // Reddit не предоставляет follower count через API
+      content,
+      engagement,
+      timestamp: new Date(submission.created_utc * 1000),
+      url: `https://reddit.com${submission.permalink}`,
+      hashtags: hashtags.length > 0 ? hashtags : undefined,
+      mentions: mentions.length > 0 ? mentions : undefined,
+    };
+  }
+
+  /**
+   * Конвертирует Reddit comment в SocialPost
+   */
+  private convertCommentToPost(comment: Comment): SocialPost {
+    const engagement: Engagement = {
+      likes: comment.ups - comment.downs,
+      comments: 0, // Не считаем вложенные комментарии
+      shares: 0,
+    };
+
+    const hashtags = extractHashtags(comment.body);
+    const mentions = extractMentions(comment.body);
+
+    return {
+      id: `reddit_${comment.id}`,
+      platform: 'reddit',
+      author: comment.author.name,
+      authorFollowers: undefined,
+      content: comment.body,
+      engagement,
+      timestamp: new Date(comment.created_utc * 1000),
+      url: `https://reddit.com${comment.permalink}`,
+      hashtags: hashtags.length > 0 ? hashtags : undefined,
+      mentions: mentions.length > 0 ? mentions : undefined,
+    };
+  }
+
+  /**
+   * Проверяет соединение с Reddit API
+   */
+  async testConnection(): Promise<boolean> {
+    try {
+      const sub = this.client.getSubreddit('Bitcoin');
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      void sub.fetch();
+      console.info('✅ Reddit API connection successful');
+      return true;
+    } catch (error) {
+      console.error('❌ Reddit API connection failed:', error);
+      return false;
+    }
   }
 }
