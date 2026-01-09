@@ -22,7 +22,8 @@ function parseArguments(): {
 } {
   const args = process.argv.slice(2);
 
-  const strategy = args.find((arg) => arg.startsWith('--strategy='))?.split('=')[1] ?? 'news-momentum';
+  const strategy =
+    args.find((arg) => arg.startsWith('--strategy='))?.split('=')[1] ?? 'news-momentum';
 
   const symbolArg = args.find((arg) => arg.startsWith('--symbol='))?.split('=')[1];
   const symbolsArg = args.find((arg) => arg.startsWith('--symbols='))?.split('=')[1];
@@ -38,14 +39,17 @@ function parseArguments(): {
   const to = args.find((arg) => arg.startsWith('--to='))?.split('=')[1] ?? '2024-12-31';
 
   const paramsArg = args.find((arg) => arg.startsWith('--params='))?.split('=')[1];
-  const params = paramsArg ? JSON.parse(paramsArg) : undefined;
+  const params = paramsArg ? (JSON.parse(paramsArg) as Record<string, unknown>) : undefined;
 
-  const dataSource = args.find((arg) => arg.startsWith('--data='))?.split('=')[1] as 'csv' | 'mock' | undefined ?? 'mock';
+  const dataSource =
+    (args.find((arg) => arg.startsWith('--data='))?.split('=')[1] as 'csv' | 'mock' | undefined) ??
+    'mock';
 
   const capitalArg = args.find((arg) => arg.startsWith('--capital='))?.split('=')[1];
   const initialCapital = capitalArg ? parseFloat(capitalArg) : 10000;
 
-  const timeframe = args.find((arg) => arg.startsWith('--timeframe='))?.split('=')[1] ?? '1h';
+  const timeframe: string =
+    args.find((arg) => arg.startsWith('--timeframe='))?.split('=')[1] ?? '1h';
 
   return { strategy, symbol, from, to, params, dataSource, initialCapital, timeframe };
 }
@@ -121,7 +125,9 @@ async function runBacktest(): Promise<void> {
     const args = parseArguments();
     console.log('📋 Configuration:');
     console.log(`   Strategy: ${args.strategy}`);
-    console.log(`   Symbol(s): ${Array.isArray(args.symbol) ? args.symbol.join(', ') : args.symbol}`);
+    console.log(
+      `   Symbol(s): ${Array.isArray(args.symbol) ? args.symbol.join(', ') : args.symbol}`,
+    );
     console.log(`   Period: ${args.from} to ${args.to}`);
     console.log(`   Initial Capital: $${args.initialCapital.toLocaleString()}`);
     console.log(`   Data Source: ${args.dataSource}`);
@@ -135,9 +141,8 @@ async function runBacktest(): Promise<void> {
     const strategy = createStrategy(args.strategy, args.params);
 
     // Create data loader
-    const dataLoader = args.dataSource === 'csv'
-      ? new CSVDataLoader('./data')
-      : new MockDataLoader(50000, 0.02);
+    const dataLoader =
+      args.dataSource === 'csv' ? new CSVDataLoader('./data') : new MockDataLoader(50000, 0.02);
 
     // Create backtest config
     const config: BacktestConfig = {
@@ -185,7 +190,6 @@ async function runBacktest(): Promise<void> {
     }
 
     console.log('\n✅ Backtesting completed successfully!\n');
-
   } catch (error) {
     console.error('\n❌ Error running backtest:');
     console.error(error instanceof Error ? error.message : String(error));
