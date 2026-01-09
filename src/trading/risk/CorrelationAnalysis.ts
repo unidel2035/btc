@@ -111,8 +111,8 @@ export class CorrelationAnalysis {
     let sumSqY = 0;
 
     for (let i = 0; i < n; i++) {
-      const diffX = x[i] - meanX;
-      const diffY = y[i] - meanY;
+      const diffX = x[i]! - meanX;
+      const diffY = y[i]! - meanY;
 
       numerator += diffX * diffY;
       sumSqX += diffX * diffX;
@@ -267,7 +267,7 @@ export class CorrelationAnalysis {
     for (let i = 0; i < symbolArray.length; i++) {
       for (let j = i + 1; j < symbolArray.length; j++) {
         try {
-          const result = this.calculateCorrelation(symbolArray[i], symbolArray[j], {
+          const result = this.calculateCorrelation(symbolArray[i]!, symbolArray[j]!, {
             period: 30,
             threshold: maxCorrelation,
           });

@@ -1,12 +1,9 @@
 import type {
   StopLossParams,
-  StopLossType,
   TakeProfitParams,
-  TakeProfitLevel,
   Position,
-  PositionSide,
-  PositionUpdateParams,
 } from './types.js';
+import { StopLossType } from './types.js';
 
 /**
  * Модуль управления Stop-Loss и Take-Profit
@@ -224,15 +221,15 @@ export class TakeProfitManager {
 
       const triggered =
         position.side === 'long'
-          ? currentPrice >= position.takeProfit[0]
-          : currentPrice <= position.takeProfit[0];
+          ? currentPrice >= position.takeProfit[0]!
+          : currentPrice <= position.takeProfit[0]!;
 
       return { triggered, levelIndex: triggered ? 0 : null };
     }
 
     // Проверяем множественные уровни
     for (let i = 0; i < position.takeProfit.length; i++) {
-      const tpPrice = position.takeProfit[i];
+      const tpPrice = position.takeProfit[i]!;
       const triggered =
         position.side === 'long' ? currentPrice >= tpPrice : currentPrice <= tpPrice;
 
@@ -253,7 +250,7 @@ export class TakeProfitManager {
       return position.remainingQuantity;
     }
 
-    const level = position.takeProfitLevels[levelIndex];
+    const level = position.takeProfitLevels[levelIndex]!;
     const closeQuantity = (position.quantity * level.closePercent) / 100;
 
     // Не превышаем оставшееся количество
@@ -275,7 +272,7 @@ export class TakeProfitManager {
     } else {
       // Проверяем каждый уровень
       for (let i = 0; i < params.levels.length; i++) {
-        const level = params.levels[i];
+        const level = params.levels[i]!;
 
         if (level.percent <= 0) {
           errors.push(`Level ${i + 1}: percent must be positive`);
@@ -294,7 +291,7 @@ export class TakeProfitManager {
 
       // Проверяем, что уровни идут по возрастанию
       for (let i = 1; i < params.levels.length; i++) {
-        if (params.levels[i].percent <= params.levels[i - 1].percent) {
+        if (params.levels[i]!.percent <= params.levels[i - 1]!.percent) {
           errors.push('Take profit levels must be in ascending order');
           break;
         }

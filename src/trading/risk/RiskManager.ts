@@ -12,15 +12,13 @@ import type {
   StopLossParams,
   TakeProfitParams,
   PositionSide,
-  PositionStatus,
   RiskStats,
   PositionUpdateParams,
   RiskEvent,
-  RiskEventType,
-  LimitCheckResult,
   OHLCVData,
   NotificationConfig,
 } from './types.js';
+import { PositionStatus, RiskEventType, NotificationChannel } from './types.js';
 
 /**
  * Главный класс риск-менеджмента
@@ -43,13 +41,13 @@ export class RiskManager {
     this.notifications = new NotificationManager(
       notificationConfig || {
         enabled: true,
-        channels: ['console'],
+        channels: [NotificationChannel.CONSOLE],
         warningThreshold: 80,
       },
     );
 
     this.logEvent({
-      type: 'position_opened',
+      type: RiskEventType.POSITION_OPENED,
       timestamp: new Date(),
       message: 'Risk Manager initialized',
       data: { balance: initialBalance },
@@ -94,14 +92,14 @@ export class RiskManager {
       const limitCheck = this.limits.canOpenPosition(symbol, sizeResult.size);
       if (!limitCheck.allowed) {
         this.logEvent({
-          type: 'limit_reached',
+          type: RiskEventType.LIMIT_REACHED,
           timestamp: new Date(),
           symbol,
           message: `Position rejected: ${limitCheck.reason}`,
         });
 
         await this.notifications.sendNotification({
-          type: 'limit_reached',
+          type: RiskEventType.LIMIT_REACHED,
           message: limitCheck.reason || 'Position limit reached',
           symbol,
         });
@@ -122,14 +120,14 @@ export class RiskManager {
 
       if (!correlationCheck.allowed) {
         this.logEvent({
-          type: 'correlation_warning',
+          type: RiskEventType.CORRELATION_WARNING,
           timestamp: new Date(),
           symbol,
           message: `Position rejected: ${correlationCheck.reason}`,
         });
 
         await this.notifications.sendNotification({
-          type: 'correlation_warning',
+          type: RiskEventType.CORRELATION_WARNING,
           message: correlationCheck.reason || 'Correlation limit exceeded',
           symbol,
         });
@@ -158,7 +156,7 @@ export class RiskManager {
         id: randomUUID(),
         symbol,
         side,
-        status: 'open',
+        status: PositionStatus.OPEN,
         entryPrice: sizingParams.entryPrice,
         currentPrice: sizingParams.entryPrice,
         size: sizeResult.size,
@@ -181,7 +179,7 @@ export class RiskManager {
 
       // 8. Логируем событие
       this.logEvent({
-        type: 'position_opened',
+        type: RiskEventType.POSITION_OPENED,
         timestamp: new Date(),
         positionId: position.id,
         symbol,
@@ -196,7 +194,7 @@ export class RiskManager {
       });
 
       await this.notifications.sendNotification({
-        type: 'position_opened',
+        type: RiskEventType.POSITION_OPENED,
         message: `${side.toUpperCase()} ${symbol} opened at ${sizingParams.entryPrice}`,
         symbol,
         data: position,
@@ -206,7 +204,7 @@ export class RiskManager {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.logEvent({
-        type: 'position_opened',
+        type: RiskEventType.POSITION_OPENED,
         timestamp: new Date(),
         symbol,
         message: `Failed to open position: ${errorMessage}`,
@@ -249,7 +247,7 @@ export class RiskManager {
 
     // Проверка стоп-лосса
     if (StopLossManager.isStopLossTriggered(position, currentPrice)) {
-      await this.closePosition(positionId, currentPrice, 'stop_loss_triggered');
+      await this.closePosition(positionId, currentPrice, RiskEventType.STOP_LOSS_TRIGGERED);
       actions.push({ type: 'stop_loss', message: 'Stop loss triggered' });
       return { position, actions };
     }
@@ -282,7 +280,7 @@ export class RiskManager {
           position.stopLoss = trailingUpdate.newStopLoss;
 
           this.logEvent({
-            type: 'trailing_stop_updated',
+            type: RiskEventType.TRAILING_STOP_UPDATED,
             timestamp,
             positionId: position.id,
             symbol: position.symbol,
@@ -291,7 +289,7 @@ export class RiskManager {
           });
 
           actions.push({
-            type: 'trailing_stop_updated',
+            type: RiskEventType.TRAILING_STOP_UPDATED,
             message: `Trailing stop updated to ${trailingUpdate.newStopLoss.toFixed(2)}`,
           });
         }
@@ -310,7 +308,7 @@ export class RiskManager {
         positionId,
         currentPrice,
         closeQuantity,
-        'take_profit_triggered',
+        RiskEventType.TAKE_PROFIT_TRIGGERED,
       );
 
       actions.push({
@@ -332,7 +330,7 @@ export class RiskManager {
     positionId: string,
     closePrice: number,
     closeQuantity: number,
-    reason: RiskEventType = 'position_partially_closed',
+    reason: RiskEventType = RiskEventType.POSITION_PARTIALLY_CLOSED,
   ): Promise<{ success: boolean; position?: Position; pnl?: number }> {
     const position = this.limits.getPosition(positionId);
     if (!position) {
@@ -354,7 +352,7 @@ export class RiskManager {
     // Обновляем позицию
     position.remainingQuantity -= closeQuantity;
     position.realizedPnL += pnl;
-    position.status = position.remainingQuantity === 0 ? 'closed' : 'partially_closed';
+    position.status = position.remainingQuantity === 0 ? PositionStatus.CLOSED : PositionStatus.PARTIALLY_CLOSED;
 
     if (position.remainingQuantity === 0) {
       position.closedAt = new Date();
@@ -392,7 +390,7 @@ export class RiskManager {
   async closePosition(
     positionId: string,
     closePrice: number,
-    reason: RiskEventType = 'position_closed',
+    reason: RiskEventType = RiskEventType.POSITION_CLOSED,
   ): Promise<{ success: boolean; position?: Position; pnl?: number }> {
     const position = this.limits.getPosition(positionId);
     if (!position) {
@@ -488,7 +486,7 @@ export class RiskManager {
       await this.notifications.sendWarning(warning);
 
       this.logEvent({
-        type: 'limit_warning',
+        type: RiskEventType.LIMIT_WARNING,
         timestamp: new Date(),
         message: warning.message,
         data: { type: warning.type, percent: warning.percent },
