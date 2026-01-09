@@ -103,6 +103,36 @@ btc/
 
 Подробная документация: [src/trading/risk/README.md](src/trading/risk/README.md)
 
+## Система уведомлений
+
+Полнофункциональная система уведомлений о торговых событиях и алертах:
+
+### Каналы
+- ✅ Telegram бот с интерактивными командами
+- ✅ Discord webhook
+- ✅ Email (опционально)
+- ✅ Web Push уведомления
+- ✅ Generic webhook
+- ✅ Console логирование
+
+### Типы уведомлений
+- **Торговые**: открытие/закрытие позиций, stop-loss, take-profit, ликвидация
+- **Сигналы**: важные новости, аномальная социальная активность, whale alerts
+- **Риск**: приближение к лимитам, достижение drawdown, высокая волатильность
+- **Система**: ошибки подключения, сбои сервисов, перезапуск бота
+
+### Telegram Bot команды
+```
+/status    - Текущий статус бота
+/balance   - Баланс и маржа
+/positions - Открытые позиции
+/pnl       - PnL за период
+/stop      - Остановить торговлю
+/start     - Возобновить торговлю
+```
+
+Подробная документация: [src/notifications/README.md](src/notifications/README.md)
+
 ## Установка
 
 ```bash
@@ -144,9 +174,11 @@ ENABLE_NEWS_SCHEDULER=false
 # Sentiment Analysis
 SENTIMENT_API_URL=http://localhost:8000
 
-# Telegram уведомления
+# Уведомления (Notifications)
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
+DISCORD_WEBHOOK_URL=
+NOTIFICATION_WEBHOOK_URL=
 ```
 
 ## Использование
@@ -164,6 +196,7 @@ npm run test:sentiment
 npm run test:risk
 npm run test:strategies
 npm run test:backtest
+npm run test:notifications
 
 # Примеры использования
 npm run example:news
@@ -171,6 +204,7 @@ npm run example:sentiment
 npm run example:risk
 npm run example:strategies
 npm run example:backtest
+npm run example:notifications
 
 # Только анализ (требует запущенный sentiment-analyzer)
 npm run analyze
@@ -209,6 +243,7 @@ POST /api/settings         # Обновить настройки
 - [x] Риск-менеджмент модуль
 - [x] Торговые стратегии (News Momentum, Sentiment Swing)
 - [x] Backtesting engine
+- [x] Система уведомлений (Telegram, Discord, Email, Push)
 - [ ] Интеграция с биржами
 - [ ] Веб-интерфейс
 - [ ] Paper trading режим

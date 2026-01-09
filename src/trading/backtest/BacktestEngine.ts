@@ -46,7 +46,9 @@ export class BacktestEngine {
     const symbols = Array.isArray(this.config.symbol) ? this.config.symbol : [this.config.symbol];
 
     console.log(`📊 Starting backtest for ${symbols.join(', ')}...`);
-    console.log(`   Period: ${this.config.startDate.toISOString()} to ${this.config.endDate.toISOString()}`);
+    console.log(
+      `   Period: ${this.config.startDate.toISOString()} to ${this.config.endDate.toISOString()}`,
+    );
     console.log(`   Strategy: ${this.config.strategyName}`);
     console.log(`   Initial Capital: $${this.config.initialCapital.toLocaleString()}\n`);
 
@@ -101,7 +103,9 @@ export class BacktestEngine {
       processedCount++;
       if (processedCount % 100 === 0 || processedCount === sortedTimestamps.length) {
         const progress = ((processedCount / sortedTimestamps.length) * 100).toFixed(1);
-        process.stdout.write(`\r   Progress: ${progress}% (${processedCount}/${sortedTimestamps.length})`);
+        process.stdout.write(
+          `\r   Progress: ${progress}% (${processedCount}/${sortedTimestamps.length})`,
+        );
       }
     }
 
@@ -178,7 +182,13 @@ export class BacktestEngine {
   private async openPosition(
     symbol: string,
     candle: Candle,
-    decision: { direction: 'long' | 'short'; confidence: number; positionSize: number; stopLoss?: number; takeProfit?: number },
+    decision: {
+      direction: 'long' | 'short';
+      confidence: number;
+      positionSize: number;
+      stopLoss?: number;
+      takeProfit?: number;
+    },
   ): Promise<void> {
     const { direction, positionSize, stopLoss, takeProfit } = decision;
 
@@ -243,7 +253,11 @@ export class BacktestEngine {
    * Check positions for exit conditions
    */
   private async checkPositions(symbolData: Map<string, Candle[]>): Promise<void> {
-    const positionsToClose: Array<{ position: Position; candle: Candle; reason: Trade['exitReason'] }> = [];
+    const positionsToClose: Array<{
+      position: Position;
+      candle: Candle;
+      reason: Trade['exitReason'];
+    }> = [];
 
     for (const position of this.state.positions) {
       const candles = symbolData.get(position.symbol);
@@ -362,7 +376,11 @@ export class BacktestEngine {
   /**
    * Apply slippage to price
    */
-  private applySlippage(price: number, direction: 'long' | 'short', action: 'entry' | 'exit'): number {
+  private applySlippage(
+    price: number,
+    direction: 'long' | 'short',
+    action: 'entry' | 'exit',
+  ): number {
     const slippagePercent = this.config.slippage / 100;
 
     if (action === 'entry') {
@@ -393,7 +411,8 @@ export class BacktestEngine {
       this.state.peakEquity = totalEquity;
       this.state.currentDrawdown = 0;
     } else {
-      this.state.currentDrawdown = ((totalEquity - this.state.peakEquity) / this.state.peakEquity) * 100;
+      this.state.currentDrawdown =
+        ((totalEquity - this.state.peakEquity) / this.state.peakEquity) * 100;
     }
 
     this.state.equity = totalEquity;

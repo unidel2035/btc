@@ -1,4 +1,10 @@
-import type { Trade, BacktestResult, EquityPoint, MonthlyPerformance, BacktestConfig } from './types.js';
+import type {
+  Trade,
+  BacktestResult,
+  EquityPoint,
+  MonthlyPerformance,
+  BacktestConfig,
+} from './types.js';
 
 /**
  * Calculate backtest performance metrics
@@ -37,26 +43,27 @@ export class MetricsCalculator {
     const maxDrawdown = this.calculateMaxDrawdown(equityCurve);
     const maxDrawdownDuration = this.calculateMaxDrawdownDuration(equityCurve);
 
-    const winRate = closedTrades.length > 0 ? (winningTrades.length / closedTrades.length) * 100 : 0;
+    const winRate =
+      closedTrades.length > 0 ? (winningTrades.length / closedTrades.length) * 100 : 0;
 
     const grossProfit = winningTrades.reduce((sum, t) => sum + (t.pnl ?? 0), 0);
     const grossLoss = Math.abs(losingTrades.reduce((sum, t) => sum + (t.pnl ?? 0), 0));
     const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : 0;
 
     const avgTradeDuration = this.calculateAvgTradeDuration(closedTrades);
-    const avgWin = winningTrades.length > 0
-      ? winningTrades.reduce((sum, t) => sum + (t.pnlPercent ?? 0), 0) / winningTrades.length
-      : 0;
-    const avgLoss = losingTrades.length > 0
-      ? losingTrades.reduce((sum, t) => sum + (t.pnlPercent ?? 0), 0) / losingTrades.length
-      : 0;
+    const avgWin =
+      winningTrades.length > 0
+        ? winningTrades.reduce((sum, t) => sum + (t.pnlPercent ?? 0), 0) / winningTrades.length
+        : 0;
+    const avgLoss =
+      losingTrades.length > 0
+        ? losingTrades.reduce((sum, t) => sum + (t.pnlPercent ?? 0), 0) / losingTrades.length
+        : 0;
 
-    const largestWin = winningTrades.length > 0
-      ? Math.max(...winningTrades.map((t) => t.pnlPercent ?? 0))
-      : 0;
-    const largestLoss = losingTrades.length > 0
-      ? Math.min(...losingTrades.map((t) => t.pnlPercent ?? 0))
-      : 0;
+    const largestWin =
+      winningTrades.length > 0 ? Math.max(...winningTrades.map((t) => t.pnlPercent ?? 0)) : 0;
+    const largestLoss =
+      losingTrades.length > 0 ? Math.min(...losingTrades.map((t) => t.pnlPercent ?? 0)) : 0;
 
     return {
       config,
@@ -316,8 +323,7 @@ export class MetricsCalculator {
       });
 
       const winningTrades = monthTrades.filter((t) => (t.pnl ?? 0) > 0);
-      data.winRate =
-        monthTrades.length > 0 ? (winningTrades.length / monthTrades.length) * 100 : 0;
+      data.winRate = monthTrades.length > 0 ? (winningTrades.length / monthTrades.length) * 100 : 0;
     }
 
     return Array.from(monthlyData.values()).sort((a, b) => {
