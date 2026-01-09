@@ -28,6 +28,7 @@
     "test:paper": "tsx tests/trading/paper.test.ts",
     "test:social:retry": "tsx tests/collectors/social/retry.test.ts",
     "test:social:orchestrator": "tsx tests/collectors/social/orchestrator.test.ts",
+    "test:exchanges": "tsx tests/exchanges/exchanges.test.ts",
     "example:news": "tsx examples/news-collector-example.ts",
     "example:sentiment": "tsx examples/sentiment-analyzer-example.ts",
     "example:risk": "tsx examples/risk-manager-example.ts",
@@ -40,6 +41,7 @@
     "example:twitter": "tsx examples/twitter-collector-example.ts",
     "example:reddit": "tsx examples/reddit-collector-example.ts",
     "example:social": "tsx examples/social-orchestrator-example.ts",
+    "example:exchanges": "tsx examples/exchanges-example.ts",
     "db:migrate": "tsx src/database/migrate.ts",
     "db:seed": "tsx src/database/seed.ts",
     "db:backup": "tsx src/database/backup.ts"
