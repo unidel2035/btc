@@ -24,7 +24,8 @@
     "example:news": "tsx examples/news-collector-example.ts",
     "example:sentiment": "tsx examples/sentiment-analyzer-example.ts",
     "example:risk": "tsx examples/risk-manager-example.ts",
-    "example:strategies": "tsx examples/strategies-example.ts"
+    "example:strategies": "tsx examples/strategies-example.ts",
+    "example:dashboard": "tsx examples/dashboard-example.ts"
   },
   "keywords": [
     "bitcoin",
@@ -38,8 +39,11 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^20.11.5",
     "@types/node-cron": "^3.0.11",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
@@ -50,10 +54,14 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "chart.js": "^4.5.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
+    "express": "^5.2.1",
     "node-cron": "^4.2.1",
     "playwright": "^1.57.0",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "ws": "^8.19.0"
   },
   "engines": {
     "node": ">=20.0.0",
