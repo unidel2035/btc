@@ -41,7 +41,7 @@ export interface Signal {
   symbol: string;
   direction: 'long' | 'short';
   strength: number;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   created_at: Date;
 }
 

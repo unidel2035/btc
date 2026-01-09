@@ -6,7 +6,6 @@ export class RateLimiter {
   private lastRefill: number;
   private readonly maxTokens: number;
   private readonly refillRate: number; // токенов в миллисекунду
-  private readonly queue: Array<() => void> = [];
 
   constructor(maxRequests: number, timeWindowMs: number) {
     this.maxTokens = maxRequests;

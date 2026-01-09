@@ -81,7 +81,10 @@ export class ExchangeManager {
         this.exchanges.set(key, exchange);
         initPromises.push(
           exchange.initialize().catch((error) => {
-            console.warn(`[OKX] Initialization failed (stub implementation):`, error.message);
+            console.warn(
+              `[OKX] Initialization failed (stub implementation):`,
+              error instanceof Error ? error.message : String(error),
+            );
           }),
         );
       }
@@ -277,15 +280,20 @@ export class ExchangeManager {
   /**
    * Получить агрегированный order book с нескольких бирж
    */
-  async getAggregatedOrderBook(symbol: string, depth = 20) {
+  async getAggregatedOrderBook(
+    symbol: string,
+    depth = 20,
+  ): Promise<
+    Array<{ exchange: string; marketType: MarketType; orderBook: import('./types').OrderBook }>
+  > {
     const orderBooks = [];
 
     for (const [key, exchange] of this.exchanges.entries()) {
       try {
         const orderBook = await exchange.getOrderBook(symbol, depth);
         const parts = key.split(':');
-      const name = parts[0] || '';
-      const marketType = (parts[1] || MarketType.SPOT) as MarketType;
+        const name = parts[0] || '';
+        const marketType = (parts[1] || MarketType.SPOT) as MarketType;
         orderBooks.push({
           exchange: name,
           marketType: marketType as MarketType,
@@ -309,7 +317,7 @@ export class ExchangeManager {
   /**
    * Получить статистику rate limiter всех бирж
    */
-  getRateLimiterStats() {
+  getRateLimiterStats(): Record<string, unknown> {
     const stats: Record<string, unknown> = {};
     for (const [key, exchange] of this.exchanges.entries()) {
       if ('getRateLimiterStats' in exchange && typeof exchange.getRateLimiterStats === 'function') {
