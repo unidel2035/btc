@@ -30,7 +30,7 @@ export class NewsMomentumStrategy extends BaseStrategy {
   public description =
     'Быстрая реакция на важные новости. Открывает позицию в течение секунд после обнаружения значимой новости.';
 
-  protected declare params: NewsMomentumParams;
+  declare protected params: NewsMomentumParams;
 
   constructor(params: Partial<NewsMomentumParams> = {}) {
     const defaultParams: NewsMomentumParams = {
@@ -60,7 +60,7 @@ export class NewsMomentumStrategy extends BaseStrategy {
     }
 
     // Фильтруем только новостные сигналы
-    const newsSignals = signals.filter((s) => s.type === 'news' as SignalType);
+    const newsSignals = signals.filter((s) => s.type === ('news' as SignalType));
 
     if (newsSignals.length === 0) {
       return null;
@@ -75,7 +75,10 @@ export class NewsMomentumStrategy extends BaseStrategy {
     }
 
     // Проверяем требование множественных сигналов
-    if (this.params.requireMultipleSignals && significantSignals.length < this.params.minSignalsCount) {
+    if (
+      this.params.requireMultipleSignals &&
+      significantSignals.length < this.params.minSignalsCount
+    ) {
       this.updateStats(newsSignals, null);
       return null;
     }

@@ -30,7 +30,7 @@ export class SentimentSwingStrategy extends BaseStrategy {
   public description =
     'Позиционная торговля по агрегированным настроениям. Более длинный горизонт (часы-дни).';
 
-  protected declare params: SentimentSwingParams;
+  declare protected params: SentimentSwingParams;
   private sentimentHistory: SentimentAggregate[] = [];
 
   constructor(params: Partial<SentimentSwingParams> = {}) {
@@ -130,14 +130,17 @@ export class SentimentSwingStrategy extends BaseStrategy {
     let trend: 'rising' | 'falling' | 'stable' = 'stable';
     if (this.sentimentHistory.length > 0) {
       const prev = this.sentimentHistory[this.sentimentHistory.length - 1];
-      const currentRatio = total > 0 ? bullishCount / total : 0;
-      const prevRatio = prev.bullishCount + prev.bearishCount + prev.neutralCount > 0
-        ? prev.bullishCount / (prev.bullishCount + prev.bearishCount + prev.neutralCount)
-        : 0;
+      if (prev) {
+        const currentRatio = total > 0 ? bullishCount / total : 0;
+        const prevRatio =
+          prev.bullishCount + prev.bearishCount + prev.neutralCount > 0
+            ? prev.bullishCount / (prev.bullishCount + prev.bearishCount + prev.neutralCount)
+            : 0;
 
-      const change = currentRatio - prevRatio;
-      if (Math.abs(change) >= this.params.minSentimentChange) {
-        trend = change > 0 ? 'rising' : 'falling';
+        const change = currentRatio - prevRatio;
+        if (Math.abs(change) >= this.params.minSentimentChange) {
+          trend = change > 0 ? 'rising' : 'falling';
+        }
       }
     }
 
@@ -174,6 +177,10 @@ export class SentimentSwingStrategy extends BaseStrategy {
 
     const current = this.sentimentHistory[this.sentimentHistory.length - 1];
     const previous = this.sentimentHistory[this.sentimentHistory.length - 2];
+
+    if (!current || !previous) {
+      return null;
+    }
 
     // Детекция разворота
     if (this.params.reversalDetection) {
@@ -217,8 +224,7 @@ export class SentimentSwingStrategy extends BaseStrategy {
 
     // Рассчитываем уверенность на основе силы тренда и impact
     const total = aggregate.bullishCount + aggregate.bearishCount + aggregate.neutralCount;
-    const dominantCount =
-      direction === 'long' ? aggregate.bullishCount : aggregate.bearishCount;
+    const dominantCount = direction === 'long' ? aggregate.bullishCount : aggregate.bearishCount;
 
     const trendStrength = total > 0 ? dominantCount / total : 0;
     const confidence = (trendStrength + aggregate.avgImpact) / 2;

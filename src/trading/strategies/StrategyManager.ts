@@ -1,4 +1,4 @@
-import type { Strategy, MarketData, Signal, TradeDecision } from './types.js';
+import type { Strategy, MarketData, Signal, TradeDecision, TradeDirection } from './types.js';
 
 /**
  * Режим комбинирования стратегий
@@ -117,7 +117,7 @@ export class StrategyManager {
         return this.combineWeighted(decisions, data);
 
       default:
-        return decisions[0].decision;
+        return decisions[0]?.decision ?? null;
     }
   }
 
@@ -126,8 +126,8 @@ export class StrategyManager {
    */
   private combineFirst(
     decisions: Array<{ strategy: string; decision: TradeDecision }>,
-  ): TradeDecision {
-    return decisions[0].decision;
+  ): TradeDecision | null {
+    return decisions[0]?.decision ?? null;
   }
 
   /**
@@ -168,16 +168,20 @@ export class StrategyManager {
    */
   private combineBestConfidence(
     decisions: Array<{ strategy: string; decision: TradeDecision }>,
-  ): TradeDecision {
+  ): TradeDecision | null {
+    if (decisions.length === 0) {
+      return null;
+    }
+
     let best = decisions[0];
 
     for (const current of decisions) {
-      if (current.decision.confidence > best.decision.confidence) {
+      if (best && current.decision.confidence > best.decision.confidence) {
         best = current;
       }
     }
 
-    return best.decision;
+    return best?.decision ?? null;
   }
 
   /**
@@ -210,7 +214,8 @@ export class StrategyManager {
     }
 
     // Определяем направление
-    const direction = longWeight > shortWeight ? 'long' : 'short';
+    const direction: TradeDirection =
+      (longWeight > shortWeight ? 'long' : 'short') as TradeDirection;
     const dominantWeight = Math.max(longWeight, shortWeight);
     const confidence = dominantWeight / totalWeight;
 
@@ -225,22 +230,26 @@ export class StrategyManager {
       sameDirectionDecisions.reduce((sum, d) => sum + d.decision.positionSize, 0) /
       sameDirectionDecisions.length;
 
-    const avgStopLoss = sameDirectionDecisions.filter((d) => d.decision.stopLoss).length > 0
-      ? sameDirectionDecisions
-          .filter((d) => d.decision.stopLoss)
-          .reduce((sum, d) => sum + (d.decision.stopLoss ?? 0), 0) /
-        sameDirectionDecisions.filter((d) => d.decision.stopLoss).length
-      : undefined;
+    const avgStopLoss =
+      sameDirectionDecisions.filter((d) => d.decision.stopLoss).length > 0
+        ? sameDirectionDecisions
+            .filter((d) => d.decision.stopLoss)
+            .reduce((sum, d) => sum + (d.decision.stopLoss ?? 0), 0) /
+          sameDirectionDecisions.filter((d) => d.decision.stopLoss).length
+        : undefined;
 
-    const avgTakeProfit = sameDirectionDecisions.filter((d) => d.decision.takeProfit).length > 0
-      ? sameDirectionDecisions
-          .filter((d) => d.decision.takeProfit)
-          .reduce((sum, d) => sum + (d.decision.takeProfit ?? 0), 0) /
-        sameDirectionDecisions.filter((d) => d.decision.takeProfit).length
-      : undefined;
+    const avgTakeProfit =
+      sameDirectionDecisions.filter((d) => d.decision.takeProfit).length > 0
+        ? sameDirectionDecisions
+            .filter((d) => d.decision.takeProfit)
+            .reduce((sum, d) => sum + (d.decision.takeProfit ?? 0), 0) /
+          sameDirectionDecisions.filter((d) => d.decision.takeProfit).length
+        : undefined;
 
     // Собираем все сигналы
     const allSignals = sameDirectionDecisions.flatMap((d) => d.decision.signals);
+
+    const firstDecision = sameDirectionDecisions[0]?.decision;
 
     return {
       direction,
@@ -249,7 +258,7 @@ export class StrategyManager {
       stopLoss: avgStopLoss,
       takeProfit: avgTakeProfit,
       positionSize: avgPositionSize,
-      timeframe: sameDirectionDecisions[0].decision.timeframe,
+      timeframe: firstDecision?.timeframe,
       reason: `Weighted combination of ${sameDirectionDecisions.length} strategies`,
       signals: allSignals,
     };

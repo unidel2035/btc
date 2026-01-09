@@ -18,14 +18,15 @@ export abstract class BaseStrategy implements Strategy {
   protected stats: StrategyStats;
 
   constructor(params: StrategyParams = { enabled: true }) {
+    const { enabled = true, ...rest } = params;
     this.params = {
-      enabled: true,
       minImpact: 0.5,
       minConfidence: 0.6,
       maxPositionSize: 5,
       stopLossPercent: 2,
       takeProfitPercent: 5,
-      ...params,
+      enabled,
+      ...rest,
     };
 
     this.stats = {
