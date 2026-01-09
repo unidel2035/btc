@@ -1,4 +1,6 @@
 import type { NewsItem } from './types.js';
+import { NewsRepository } from '../../database/models/NewsRepository.js';
+import type { NewsModel } from '../../database/models/types.js';
 
 /**
  * Интерфейс для хранилища новостей
@@ -184,3 +186,86 @@ CREATE INDEX IF NOT EXISTS idx_news_url ON news(url);
 CREATE INDEX IF NOT EXISTS idx_news_title_content ON news
   USING gin(to_tsvector('english', title || ' ' || content));
 `;
+
+/**
+ * PostgreSQL хранилище новостей
+ */
+export class PostgresNewsStorage implements NewsStorage {
+  /**
+   * Convert NewsModel to NewsItem
+   */
+  private modelToItem(model: NewsModel): NewsItem {
+    return {
+      id: model.id,
+      source: model.source,
+      title: model.title,
+      content: model.content,
+      url: model.url,
+      publishedAt: model.published_at,
+      collectedAt: model.collected_at,
+      tags: [],
+      sentiment: model.sentiment ?? undefined,
+    };
+  }
+
+  /**
+   * Convert NewsItem to database insert
+   */
+  private itemToInsert(item: NewsItem) {
+    return {
+      source: item.source,
+      title: item.title,
+      content: item.content,
+      url: item.url,
+      published_at: item.publishedAt,
+      collected_at: new Date(),
+      sentiment: item.sentiment ?? null,
+      impact: null,
+      processed: false,
+    };
+  }
+
+  async save(news: NewsItem): Promise<void> {
+    await NewsRepository.create(this.itemToInsert(news));
+  }
+
+  async saveMany(news: NewsItem[]): Promise<void> {
+    const inserts = news.map((item) => this.itemToInsert(item));
+    await NewsRepository.createMany(inserts);
+  }
+
+  async getById(id: string): Promise<NewsItem | null> {
+    const model = await NewsRepository.findById(id);
+    return model ? this.modelToItem(model) : null;
+  }
+
+  async existsByUrl(url: string): Promise<boolean> {
+    return await NewsRepository.existsByUrl(url);
+  }
+
+  async getRecent(limit: number, offset: number = 0): Promise<NewsItem[]> {
+    const models = await NewsRepository.getRecent(limit, offset);
+    return models.map((m) => this.modelToItem(m));
+  }
+
+  async getBySource(source: string, limit: number): Promise<NewsItem[]> {
+    const models = await NewsRepository.getBySource(source, limit);
+    return models.map((m) => this.modelToItem(m));
+  }
+
+  async getByDateRange(from: Date, to: Date): Promise<NewsItem[]> {
+    const models = await NewsRepository.find({
+      published_after: from,
+      published_before: to,
+    });
+    return models.map((m) => this.modelToItem(m));
+  }
+
+  async count(): Promise<number> {
+    return await NewsRepository.count();
+  }
+
+  async deleteOlderThan(date: Date): Promise<number> {
+    return await NewsRepository.deleteOlderThan(date);
+  }
+}

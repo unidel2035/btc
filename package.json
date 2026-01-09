@@ -22,6 +22,12 @@
     "test:risk": "tsx tests/trading/risk.test.ts",
     "test:strategies": "tsx tests/trading/strategies.test.ts",
     "test:backtest": "tsx tests/trading/backtest.test.ts",
+    "test:database": "tsx tests/database/database.test.ts",
+    "db:migrate": "tsx -e \"import { runMigrations } from './src/database/migrations/runner.js'; await runMigrations(); process.exit(0);\"",
+    "db:rollback": "tsx -e \"import { rollbackMigration } from './src/database/migrations/runner.js'; await rollbackMigration(); process.exit(0);\"",
+    "db:status": "tsx -e \"import { showMigrationStatus } from './src/database/migrations/runner.js'; await showMigrationStatus(); process.exit(0);\"",
+    "db:backup": "./scripts/backup-database.sh",
+    "db:restore": "./scripts/restore-database.sh",
     "example:news": "tsx examples/news-collector-example.ts",
     "example:sentiment": "tsx examples/sentiment-analyzer-example.ts",
     "example:risk": "tsx examples/risk-manager-example.ts",
@@ -52,8 +58,11 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@types/pg": "^8.16.0",
     "dotenv": "^16.3.1",
+    "ioredis": "^5.9.1",
     "node-cron": "^4.2.1",
+    "pg": "^8.16.3",
     "playwright": "^1.57.0",
     "rss-parser": "^3.13.0"
   },
