@@ -165,6 +165,7 @@ npm run test:risk
 npm run test:strategies
 npm run test:dashboard
 npm run test:backtest
+npm run test:paper
 
 # Примеры использования
 npm run example:news
@@ -172,6 +173,7 @@ npm run example:sentiment
 npm run example:risk
 npm run example:strategies
 npm run example:backtest
+npm run example:paper
 
 # Только анализ (требует запущенный sentiment-analyzer)
 npm run analyze
@@ -181,12 +183,73 @@ npm run backtest --strategy=news-momentum --symbol=BTCUSDT --from=2024-01-01 --t
 npm run backtest --strategy=sentiment-swing --params='{"threshold": 0.7}'
 npm run backtest --symbols=BTCUSDT,ETHUSDT,SOLUSDT --capital=50000
 
+# Paper Trading (бумажная торговля)
+npm run start -- --mode=paper
+npm run start -- --mode=paper --balance=50000
+npm run example:paper
+
 # Dashboard (веб-интерфейс)
 npm run dashboard
 
 # Примеры использования
 npm run example:dashboard
 ```
+
+## Paper Trading
+
+Режим бумажной торговли для безопасного тестирования стратегий без риска реальных денег.
+
+### Возможности
+- ✅ **Симуляция баланса** - виртуальный баланс с отслеживанием средств
+- ✅ **Виртуальные ордера** - market и limit ордера
+- ✅ **Реальные рыночные данные** - актуальные цены с бирж
+- ✅ **Учет комиссий** - maker/taker комиссии (0.1%)
+- ✅ **Симуляция проскальзывания** - реалистичное проскальзывание (0.05%)
+- ✅ **Stop-Loss и Take-Profit** - автоматическое управление рисками
+- ✅ **Статистика** - полная аналитика торговли
+
+### Запуск
+
+```bash
+# Запуск в paper mode
+npm run start -- --mode=paper
+
+# С начальным балансом
+npm run start -- --mode=paper --balance=50000
+
+# Пример использования
+npm run example:paper
+
+# Тесты
+npm run test:paper
+```
+
+### Конфигурация
+
+В `.env` файле:
+
+```env
+TRADING_MODE=paper
+PAPER_INITIAL_BALANCE=10000
+PAPER_CURRENCY=USDT
+PAPER_MAKER_FEE=0.1
+PAPER_TAKER_FEE=0.1
+PAPER_SLIPPAGE=0.05
+PAPER_ALLOW_SHORTS=true
+PAPER_MAX_POSITIONS=5
+```
+
+### Переключение на Live
+
+⚠️ **ВНИМАНИЕ:** При переключении на live режим используются реальные деньги!
+
+```bash
+npm run start -- --mode=live
+```
+
+Требуется явное подтверждение и настроенные API ключи бирж.
+
+Подробная документация: [src/trading/paper/README.md](src/trading/paper/README.md)
 
 ## Dashboard Веб-интерфейс
 
@@ -285,8 +348,8 @@ npm run db:backup redis
 - [x] Backtesting engine
 - [x] База данных и хранение данных
 - [x] Веб-интерфейс (Dashboard)
+- [x] Paper trading режим
 - [ ] Интеграция с биржами
-- [ ] Paper trading режим
 - [ ] Production deployment
 
 ## Лицензия
