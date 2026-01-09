@@ -112,6 +112,7 @@ REDIS_URL=
 # Источники новостей
 TWITTER_BEARER_TOKEN=
 NEWS_API_KEY=
+ENABLE_NEWS_SCHEDULER=false
 
 # Telegram уведомления
 TELEGRAM_BOT_TOKEN=
@@ -124,8 +125,14 @@ TELEGRAM_CHAT_ID=
 # Запуск бота
 npm run start
 
-# Только сбор данных
+# Только сбор данных (новостей)
 npm run collect
+
+# Запуск тестов
+npm run test
+
+# Пример использования news collector
+npm run example:news
 
 # Только анализ
 npm run analyze
@@ -157,7 +164,7 @@ POST /api/settings         # Обновить настройки
 ## Roadmap
 
 - [x] Базовая архитектура проекта
-- [ ] Модуль сбора новостей
+- [x] Модуль сбора новостей
 - [ ] Sentiment анализ
 - [ ] Интеграция с биржами
 - [ ] Торговые стратегии
