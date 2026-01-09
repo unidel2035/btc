@@ -6,7 +6,7 @@ import type { RiskConfig, Position, LimitCheckResult, RiskStats } from './types.
 export class RiskLimits {
   private config: RiskConfig;
   private positions: Map<string, Position>;
-  private initialBalance: number;
+  private _initialBalance: number; // Stored for future use (e.g., total return calculation)
   private currentBalance: number;
   private dailyStartBalance: number;
   private peakBalance: number;
@@ -15,11 +15,18 @@ export class RiskLimits {
   constructor(config: RiskConfig, initialBalance: number) {
     this.config = config;
     this.positions = new Map();
-    this.initialBalance = initialBalance;
+    this._initialBalance = initialBalance;
     this.currentBalance = initialBalance;
     this.dailyStartBalance = initialBalance;
     this.peakBalance = initialBalance;
     this.dailyResetTime = this.getNextDayStart();
+  }
+
+  /**
+   * Получение начального баланса
+   */
+  getInitialBalance(): number {
+    return this._initialBalance;
   }
 
   /**
