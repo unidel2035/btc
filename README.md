@@ -197,6 +197,31 @@ POST /api/settings         # Обновить настройки
 - Логирование всех действий
 - Prometheus метрики
 
+## Веб-интерфейс Dashboard
+
+Полнофункциональный веб-интерфейс для мониторинга и управления ботом:
+
+### Возможности
+- **Dashboard** — обзор баланса, PnL, позиций, метрик
+- **Signals** — real-time лента торговых сигналов
+- **Positions** — управление открытыми позициями, история
+- **News Feed** — новости с sentiment анализом
+- **Analytics** — статистика производительности, отчеты
+- **Settings** — настройка стратегий, риск-параметров
+
+### Технологии
+- Backend: Express + WebSocket
+- Frontend: Vue 3 + Chart.js
+- Real-time updates каждые 5 секунд
+- Responsive дизайн
+
+```bash
+npm run dashboard
+# Открыть http://localhost:8080
+```
+
+Подробная документация: [src/dashboard/README.md](src/dashboard/README.md)
+
 ## Roadmap
 
 - [x] Базовая архитектура проекта
@@ -204,9 +229,9 @@ POST /api/settings         # Обновить настройки
 - [x] Sentiment анализ
 - [x] Риск-менеджмент модуль
 - [x] Торговые стратегии (News Momentum, Sentiment Swing)
+- [x] Веб-интерфейс Dashboard
 - [ ] Интеграция с биржами
 - [ ] Backtesting engine
-- [ ] Веб-интерфейс
 - [ ] Paper trading режим
 - [ ] Production deployment
 
