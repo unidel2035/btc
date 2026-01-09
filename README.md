@@ -70,11 +70,38 @@ btc/
 
 ## Риск-менеджмент
 
-- Максимальный размер позиции
-- Stop-loss / Take-profit
-- Дневной лимит убытков
-- Диверсификация по активам
-- Корреляционный анализ
+Полнофункциональная система управления рисками:
+
+### Position Sizing
+- ✅ Фиксированный размер позиции
+- ✅ Процент от баланса
+- ✅ Kelly Criterion
+- ✅ Volatility-adjusted sizing
+
+### Stop-Loss / Take-Profit
+- ✅ Фиксированный stop-loss
+- ✅ ATR-based stop
+- ✅ Trailing stop
+- ✅ Множественные take-profit уровни
+
+### Лимиты
+- ✅ Максимальный размер позиции
+- ✅ Максимальное количество позиций
+- ✅ Дневной лимит убытков (daily drawdown)
+- ✅ Общий лимит убытков (max drawdown)
+- ✅ Лимит на актив
+
+### Корреляция и диверсификация
+- ✅ Анализ корреляции активов
+- ✅ Ограничение коррелированных позиций
+- ✅ Проверка диверсификации портфеля
+
+### Уведомления и логирование
+- ✅ Логирование всех риск-событий
+- ✅ Уведомления при приближении к лимитам
+- ✅ Автоматическое закрытие при достижении лимитов
+
+Подробная документация: [src/trading/risk/README.md](src/trading/risk/README.md)
 
 ## Установка
 
@@ -135,12 +162,14 @@ npm run collect
 npm run test
 npm run test:sentiment
 npm run test:exchanges
+npm run test:risk
 npm run test:strategies
 
 # Примеры использования
 npm run example:news
 npm run example:sentiment
 npm run example:exchanges
+npm run example:risk
 npm run example:strategies
 
 # Только анализ (требует запущенный sentiment-analyzer)
@@ -176,6 +205,7 @@ POST /api/settings         # Обновить настройки
 - [x] Модуль сбора новостей
 - [x] Sentiment анализ
 - [x] Интеграция с биржами (Binance, Bybit)
+- [x] Риск-менеджмент модуль
 - [x] Торговые стратегии (News Momentum, Sentiment Swing)
 - [ ] Backtesting engine
 - [ ] Веб-интерфейс
