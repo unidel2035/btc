@@ -163,6 +163,7 @@ npm run test
 npm run test:sentiment
 npm run test:risk
 npm run test:strategies
+npm run test:dashboard
 npm run test:backtest
 
 # Примеры использования
@@ -180,8 +181,35 @@ npm run backtest --strategy=news-momentum --symbol=BTCUSDT --from=2024-01-01 --t
 npm run backtest --strategy=sentiment-swing --params='{"threshold": 0.7}'
 npm run backtest --symbols=BTCUSDT,ETHUSDT,SOLUSDT --capital=50000
 
-# Dashboard
+# Dashboard (веб-интерфейс)
 npm run dashboard
+
+# Примеры использования
+npm run example:dashboard
+```
+
+## Dashboard Веб-интерфейс
+
+Полнофункциональный веб-интерфейс для мониторинга и управления ботом:
+
+### Возможности
+- **Dashboard** — общий обзор с метриками, графиком equity, открытыми позициями
+- **Signals** — real-time лента торговых сигналов с фильтрами
+- **Positions** — управление позициями (просмотр, редактирование SL/TP, закрытие)
+- **News Feed** — лента новостей с sentiment analysis
+- **Analytics** — подробная статистика производительности, trade journal
+- **Settings** — настройка риск-менеджмента и стратегий
+
+### Технологии
+- **Backend**: Express.js + WebSocket для real-time обновлений
+- **Frontend**: HTML/CSS/JavaScript (vanilla) с Chart.js
+- **Storage**: In-memory (для демо)
+- **API**: RESTful endpoints
+
+### Запуск
+```bash
+npm run dashboard
+# Откройте http://localhost:8080 в браузере
 ```
 
 ## API Endpoints
@@ -201,6 +229,52 @@ POST /api/settings         # Обновить настройки
 - Логирование всех действий
 - Prometheus метрики
 
+## База данных
+
+Проект использует PostgreSQL для хранения данных и Redis для кеширования.
+
+### Быстрый старт
+
+```bash
+# Запуск PostgreSQL и Redis через Docker
+docker-compose up -d postgres redis
+
+# Применение миграций
+npm run db:migrate
+
+# (Опционально) Заполнение тестовыми данными
+npm run db:seed
+
+# Тестирование подключения
+npm run test:database
+
+# Примеры использования
+npm run example:database
+```
+
+### Структура базы данных
+
+- **news** — новостные статьи из различных источников
+- **social_posts** — посты из Twitter, Reddit, Telegram
+- **signals** — торговые сигналы от различных анализаторов
+- **trades** — история торговых позиций
+- **candles** — OHLCV данные для технического анализа
+
+Подробная документация: [src/database/README.md](src/database/README.md)
+
+### Бекапы
+
+```bash
+# Создание бекапа
+npm run db:backup create
+
+# Восстановление из бекапа
+npm run db:backup restore ./backups/backup_file.sql
+
+# Бекап Redis
+npm run db:backup redis
+```
+
 ## Roadmap
 
 - [x] Базовая архитектура проекта
@@ -209,8 +283,9 @@ POST /api/settings         # Обновить настройки
 - [x] Риск-менеджмент модуль
 - [x] Торговые стратегии (News Momentum, Sentiment Swing)
 - [x] Backtesting engine
+- [x] База данных и хранение данных
+- [x] Веб-интерфейс (Dashboard)
 - [ ] Интеграция с биржами
-- [ ] Веб-интерфейс
 - [ ] Paper trading режим
 - [ ] Production deployment
 
