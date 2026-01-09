@@ -6,7 +6,6 @@ import type { RiskConfig, Position, LimitCheckResult, RiskStats } from './types.
 export class RiskLimits {
   private config: RiskConfig;
   private positions: Map<string, Position>;
-  private initialBalance: number;
   private currentBalance: number;
   private dailyStartBalance: number;
   private peakBalance: number;
@@ -15,7 +14,6 @@ export class RiskLimits {
   constructor(config: RiskConfig, initialBalance: number) {
     this.config = config;
     this.positions = new Map();
-    this.initialBalance = initialBalance;
     this.currentBalance = initialBalance;
     this.dailyStartBalance = initialBalance;
     this.peakBalance = initialBalance;
