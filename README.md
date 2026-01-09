@@ -134,10 +134,12 @@ npm run collect
 # Запуск тестов
 npm run test
 npm run test:sentiment
+npm run test:strategies
 
 # Примеры использования
 npm run example:news
 npm run example:sentiment
+npm run example:strategies
 
 # Только анализ (требует запущенный sentiment-analyzer)
 npm run analyze
@@ -171,8 +173,8 @@ POST /api/settings         # Обновить настройки
 - [x] Базовая архитектура проекта
 - [x] Модуль сбора новостей
 - [x] Sentiment анализ
+- [x] Торговые стратегии (News Momentum, Sentiment Swing)
 - [ ] Интеграция с биржами
-- [ ] Торговые стратегии
 - [ ] Backtesting engine
 - [ ] Веб-интерфейс
 - [ ] Paper trading режим
