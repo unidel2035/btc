@@ -168,12 +168,83 @@ POST /api/settings         # Обновить настройки
 - Логирование всех действий
 - Prometheus метрики
 
+## Модуль мониторинга социальных сетей
+
+### Поддерживаемые платформы
+
+- **Twitter/X API v2** — отслеживание ключевых аккаунтов и хештегов
+- **Reddit API** — мониторинг криптовалютных subreddits
+- **Telegram** — сбор сообщений из публичных каналов
+
+### Возможности
+
+#### Twitter
+- Отслеживание ключевых аккаунтов (whale alerts, influencers)
+- Мониторинг хештегов (#Bitcoin, #BTC, #Crypto)
+- Подсчет метрик вовлеченности и подписчиков
+
+#### Reddit
+- Мониторинг r/Bitcoin, r/CryptoCurrency, r/CryptoMarkets
+- Различные режимы сортировки (hot, new, top, rising)
+- Анализ trending topics
+
+#### Telegram
+- Подписка на публичные каналы
+- Парсинг сообщений с метриками
+- Инкрементальный сбор
+
+### Примеры использования
+
+```bash
+# Сбор из Twitter
+npm run example:twitter
+
+# Сбор из Reddit
+npm run example:reddit
+
+# Сбор из Telegram
+npm run example:telegram
+
+# Оркестратор (все платформы)
+npm run example:social
+npm run example:social continuous  # Непрерывный режим
+
+# Тесты
+npm run test:social
+```
+
+### Конфигурация
+
+Добавьте в `.env`:
+
+```env
+# Twitter
+TWITTER_BEARER_TOKEN=your_token
+TWITTER_ACCOUNTS=whale_alert,DocumentingBTC
+TWITTER_HASHTAGS=Bitcoin,BTC,Crypto
+
+# Reddit
+REDDIT_CLIENT_ID=your_client_id
+REDDIT_CLIENT_SECRET=your_secret
+REDDIT_SUBREDDITS=Bitcoin,CryptoCurrency,CryptoMarkets
+
+# Telegram
+TELEGRAM_API_ID=your_api_id
+TELEGRAM_API_HASH=your_hash
+TELEGRAM_CHANNELS=bitcoinchannel,cryptonews
+
+# Settings
+ENABLE_SOCIAL_SCHEDULER=false
+SOCIAL_POLL_INTERVAL=300000
+```
+
 ## Roadmap
 
 - [x] Базовая архитектура проекта
 - [x] Модуль сбора новостей
 - [x] Sentiment анализ
 - [x] Торговые стратегии (News Momentum, Sentiment Swing)
+- [x] Модуль мониторинга социальных сетей
 - [ ] Интеграция с биржами
 - [ ] Backtesting engine
 - [ ] Веб-интерфейс
