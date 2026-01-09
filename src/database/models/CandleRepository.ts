@@ -47,7 +47,11 @@ export class CandleRepository {
     ];
 
     const result = await postgres.query<CandleModel>(query, values);
-    if (!result.rows[0]) throw new Error('Failed to create candle'); return result.rows[0];
+    const row = result.rows[0];
+    if (!row) {
+      throw new Error('Failed to create candle');
+    }
+    return row;
   }
 
   /**
