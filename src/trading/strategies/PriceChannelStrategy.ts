@@ -1,11 +1,5 @@
 import { BaseStrategy } from './BaseStrategy.js';
-import type {
-  MarketData,
-  Signal,
-  TradeDecision,
-  StrategyParams,
-  TradeDirection,
-} from './types.js';
+import type { MarketData, Signal, TradeDecision, StrategyParams, TradeDirection } from './types.js';
 
 /**
  * Параметры стратегии Price Channel
@@ -92,10 +86,7 @@ export class PriceChannelStrategy extends BaseStrategy {
     const filteredSignals = this.filterSignalsByImpact(signals);
 
     // Если требуется подтверждение сигналом и его нет - выходим
-    if (
-      (this.params.requireSignalConfirmation as boolean) &&
-      filteredSignals.length === 0
-    ) {
+    if ((this.params.requireSignalConfirmation as boolean) && filteredSignals.length === 0) {
       return null;
     }
 
@@ -170,9 +161,7 @@ export class PriceChannelStrategy extends BaseStrategy {
     const minPercent = (this.params.minChannelPercent as number) || 0.5;
     const maxPercent = (this.params.maxChannelPercent as number) || 3;
 
-    return (
-      channel.widthPercent >= minPercent && channel.widthPercent <= maxPercent
-    );
+    return channel.widthPercent >= minPercent && channel.widthPercent <= maxPercent;
   }
 
   /**
@@ -181,7 +170,7 @@ export class PriceChannelStrategy extends BaseStrategy {
   private checkBreakout(
     data: MarketData,
     channel: ChannelData,
-    signals: Signal[]
+    signals: Signal[],
   ): TradeDecision | null {
     const currentPrice = data.price;
     const breakoutThreshold = (this.params.breakoutThreshold as number) || 0.1;
@@ -197,12 +186,7 @@ export class PriceChannelStrategy extends BaseStrategy {
         }
       }
 
-      return this.createBreakoutDecision(
-        data,
-        channel,
-        'long' as TradeDirection,
-        signals
-      );
+      return this.createBreakoutDecision(data, channel, 'long' as TradeDirection, signals);
     }
 
     // Проверка пробоя нижней границы (SHORT сигнал)
@@ -215,12 +199,7 @@ export class PriceChannelStrategy extends BaseStrategy {
         }
       }
 
-      return this.createBreakoutDecision(
-        data,
-        channel,
-        'short' as TradeDirection,
-        signals
-      );
+      return this.createBreakoutDecision(data, channel, 'short' as TradeDirection, signals);
     }
 
     return null;
@@ -233,7 +212,7 @@ export class PriceChannelStrategy extends BaseStrategy {
     data: MarketData,
     channel: ChannelData,
     direction: TradeDirection,
-    signals: Signal[]
+    signals: Signal[],
   ): TradeDecision {
     const currentPrice = data.price;
 
@@ -245,22 +224,18 @@ export class PriceChannelStrategy extends BaseStrategy {
 
     // Корректировка по ширине канала
     const idealChannelPercent = 1.5;
-    const channelFactor = Math.min(
-      channel.widthPercent / idealChannelPercent,
-      1
-    );
+    const channelFactor = Math.min(channel.widthPercent / idealChannelPercent, 1);
     confidence += channelFactor * 0.15;
 
     // Корректировка по сигналам
     const relevantSignals = signals.filter(
       (s) =>
         (direction === 'long' && s.sentiment === 'bullish') ||
-        (direction === 'short' && s.sentiment === 'bearish')
+        (direction === 'short' && s.sentiment === 'bearish'),
     );
     if (relevantSignals.length > 0) {
       const avgSignalImpact =
-        relevantSignals.reduce((sum, s) => sum + s.impact, 0) /
-        relevantSignals.length;
+        relevantSignals.reduce((sum, s) => sum + s.impact, 0) / relevantSignals.length;
       confidence += avgSignalImpact * 0.2;
     }
 
@@ -275,12 +250,8 @@ export class PriceChannelStrategy extends BaseStrategy {
 
     // Stop-loss и take-profit на основе ширины канала
     const isLong = direction === 'long';
-    const stopLoss = isLong
-      ? currentPrice - channel.width
-      : currentPrice + channel.width;
-    const takeProfit = isLong
-      ? currentPrice + channel.width
-      : currentPrice - channel.width;
+    const stopLoss = isLong ? currentPrice - channel.width : currentPrice + channel.width;
+    const takeProfit = isLong ? currentPrice + channel.width : currentPrice - channel.width;
 
     // Размер позиции
     const positionSize = this.calculatePositionSize(confidence);

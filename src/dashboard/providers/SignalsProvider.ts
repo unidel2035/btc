@@ -88,7 +88,10 @@ export class SignalsProvider {
     }
 
     // Sentiment Swing Strategy
-    if (process.env.STRATEGY_SENTIMENT_SWING_ENABLED !== 'false' && shouldEnable('Sentiment Swing')) {
+    if (
+      process.env.STRATEGY_SENTIMENT_SWING_ENABLED !== 'false' &&
+      shouldEnable('Sentiment Swing')
+    ) {
       const sentimentStrategy = new SentimentSwingStrategy({
         enabled: true,
         minImpact: parseFloat(process.env.SENTIMENT_MIN_IMPACT || '0.5'),
