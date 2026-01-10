@@ -16,13 +16,92 @@ const state = {
   riskConfig: {},
 };
 
+// Initialize i18next
+async function initI18n() {
+  // Error handler for failed loading
+  i18next.on('failedLoading', (lng, ns, msg) => {
+    console.error(`Failed to load language ${lng}: ${msg}`);
+    // Fallback to English if not already trying English
+    if (lng !== 'en') {
+      i18next.changeLanguage('en');
+    }
+  });
+
+  await i18next
+    .use(i18nextHttpBackend)
+    .use(i18nextBrowserLanguageDetector)
+    .init({
+      fallbackLng: 'en',
+      debug: false,
+      backend: {
+        loadPath: '/locales/{{lng}}.json'
+      },
+      detection: {
+        order: ['localStorage', 'navigator'],
+        caches: ['localStorage'],
+        lookupLocalStorage: 'preferredLanguage'
+      }
+    });
+
+  // After initialization, update UI with translations
+  updateUIWithTranslations();
+}
+
+// Translation helper functions
+function t(key) {
+  return i18next.t(key);
+}
+
+function updateElement(selector, translationKey, isHtml = false) {
+  const element = document.querySelector(selector);
+  if (element) {
+    if (isHtml) {
+      element.innerHTML = t(translationKey);
+    } else {
+      element.textContent = t(translationKey);
+    }
+  }
+}
+
+// Update all UI elements with translations
+function updateUIWithTranslations() {
+  // Update all elements with data-i18n attribute
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    element.textContent = t(key);
+  });
+}
+
+// Change language
+async function changeLanguage(lang) {
+  await i18next.changeLanguage(lang);
+  localStorage.setItem('preferredLanguage', lang);
+  updateUIWithTranslations();
+  updateLanguageSwitcher(lang);
+}
+
+function updateLanguageSwitcher(lang) {
+  document.querySelectorAll('.language-option').forEach(button => {
+    button.classList.toggle('active', button.dataset.lang === lang);
+  });
+}
+
 // Initialize app
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await initI18n();
   initializeNavigation();
   connectWebSocket();
   initializeEquityChart();
   loadInitialData();
   setupEventListeners();
+
+  // Setup language switcher event listeners
+  document.querySelectorAll('.language-option').forEach(button => {
+    button.addEventListener('click', () => {
+      const lang = button.dataset.lang;
+      changeLanguage(lang);
+    });
+  });
 });
 
 // Navigation
@@ -115,10 +194,10 @@ function updateConnectionStatus(connected) {
 
   if (connected) {
     statusDot.classList.add('connected');
-    statusText.textContent = 'Connected';
+    statusText.textContent = t('connection.connected');
   } else {
     statusDot.classList.remove('connected');
-    statusText.textContent = 'Disconnected';
+    statusText.textContent = t('connection.disconnected');
   }
 }
 
@@ -242,7 +321,7 @@ function updateMetrics() {
   document.getElementById('pnl').textContent = formatCurrency(pnl);
   document.getElementById('pnlPercent').textContent = formatPercent(pnlPercent);
   document.getElementById('winRate').textContent = formatPercent(winRate);
-  document.getElementById('totalTrades').textContent = `${totalTrades} trades`;
+  document.getElementById('totalTrades').textContent = `${totalTrades} ${t('metrics.trades')}`;
 
   // Update change indicators
   updateChangeIndicator('balanceChange', dailyPnlPercent);
@@ -278,7 +357,7 @@ function renderDashboardPositions() {
   if (!container) return;
 
   if (state.positions.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No open positions</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('positions.noOpenPositions')}</p>`;
     return;
   }
 
@@ -288,7 +367,7 @@ function renderDashboardPositions() {
     <div class="position-item">
       <div class="position-header">
         <span class="position-symbol">${pos.symbol}</span>
-        <span class="position-side ${pos.side}">${pos.side}</span>
+        <span class="position-side ${pos.side}">${t('positions.' + pos.side.toLowerCase())}</span>
       </div>
       <div class="position-pnl ${pos.pnl >= 0 ? 'positive' : 'negative'}">
         ${formatCurrency(pos.pnl)} (${formatPercent(pos.pnlPercent)})
@@ -306,7 +385,7 @@ function renderRecentSignals() {
   const recentSignals = state.signals.slice(0, 5);
 
   if (recentSignals.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No signals yet</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('signals.noSignals')}</p>`;
     return;
   }
 
@@ -318,7 +397,7 @@ function renderRecentSignals() {
         <div class="signal-header">
           <span class="signal-type">${signal.type}</span>
           <span class="signal-symbol">${signal.symbol}</span>
-          <span class="signal-action ${signal.action}">${signal.action}</span>
+          <span class="signal-action ${signal.action}">${t('signals.' + signal.action.toLowerCase())}</span>
         </div>
         <div class="signal-reason">${signal.reason}</div>
       </div>
@@ -386,7 +465,7 @@ function renderSignals() {
   const filteredSignals = filterSignals();
 
   if (filteredSignals.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No signals found</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('signals.noSignalsFound')}</p>`;
     return;
   }
 
@@ -398,13 +477,13 @@ function renderSignals() {
         <div class="signal-header">
           <span class="signal-type">${signal.type}</span>
           <span class="signal-symbol">${signal.symbol}</span>
-          <span class="signal-action ${signal.action}">${signal.action}</span>
+          <span class="signal-action ${signal.action}">${t('signals.' + signal.action.toLowerCase())}</span>
         </div>
         <div class="signal-reason">${signal.reason}</div>
         <div class="signal-meta">
-          <span>Strength: ${signal.strength.toFixed(1)}</span>
-          <span>Confidence: ${formatPercent(signal.confidence * 100)}</span>
-          <span>${new Date(signal.timestamp).toLocaleString()}</span>
+          <span>${t('signals.strength')}: ${signal.strength.toFixed(1)}</span>
+          <span>${t('signals.confidence')}: ${formatPercent(signal.confidence * 100)}</span>
+          <span>${formatDate(signal.timestamp)}</span>
         </div>
       </div>
     </div>
@@ -430,7 +509,7 @@ function renderPositions() {
   if (!container) return;
 
   if (state.positions.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No open positions</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('positions.noOpenPositions')}</p>`;
     return;
   }
 
@@ -440,40 +519,40 @@ function renderPositions() {
     <div class="position-item">
       <div class="position-header">
         <span class="position-symbol">${pos.symbol}</span>
-        <span class="position-side ${pos.side}">${pos.side}</span>
+        <span class="position-side ${pos.side}">${t('positions.' + pos.side.toLowerCase())}</span>
       </div>
       <div class="position-details">
         <div class="position-detail">
-          <div class="position-detail-label">Entry Price</div>
+          <div class="position-detail-label">${t('positions.entryPrice')}</div>
           <div>${formatCurrency(pos.entryPrice)}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Current Price</div>
+          <div class="position-detail-label">${t('positions.currentPrice')}</div>
           <div>${formatCurrency(pos.currentPrice)}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Size</div>
+          <div class="position-detail-label">${t('positions.size')}</div>
           <div>${pos.size}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Stop Loss</div>
+          <div class="position-detail-label">${t('positions.stopLoss')}</div>
           <div>${pos.stopLoss ? formatCurrency(pos.stopLoss) : '-'}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Take Profit</div>
+          <div class="position-detail-label">${t('positions.takeProfit')}</div>
           <div>${pos.takeProfit ? formatCurrency(pos.takeProfit) : '-'}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Opened At</div>
-          <div>${new Date(pos.openedAt).toLocaleString()}</div>
+          <div class="position-detail-label">${t('positions.openedAt')}</div>
+          <div>${formatDate(pos.openedAt)}</div>
         </div>
       </div>
       <div class="position-pnl ${pos.pnl >= 0 ? 'positive' : 'negative'}">
         ${formatCurrency(pos.pnl)} (${formatPercent(pos.pnlPercent)})
       </div>
       <div class="position-actions">
-        <button class="btn btn-secondary btn-small" onclick="editPosition('${pos.id}')">Edit SL/TP</button>
-        <button class="btn btn-danger btn-small" onclick="closePosition('${pos.id}', ${pos.currentPrice})">Close</button>
+        <button class="btn btn-secondary btn-small" onclick="editPosition('${pos.id}')">${t('positions.editSlTp')}</button>
+        <button class="btn btn-danger btn-small" onclick="closePosition('${pos.id}', ${pos.currentPrice})">${t('positions.close')}</button>
       </div>
     </div>
   `,
@@ -503,7 +582,7 @@ function updatePositionPrice(data) {
 }
 
 async function closePosition(id, currentPrice) {
-  if (!confirm('Are you sure you want to close this position?')) return;
+  if (!confirm(t('positions.confirmClose'))) return;
 
   const result = await postAPI(`/api/positions/${id}/close`, {
     exitPrice: currentPrice,
@@ -514,7 +593,7 @@ async function closePosition(id, currentPrice) {
     state.positions = state.positions.filter((p) => p.id !== id);
     renderPositions();
     renderDashboardPositions();
-    showNotification({ message: 'Position closed successfully', type: 'success' });
+    showNotification({ message: t('positions.closedSuccess'), type: 'success' });
   }
 }
 
@@ -522,8 +601,8 @@ function editPosition(id) {
   const position = state.positions.find((p) => p.id === id);
   if (!position) return;
 
-  const stopLoss = prompt('Enter new Stop Loss price:', position.stopLoss || '');
-  const takeProfit = prompt('Enter new Take Profit price:', position.takeProfit || '');
+  const stopLoss = prompt(t('positions.enterStopLoss'), position.stopLoss || '');
+  const takeProfit = prompt(t('positions.enterTakeProfit'), position.takeProfit || '');
 
   if (stopLoss || takeProfit) {
     patchAPI(`/api/positions/${id}`, {
@@ -533,7 +612,7 @@ function editPosition(id) {
       if (result) {
         updateOrAddPosition(result);
         renderPositions();
-        showNotification({ message: 'Position updated successfully', type: 'success' });
+        showNotification({ message: t('positions.updatedSuccess'), type: 'success' });
       }
     });
   }
@@ -547,7 +626,7 @@ function renderNews() {
   const filteredNews = filterNews();
 
   if (filteredNews.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No news found</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('news.noNewsFound')}</p>`;
     return;
   }
 
@@ -559,13 +638,13 @@ function renderNews() {
         <div>
           <div class="news-title">${news.title}</div>
         </div>
-        <span class="news-sentiment ${news.sentiment}">${news.sentiment}</span>
+        <span class="news-sentiment ${news.sentiment}">${t('news.' + news.sentiment.toLowerCase())}</span>
       </div>
       <div class="news-content">${news.content}</div>
       <div class="news-meta">
         <span>${news.source}</span>
-        <span>${new Date(news.publishedAt).toLocaleString()}</span>
-        <a href="${news.url}" target="_blank" style="color: var(--accent-primary);">Read more</a>
+        <span>${formatDate(news.publishedAt)}</span>
+        <a href="${news.url}" target="_blank" style="color: var(--accent-primary);">${t('news.readMore')}</a>
       </div>
     </div>
   `,
@@ -613,7 +692,7 @@ function renderTradeHistory() {
   if (!container) return;
 
   if (state.history.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No trade history</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('analytics.noTradeHistory')}</p>`;
     return;
   }
 
@@ -621,13 +700,13 @@ function renderTradeHistory() {
     <table>
       <thead>
         <tr>
-          <th>Symbol</th>
-          <th>Side</th>
-          <th>Entry</th>
-          <th>Exit</th>
-          <th>PnL</th>
-          <th>Opened</th>
-          <th>Closed</th>
+          <th>${t('analytics.symbol')}</th>
+          <th>${t('analytics.side')}</th>
+          <th>${t('analytics.entry')}</th>
+          <th>${t('analytics.exit')}</th>
+          <th>${t('analytics.pnl')}</th>
+          <th>${t('analytics.opened')}</th>
+          <th>${t('analytics.closed')}</th>
         </tr>
       </thead>
       <tbody>
@@ -636,14 +715,14 @@ function renderTradeHistory() {
             (trade) => `
           <tr>
             <td>${trade.symbol}</td>
-            <td><span class="position-side ${trade.side}">${trade.side}</span></td>
+            <td><span class="position-side ${trade.side}">${t('positions.' + trade.side.toLowerCase())}</span></td>
             <td>${formatCurrency(trade.entryPrice)}</td>
             <td>${formatCurrency(trade.exitPrice)}</td>
             <td style="color: ${trade.pnl >= 0 ? 'var(--success)' : 'var(--danger)'}">
               ${formatCurrency(trade.pnl)} (${formatPercent(trade.pnlPercent)})
             </td>
-            <td>${new Date(trade.openedAt).toLocaleString()}</td>
-            <td>${new Date(trade.closedAt).toLocaleString()}</td>
+            <td>${formatDate(trade.openedAt)}</td>
+            <td>${formatDate(trade.closedAt)}</td>
           </tr>
         `,
           )
@@ -689,12 +768,12 @@ function renderStrategies() {
       <div class="strategy-header">
         <span class="strategy-name">${strategy.name}</span>
         <span class="strategy-status ${strategy.enabled ? 'enabled' : 'disabled'}">
-          ${strategy.enabled ? 'Enabled' : 'Disabled'}
+          ${strategy.enabled ? t('settings.enabled') : t('settings.disabled')}
         </span>
       </div>
       <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
-        <div>Risk per trade: ${strategy.riskPerTrade}%</div>
-        <div>Max positions: ${strategy.maxPositions}</div>
+        <div>${t('settings.riskPerTrade')}: ${strategy.riskPerTrade}%</div>
+        <div>${t('settings.maxPositions')}: ${strategy.maxPositions}</div>
       </div>
     </div>
   `,
@@ -728,7 +807,7 @@ function setupEventListeners() {
     const result = await patchAPI('/api/settings/risk', data);
     if (result) {
       state.riskConfig = result;
-      showNotification({ message: 'Risk settings updated successfully', type: 'success' });
+      showNotification({ message: t('settings.riskSettingsSaved'), type: 'success' });
     }
   });
 }
@@ -736,7 +815,8 @@ function setupEventListeners() {
 // Utility functions
 function formatCurrency(value) {
   if (value === undefined || value === null) return '$0.00';
-  return new Intl.NumberFormat('en-US', {
+  const locale = i18next.language || 'en';
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
@@ -748,6 +828,22 @@ function formatPercent(value) {
   if (value === undefined || value === null) return '0.00%';
   const sign = value > 0 ? '+' : '';
   return `${sign}${value.toFixed(2)}%`;
+}
+
+// Format number according to locale
+function formatNumber(num, locale = i18next.language) {
+  return new Intl.NumberFormat(locale).format(num);
+}
+
+// Format date according to locale
+function formatDate(date, locale = i18next.language) {
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(date));
 }
 
 function showNotification(data) {

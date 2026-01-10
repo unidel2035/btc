@@ -6,44 +6,48 @@
     <title>BTC Trading Bot Dashboard</title>
     <link rel="stylesheet" href="/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- i18next for translations -->
+    <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.6/i18next.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/i18next-browser-languagedetector@7.2.0/i18nextBrowserLanguageDetector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@2.4.2/i18nextHttpBackend.min.js"></script>
   </head>
   <body>
     <div class="app">
       <!-- Sidebar Navigation -->
       <aside class="sidebar">
         <div class="logo">
-          <h2>📊 Trading Bot</h2>
+          <h2 data-i18n="app.title">📊 Trading Bot</h2>
         </div>
         <nav class="nav">
           <a href="#dashboard" class="nav-item active" data-page="dashboard">
             <span class="icon">📈</span>
-            <span>Dashboard</span>
+            <span data-i18n="nav.dashboard">Dashboard</span>
           </a>
           <a href="#signals" class="nav-item" data-page="signals">
             <span class="icon">📡</span>
-            <span>Signals</span>
+            <span data-i18n="nav.signals">Signals</span>
           </a>
           <a href="#positions" class="nav-item" data-page="positions">
             <span class="icon">💼</span>
-            <span>Positions</span>
+            <span data-i18n="nav.positions">Positions</span>
           </a>
           <a href="#news" class="nav-item" data-page="news">
             <span class="icon">📰</span>
-            <span>News Feed</span>
+            <span data-i18n="nav.news">News Feed</span>
           </a>
           <a href="#analytics" class="nav-item" data-page="analytics">
             <span class="icon">📊</span>
-            <span>Analytics</span>
+            <span data-i18n="nav.analytics">Analytics</span>
           </a>
           <a href="#settings" class="nav-item" data-page="settings">
             <span class="icon">⚙️</span>
-            <span>Settings</span>
+            <span data-i18n="nav.settings">Settings</span>
           </a>
         </nav>
         <div class="sidebar-footer">
           <div class="connection-status">
             <span class="status-dot" id="wsStatus"></span>
-            <span id="wsStatusText">Connecting...</span>
+            <span id="wsStatusText" data-i18n="connection.connecting">Connecting...</span>
           </div>
         </div>
       </aside>
@@ -53,29 +57,29 @@
         <!-- Dashboard Page -->
         <div class="page active" id="dashboard-page">
           <div class="page-header">
-            <h1>Dashboard</h1>
-            <p>Real-time overview of your trading bot performance</p>
+            <h1 data-i18n="dashboard.title">Dashboard</h1>
+            <p data-i18n="dashboard.subtitle">Real-time overview of your trading bot performance</p>
           </div>
 
           <!-- Metrics Cards -->
           <div class="metrics-grid">
             <div class="metric-card">
-              <div class="metric-label">Balance</div>
+              <div class="metric-label" data-i18n="metrics.balance">Balance</div>
               <div class="metric-value" id="balance">$0.00</div>
               <div class="metric-change" id="balanceChange">+0.00%</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">Equity</div>
+              <div class="metric-label" data-i18n="metrics.equity">Equity</div>
               <div class="metric-value" id="equity">$0.00</div>
               <div class="metric-change" id="equityChange">+0.00%</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">PnL</div>
+              <div class="metric-label" data-i18n="metrics.pnl">PnL</div>
               <div class="metric-value" id="pnl">$0.00</div>
               <div class="metric-change" id="pnlPercent">0.00%</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">Win Rate</div>
+              <div class="metric-label" data-i18n="metrics.winRate">Win Rate</div>
               <div class="metric-value" id="winRate">0%</div>
               <div class="metric-change" id="totalTrades">0 trades</div>
             </div>
@@ -84,18 +88,18 @@
           <!-- Charts -->
           <div class="charts-grid">
             <div class="chart-card">
-              <h3>Equity Chart</h3>
+              <h3 data-i18n="dashboard.equityChart">Equity Chart</h3>
               <canvas id="equityChart"></canvas>
             </div>
             <div class="chart-card">
-              <h3>Open Positions</h3>
+              <h3 data-i18n="dashboard.openPositions">Open Positions</h3>
               <div id="dashboardPositions" class="positions-list"></div>
             </div>
           </div>
 
           <!-- Recent Signals -->
           <div class="card">
-            <h3>Recent Signals</h3>
+            <h3 data-i18n="dashboard.recentSignals">Recent Signals</h3>
             <div id="recentSignals" class="signals-list"></div>
           </div>
         </div>
@@ -103,23 +107,23 @@
         <!-- Signals Page -->
         <div class="page" id="signals-page">
           <div class="page-header">
-            <h1>Trading Signals</h1>
-            <p>Real-time signal feed from all strategies</p>
+            <h1 data-i18n="signals.title">Trading Signals</h1>
+            <p data-i18n="signals.subtitle">Real-time signal feed from all strategies</p>
           </div>
 
           <div class="filters">
             <select id="signalTypeFilter">
-              <option value="all">All Types</option>
-              <option value="NEWS_MOMENTUM">News Momentum</option>
-              <option value="SENTIMENT_SWING">Sentiment Swing</option>
-              <option value="TECHNICAL">Technical</option>
-              <option value="EVENT_DRIVEN">Event Driven</option>
+              <option value="all" data-i18n="signals.allTypes">All Types</option>
+              <option value="NEWS_MOMENTUM" data-i18n="signals.newsMomentum">News Momentum</option>
+              <option value="SENTIMENT_SWING" data-i18n="signals.sentimentSwing">Sentiment Swing</option>
+              <option value="TECHNICAL" data-i18n="signals.technical">Technical</option>
+              <option value="EVENT_DRIVEN" data-i18n="signals.eventDriven">Event Driven</option>
             </select>
             <select id="signalActionFilter">
-              <option value="all">All Actions</option>
-              <option value="BUY">Buy</option>
-              <option value="SELL">Sell</option>
-              <option value="HOLD">Hold</option>
+              <option value="all" data-i18n="signals.allActions">All Actions</option>
+              <option value="BUY" data-i18n="signals.buy">Buy</option>
+              <option value="SELL" data-i18n="signals.sell">Sell</option>
+              <option value="HOLD" data-i18n="signals.hold">Hold</option>
             </select>
           </div>
 
@@ -129,8 +133,8 @@
         <!-- Positions Page -->
         <div class="page" id="positions-page">
           <div class="page-header">
-            <h1>Positions</h1>
-            <p>Manage your open positions</p>
+            <h1 data-i18n="positions.title">Positions</h1>
+            <p data-i18n="positions.subtitle">Manage your open positions</p>
           </div>
 
           <div id="positionsList" class="positions-grid"></div>
@@ -139,16 +143,16 @@
         <!-- News Page -->
         <div class="page" id="news-page">
           <div class="page-header">
-            <h1>News Feed</h1>
-            <p>Latest crypto news with sentiment analysis</p>
+            <h1 data-i18n="news.title">News Feed</h1>
+            <p data-i18n="news.subtitle">Latest crypto news with sentiment analysis</p>
           </div>
 
           <div class="filters">
             <select id="newsSentimentFilter">
-              <option value="all">All Sentiments</option>
-              <option value="POSITIVE">Positive</option>
-              <option value="NEUTRAL">Neutral</option>
-              <option value="NEGATIVE">Negative</option>
+              <option value="all" data-i18n="news.allSentiments">All Sentiments</option>
+              <option value="POSITIVE" data-i18n="news.positive">Positive</option>
+              <option value="NEUTRAL" data-i18n="news.neutral">Neutral</option>
+              <option value="NEGATIVE" data-i18n="news.negative">Negative</option>
             </select>
           </div>
 
@@ -158,51 +162,51 @@
         <!-- Analytics Page -->
         <div class="page" id="analytics-page">
           <div class="page-header">
-            <h1>Analytics</h1>
-            <p>Performance reports and statistics</p>
+            <h1 data-i18n="analytics.title">Analytics</h1>
+            <p data-i18n="analytics.subtitle">Performance reports and statistics</p>
           </div>
 
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-label">Total Trades</div>
+              <div class="stat-label" data-i18n="analytics.totalTrades">Total Trades</div>
               <div class="stat-value" id="statTotalTrades">0</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Winning Trades</div>
+              <div class="stat-label" data-i18n="analytics.winningTrades">Winning Trades</div>
               <div class="stat-value" id="statWinningTrades">0</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Losing Trades</div>
+              <div class="stat-label" data-i18n="analytics.losingTrades">Losing Trades</div>
               <div class="stat-value" id="statLosingTrades">0</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Win Rate</div>
+              <div class="stat-label" data-i18n="analytics.winRate">Win Rate</div>
               <div class="stat-value" id="statWinRate">0%</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Average Win</div>
+              <div class="stat-label" data-i18n="analytics.avgWin">Average Win</div>
               <div class="stat-value" id="statAvgWin">$0.00</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Average Loss</div>
+              <div class="stat-label" data-i18n="analytics.avgLoss">Average Loss</div>
               <div class="stat-value" id="statAvgLoss">$0.00</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Profit Factor</div>
+              <div class="stat-label" data-i18n="analytics.profitFactor">Profit Factor</div>
               <div class="stat-value" id="statProfitFactor">0.00</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Sharpe Ratio</div>
+              <div class="stat-label" data-i18n="analytics.sharpeRatio">Sharpe Ratio</div>
               <div class="stat-value" id="statSharpeRatio">0.00</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Max Drawdown</div>
+              <div class="stat-label" data-i18n="analytics.maxDrawdown">Max Drawdown</div>
               <div class="stat-value" id="statMaxDrawdown">0%</div>
             </div>
           </div>
 
           <div class="card">
-            <h3>Trade History</h3>
+            <h3 data-i18n="analytics.tradeHistory">Trade History</h3>
             <div id="tradeHistory" class="table-container"></div>
           </div>
         </div>
@@ -210,50 +214,50 @@
         <!-- Settings Page -->
         <div class="page" id="settings-page">
           <div class="page-header">
-            <h1>Settings</h1>
-            <p>Configure bot parameters and risk management</p>
+            <h1 data-i18n="settings.title">Settings</h1>
+            <p data-i18n="settings.subtitle">Configure bot parameters and risk management</p>
           </div>
 
           <div class="settings-grid">
             <div class="card">
-              <h3>Risk Management</h3>
+              <h3 data-i18n="settings.riskManagement">Risk Management</h3>
               <form id="riskSettingsForm">
                 <div class="form-group">
-                  <label>Max Position Size (%)</label>
+                  <label data-i18n="settings.maxPositionSize">Max Position Size (%)</label>
                   <input type="number" id="maxPositionSize" step="0.1" />
                 </div>
                 <div class="form-group">
-                  <label>Max Positions</label>
+                  <label data-i18n="settings.maxPositions">Max Positions</label>
                   <input type="number" id="maxPositions" />
                 </div>
                 <div class="form-group">
-                  <label>Max Daily Loss (%)</label>
+                  <label data-i18n="settings.maxDailyLoss">Max Daily Loss (%)</label>
                   <input type="number" id="maxDailyLoss" step="0.1" />
                 </div>
                 <div class="form-group">
-                  <label>Max Total Drawdown (%)</label>
+                  <label data-i18n="settings.maxTotalDrawdown">Max Total Drawdown (%)</label>
                   <input type="number" id="maxTotalDrawdown" step="0.1" />
                 </div>
                 <div class="form-group">
-                  <label>Default Stop Loss (%)</label>
+                  <label data-i18n="settings.defaultStopLoss">Default Stop Loss (%)</label>
                   <input type="number" id="defaultStopLoss" step="0.1" />
                 </div>
                 <div class="form-group">
-                  <label>Default Take Profit (%)</label>
+                  <label data-i18n="settings.defaultTakeProfit">Default Take Profit (%)</label>
                   <input type="number" id="defaultTakeProfit" step="0.1" />
                 </div>
                 <div class="form-group">
                   <label>
                     <input type="checkbox" id="trailingStop" />
-                    Enable Trailing Stop
+                    <span data-i18n="settings.enableTrailingStop">Enable Trailing Stop</span>
                   </label>
                 </div>
-                <button type="submit" class="btn btn-primary">Save Risk Settings</button>
+                <button type="submit" class="btn btn-primary" data-i18n="settings.saveRiskSettings">Save Risk Settings</button>
               </form>
             </div>
 
             <div class="card">
-              <h3>Strategy Configuration</h3>
+              <h3 data-i18n="settings.strategyConfiguration">Strategy Configuration</h3>
               <div id="strategiesList"></div>
             </div>
           </div>
