@@ -90,12 +90,7 @@ export class ChartDataProvider {
   /**
    * Handle incoming candle from exchange
    */
-  private handleCandle(
-    exchange: string,
-    symbol: string,
-    timeframe: string,
-    candle: Candle,
-  ): void {
+  private handleCandle(exchange: string, symbol: string, timeframe: string, candle: Candle): void {
     // Broadcast to dashboard clients
     this.ws.broadcastChartCandle({
       exchange,
