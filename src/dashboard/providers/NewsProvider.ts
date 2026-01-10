@@ -196,8 +196,15 @@ export class NewsProvider {
    */
   getStats(): {
     isHealthy: boolean;
-    collectorStats: ReturnType<typeof this.newsCollector.getStats>;
-    storageStats: ReturnType<InMemoryNewsStorage['getStats']>;
+    collectorStats: {
+      collectorsCount: number;
+      isRunning: boolean;
+      storage: unknown;
+    };
+    storageStats: {
+      total: number;
+      bySource: Record<string, number>;
+    };
   } {
     return {
       isHealthy: this.isHealthy,
