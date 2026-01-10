@@ -211,7 +211,10 @@ export class IntegramClient {
    * Создать таблицу (тип объектов)
    * Примечание: это упрощенная версия, полное создание таблиц лучше делать через веб-интерфейс
    */
-  async createTable(tableName: string, columns: Array<{ name: string; type: string }>): Promise<number> {
+  async createTable(
+    tableName: string,
+    columns: Array<{ name: string; type: string }>,
+  ): Promise<number> {
     await this.ensureAuthenticated();
 
     // Это заглушка - фактическое создание таблиц через API может требовать более сложной логики
@@ -222,7 +225,9 @@ export class IntegramClient {
     );
     console.warn('Note: Full table creation is recommended via Integram web interface');
 
-    throw new Error('Table creation via API is not yet fully implemented. Please use Integram web interface.');
+    throw new Error(
+      'Table creation via API is not yet fully implemented. Please use Integram web interface.',
+    );
   }
 
   /**

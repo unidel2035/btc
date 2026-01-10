@@ -422,9 +422,9 @@ export class IntegramStorage {
           exitPrice: Number(obj.requisites.exitPrice || 0),
           pnl: Number(obj.requisites.pnl || 0),
           pnlPercent:
-            ((Number(obj.requisites.pnl || 0) / (Number(obj.requisites.entryPrice || 1) * Number(obj.requisites.quantity || 1))) *
-              100) ||
-            0,
+            (Number(obj.requisites.pnl || 0) /
+              (Number(obj.requisites.entryPrice || 1) * Number(obj.requisites.quantity || 1))) *
+              100 || 0,
           openedAt: String(obj.requisites.openTime || new Date().toISOString()),
           closedAt: String(obj.requisites.closeTime || new Date().toISOString()),
           reason: String(obj.requisites.reason || ''),

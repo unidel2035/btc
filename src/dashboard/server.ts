@@ -176,4 +176,4 @@ class DashboardServer {
 
 // Запуск сервера
 const dashboard = new DashboardServer();
-dashboard.start();
+void dashboard.start();
