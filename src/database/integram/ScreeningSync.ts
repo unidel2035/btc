@@ -3,7 +3,7 @@
  * Background jobs for updating project metrics and calculating accuracy
  */
 
-import cron from 'node-cron';
+import type * as cron from 'node-cron';
 import { IntegramClient } from './IntegramClient.js';
 import { ScreeningRepository } from './ScreeningRepository.js';
 import { ScreeningAnalytics } from './ScreeningAnalytics.js';
@@ -81,7 +81,7 @@ export class ScreeningSync {
       for (const ticker of activeProjects) {
         try {
           // Fetch latest data from CoinGecko
-          const coinData = await this.coinGeckoClient.getCoinDetails(ticker.toLowerCase());
+          const coinData = await this.coinGeckoClient.getCoinDetail(ticker.toLowerCase());
 
           if (coinData) {
             const metrics = {

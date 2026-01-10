@@ -5,16 +5,16 @@
 
 import type { IntegramClient } from './IntegramClient.js';
 import type {
-  ANALYTICS_TYPES,
+  // ANALYTICS_TYPES,
   IntegramTradeAnalytics,
   IntegramDailyPortfolioSnapshot,
-  IntegramStrategyPerformance,
-  IntegramAssetPerformance,
+  // IntegramStrategyPerformance,
+  // IntegramAssetPerformance,
   IntegramAnalyticsReport,
-  IntegramEquityCurvePoint,
-  IntegramDrawdownPeriod,
-  IntegramStrategy,
-  IntegramAsset,
+  // IntegramEquityCurvePoint,
+  // IntegramDrawdownPeriod,
+  // IntegramStrategy,
+  // IntegramAsset,
 } from './analytics-types.js';
 import type {
   AnalyticsTrade,
