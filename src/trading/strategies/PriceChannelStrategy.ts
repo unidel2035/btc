@@ -112,6 +112,8 @@ export class PriceChannelStrategy extends BaseStrategy {
       const decision = this.checkBreakout(data, channel, filteredSignals);
       if (decision) {
         this.updateStats(signals, decision);
+        // Emit signal event for real-time broadcasting
+        this.emitSignal(decision, data);
         return decision;
       }
     }

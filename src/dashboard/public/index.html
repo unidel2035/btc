@@ -29,6 +29,7 @@
           <a href="#signals" class="nav-item" data-page="signals">
             <span class="icon">📡</span>
             <span data-i18n="nav.signals">Signals</span>
+            <span id="newSignalsBadge" class="badge" style="display: none; margin-left: 8px; background: #e53e3e; color: white; border-radius: 10px; padding: 2px 6px; font-size: 0.75rem;">0</span>
           </a>
           <a href="#positions" class="nav-item" data-page="positions">
             <span class="icon">💼</span>
@@ -218,7 +219,7 @@
           </div>
         </div>
 
-        <!-- Strategy Chart Page -->
+        <!-- Enhanced Strategy Chart Page -->
         <div class="page" id="chart-page">
           <div class="page-header">
             <h1 data-i18n="chart.title">Multi-Strategy Chart</h1>
@@ -247,39 +248,119 @@
             </div>
           </div>
 
-          <div class="chart-layout">
-            <div class="chart-main">
-              <div class="chart-controls">
-                <button id="chartStart" class="btn btn-primary">▶ <span data-i18n="chart.start">Start</span></button>
-                <button id="chartPause" class="btn btn-secondary">⏸ <span data-i18n="chart.pause">Pause</span></button>
-                <button id="chartReset" class="btn btn-secondary">🔄 <span data-i18n="chart.reset">Reset</span></button>
+          <div class="enhanced-chart-layout">
+            <!-- Left Panel: Order Book & Trades -->
+            <div class="chart-left-panel">
+              <div class="panel-tabs">
+                <button class="panel-tab active" data-tab="orderbook">Order Book</button>
+                <button class="panel-tab" data-tab="trades">Recent Trades</button>
+                <button class="panel-tab" data-tab="depth">Depth</button>
               </div>
-              <div id="tradingChart" class="trading-chart"></div>
+
+              <div class="panel-content active" id="orderbook-panel">
+                <div id="orderbookContainer" class="orderbook-container"></div>
+              </div>
+
+              <div class="panel-content" id="trades-panel">
+                <div id="recentTradesContainer" class="trades-container"></div>
+              </div>
+
+              <div class="panel-content" id="depth-panel">
+                <canvas id="marketDepthChart" class="depth-chart"></canvas>
+              </div>
             </div>
 
-            <div class="chart-sidebar">
-              <div class="card">
+            <!-- Main Chart Area -->
+            <div class="chart-center-panel">
+              <div class="chart-toolbar">
+                <div class="chart-toolbar-section">
+                  <div class="chart-symbol">
+                    <span class="symbol-name">BTC/USDT</span>
+                    <span class="symbol-price" id="chartPrice">$50,000</span>
+                  </div>
+                </div>
+
+                <div class="chart-toolbar-section">
+                  <div class="timeframe-selector">
+                    <button class="timeframe-btn" data-timeframe="1m">1m</button>
+                    <button class="timeframe-btn" data-timeframe="5m">5m</button>
+                    <button class="timeframe-btn" data-timeframe="15m">15m</button>
+                    <button class="timeframe-btn active" data-timeframe="1h">1H</button>
+                    <button class="timeframe-btn" data-timeframe="4h">4H</button>
+                    <button class="timeframe-btn" data-timeframe="1D">1D</button>
+                  </div>
+                </div>
+
+                <div class="chart-toolbar-section">
+                  <div class="chart-type-selector">
+                    <button class="chart-type-btn active" data-chart-type="candlestick" title="Candlestick">📊</button>
+                    <button class="chart-type-btn" data-chart-type="line" title="Line">📈</button>
+                    <button class="chart-type-btn" data-chart-type="area" title="Area">🗻</button>
+                    <button class="chart-type-btn" data-chart-type="bars" title="Bars">📉</button>
+                  </div>
+                </div>
+
+                <div class="chart-toolbar-section">
+                  <div class="indicator-selector">
+                    <button class="indicator-toggle" data-indicator="ma20">MA(20)</button>
+                    <button class="indicator-toggle" data-indicator="ma50">MA(50)</button>
+                    <button class="indicator-toggle" data-indicator="ema20">EMA(20)</button>
+                  </div>
+                </div>
+
+                <div class="chart-toolbar-section">
+                  <div class="chart-actions">
+                    <button id="chartStart" class="btn-icon" title="Start">▶</button>
+                    <button id="chartPause" class="btn-icon" title="Pause">⏸</button>
+                    <button id="chartReset" class="btn-icon" title="Reset">🔄</button>
+                    <button id="chartFullscreen" class="btn-icon" title="Fullscreen">⛶</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="tradingChartContainer" class="trading-chart-container"></div>
+            </div>
+
+            <!-- Right Panel: Info & Signals -->
+            <div class="chart-right-panel">
+              <div class="info-card">
                 <h3 data-i18n="chart.currentState">Current State</h3>
                 <div class="stat-row">
                   <span class="stat-label" data-i18n="chart.symbol">Symbol</span>
                   <span class="stat-value" id="chartSymbol">BTC/USDT</span>
                 </div>
                 <div class="stat-row">
-                  <span class="stat-label" data-i18n="chart.currentPrice">Current Price</span>
-                  <span class="stat-value" id="chartPrice">$50,000</span>
+                  <span class="stat-label" data-i18n="chart.channelHigh">Channel High</span>
+                  <span class="stat-value positive" id="chartChannelHigh">-</span>
                 </div>
                 <div class="stat-row">
-                  <span class="stat-label" data-i18n="chart.signal">Signals</span>
-                  <span id="chartSignalStatus"><span class="badge badge-neutral">No Signals</span></span>
+                  <span class="stat-label" data-i18n="chart.channelLow">Channel Low</span>
+                  <span class="stat-value negative" id="chartChannelLow">-</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label" data-i18n="chart.channelWidth">Channel Width</span>
+                  <span class="stat-value" id="chartChannelWidth">-</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label" data-i18n="chart.signal">Signal</span>
+                  <span id="chartSignalStatus"><span class="badge badge-neutral">No Signal</span></span>
                 </div>
               </div>
 
-              <div class="card">
-                <h3>Recent Signals</h3>
-                <div id="chartLastSignals" class="signals-container">
-                  <p class="text-muted">Waiting for signals...</p>
+              <div class="info-card">
+                <h3 data-i18n="chart.lastSignal">Last Signal</h3>
+                <div id="chartLastSignal">
+                  <p class="text-muted" data-i18n="chart.waitingForBreakout">Waiting for channel breakout...</p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Trade History -->
+          <div class="info-card">
+            <h3 data-i18n="chart.tradeHistory">Trade History</h3>
+            <div id="chartTradeHistory" class="trade-history-list">
+              <p class="text-muted" data-i18n="chart.noTrades">No trades yet</p>
             </div>
           </div>
 
@@ -356,6 +437,29 @@
               <h3 data-i18n="settings.strategyConfiguration">Strategy Configuration</h3>
               <div id="strategiesList"></div>
             </div>
+
+            <div class="card">
+              <h3>Notification Settings</h3>
+              <form id="notificationSettingsForm">
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" id="desktopNotifications" />
+                    <span>Enable Desktop Notifications</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" id="audioNotifications" />
+                    <span>Enable Audio Notifications</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>Min Confidence for Notifications (%)</label>
+                  <input type="number" id="minConfidenceNotifications" min="0" max="100" step="1" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+              </form>
+            </div>
           </div>
         </div>
       </main>
@@ -367,6 +471,10 @@
     <script src="/strategies/EMACrossoverStrategy.js"></script>
     <script src="/strategies/RSIStrategy.js"></script>
     <script src="/chart.js"></script>
+    <script src="/chart-enhanced.js"></script>
+    <script src="/orderbook.js"></script>
+    <script src="/recent-trades.js"></script>
+    <script src="/market-depth.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>

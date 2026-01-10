@@ -53,9 +53,46 @@ export class SignalsProvider {
       mode: CombinationMode.BEST_CONFIDENCE,
     });
 
-    // Добавляем стратегии в менеджер
+    // Добавляем стратегии в менеджер и подписываемся на их события
     for (const strategy of this.strategies.values()) {
       this.strategyManager.addStrategy(strategy);
+
+      // Подписываемся на события сигналов от каждой стратегии
+      strategy.on('signal', (signalData: unknown) => {
+        const data = signalData as {
+          strategy: string;
+          symbol: string;
+          action: 'BUY' | 'SELL' | 'HOLD';
+          strength: number;
+          confidence: number;
+          price: number;
+          reason: string;
+          metadata?: unknown;
+        };
+
+        console.log(`📡 Real-time signal from ${strategy.name}:`, data);
+
+        // Добавляем в storage
+        const signal = storage.addSignal({
+          type: data.strategy,
+          source: data.strategy,
+          symbol: data.symbol,
+          action: data.action,
+          strength: data.strength,
+          confidence: data.confidence,
+          price: data.price,
+          reason: data.reason,
+        });
+
+        // Отправляем через WebSocket в реальном времени
+        if (this.ws) {
+          this.ws.broadcastSignal({
+            type: 'signal',
+            data: signal,
+            timestamp: new Date().toISOString(),
+          });
+        }
+      });
     }
   }
 
