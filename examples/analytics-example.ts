@@ -109,7 +109,7 @@ async function runAnalyticsExample(): Promise<void> {
 
   // Step 3: Calculate performance metrics
   console.log('=== Performance Metrics ===');
-  const performance = await analytics.calculatePerformanceMetrics(trades, equityCurve);
+  const performance = analytics.calculatePerformanceMetrics(trades, equityCurve);
 
   console.log(`Total Return: ${performance.totalReturn.toFixed(2)}%`);
   console.log(`Annualized Return: ${performance.annualizedReturn.toFixed(2)}%`);

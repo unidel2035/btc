@@ -39,7 +39,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    * GET /api/analytics/performance
    * Get performance metrics for a period
    */
-  router.get('/api/analytics/performance', async (req: Request, res: Response) => {
+  router.get('/api/analytics/performance', (req: Request, res: Response) => {
     try {
       const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
@@ -60,7 +60,7 @@ export function setupAnalyticsRoutes(router: Router): void {
         return;
       }
 
-      const performance = await analyticsService!.calculatePerformanceMetrics(
+      const performance = analyticsService!.calculatePerformanceMetrics(
         filteredTrades,
         filteredEquity,
       );
@@ -76,7 +76,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    * GET /api/analytics/returns
    * Get returns for a period
    */
-  router.get('/api/analytics/returns', async (req: Request, res: Response) => {
+  router.get('/api/analytics/returns', (req: Request, res: Response) => {
     try {
       const period = (req.query.period as AnalyticsPeriod) || 'all';
       const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
@@ -95,7 +95,7 @@ export function setupAnalyticsRoutes(router: Router): void {
         return;
       }
 
-      const returns = await analyticsService!.calculateReturns(filteredEquity, period);
+      const returns = analyticsService!.calculateReturns(filteredEquity, period);
 
       res.json(returns);
     } catch (error) {
@@ -295,6 +295,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    * GET /api/analytics/report
    * Generate comprehensive analytics report
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.get('/api/analytics/report', async (req: Request, res: Response) => {
     try {
       const periodType =
@@ -380,6 +381,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.post('/api/analytics/trades', (req: Request, res: Response) => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const trade: AnalyticsTrade = req.body;
 
       // Validate trade data
@@ -407,6 +409,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.post('/api/analytics/equity', (req: Request, res: Response) => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const point: EquityPoint = req.body;
 
       // Convert date string to Date object

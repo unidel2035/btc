@@ -78,7 +78,7 @@ describe('PortfolioAnalytics', () => {
 
   describe('calculateReturns', () => {
     it('should calculate returns correctly', async () => {
-      const returns = await analytics.calculateReturns(mockEquityCurve, 'all');
+      const returns = analytics.calculateReturns(mockEquityCurve, 'all');
 
       expect(returns.totalReturn).toBeCloseTo(3.2, 1); // 3.2% return
       expect(returns.startEquity).toBe(10000);
@@ -86,16 +86,16 @@ describe('PortfolioAnalytics', () => {
       expect(returns.absoluteReturn).toBe(320);
     });
 
-    it('should throw error for insufficient data', async () => {
-      await expect(
-        analytics.calculateReturns([mockEquityCurve[0]!], 'all')
-      ).rejects.toThrow('Insufficient data');
+    it('should throw error for insufficient data', () => {
+      expect(() => analytics.calculateReturns([mockEquityCurve[0]!], 'all')).toThrow(
+        'Insufficient data',
+      );
     });
   });
 
   describe('calculatePerformanceMetrics', () => {
     it('should calculate comprehensive performance metrics', async () => {
-      const metrics = await analytics.calculatePerformanceMetrics(mockTrades, mockEquityCurve);
+      const metrics = analytics.calculatePerformanceMetrics(mockTrades, mockEquityCurve);
 
       expect(metrics.totalReturn).toBeCloseTo(3.2, 1);
       expect(metrics.sharpeRatio).toBeGreaterThan(0);
@@ -105,14 +105,14 @@ describe('PortfolioAnalytics', () => {
     });
 
     it('should calculate Sharpe ratio correctly', async () => {
-      const metrics = await analytics.calculatePerformanceMetrics(mockTrades, mockEquityCurve);
+      const metrics = analytics.calculatePerformanceMetrics(mockTrades, mockEquityCurve);
 
       expect(metrics.sharpeRatio).toBeDefined();
       expect(typeof metrics.sharpeRatio).toBe('number');
     });
 
     it('should calculate VaR metrics', async () => {
-      const metrics = await analytics.calculatePerformanceMetrics(mockTrades, mockEquityCurve);
+      const metrics = analytics.calculatePerformanceMetrics(mockTrades, mockEquityCurve);
 
       expect(metrics.valueAtRisk95).toBeDefined();
       expect(metrics.valueAtRisk99).toBeDefined();

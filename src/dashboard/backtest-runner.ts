@@ -90,7 +90,10 @@ function createStrategy(strategyName: string, positionSize: number): Strategy {
       return new PriceChannelStrategy({
         ...baseParams,
         channelPeriod: 20,
-        breakoutThreshold: 0.002,
+        breakoutThreshold: 0.5, // 0.5% threshold for more realistic testing
+        requireSignalConfirmation: false, // Disable for backtest (no signals available)
+        minChannelPercent: 0.3, // Minimum 0.3% channel width
+        maxChannelPercent: 5, // Maximum 5% channel width
       });
     }
 

@@ -6,9 +6,10 @@
 import type {
   CryptoSector,
   ProjectRecommendation,
-  SectorMetrics,
-  ScreeningReport,
 } from '../../analyzers/screening/types.js';
+
+// Re-export for external use
+export type { SectorMetrics, ScreeningReport } from '../../analyzers/screening/types.js';
 
 /**
  * Table Type IDs in Integram

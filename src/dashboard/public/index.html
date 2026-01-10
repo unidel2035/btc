@@ -7,14 +7,20 @@
     <link rel="stylesheet" href="/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.11/i18next.min.js"></script>
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
   </head>
   <body>
     <div class="app">
+      <!-- Sidebar Backdrop (Mobile) -->
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
       <!-- Sidebar Navigation -->
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <div class="logo">
-          <h2>📊 Trading Bot</h2>
+          <button id="sidebarToggle" class="sidebar-toggle-btn" title="Toggle sidebar">
+            <span class="hamburger-icon">☰</span>
+          </button>
+          <h2 class="logo-text">📊 Trading Bot</h2>
           <div class="language-switcher">
             <button id="langSwitcher" class="lang-btn" title="Switch language / Переключить язык">
               <span id="currentLang">EN</span>
@@ -22,42 +28,42 @@
           </div>
         </div>
         <nav class="nav">
-          <a href="#dashboard" class="nav-item active" data-page="dashboard">
+          <a href="#dashboard" class="nav-item active" data-page="dashboard" title="Dashboard">
             <span class="icon">📈</span>
-            <span data-i18n="nav.dashboard">Dashboard</span>
+            <span class="nav-label" data-i18n="nav.dashboard">Dashboard</span>
           </a>
-          <a href="#signals" class="nav-item" data-page="signals">
+          <a href="#signals" class="nav-item" data-page="signals" title="Signals">
             <span class="icon">📡</span>
-            <span data-i18n="nav.signals">Signals</span>
-            <span id="newSignalsBadge" class="badge" style="display: none; margin-left: 8px; background: #e53e3e; color: white; border-radius: 10px; padding: 2px 6px; font-size: 0.75rem;">0</span>
+            <span class="nav-label" data-i18n="nav.signals">Signals</span>
+            <span id="newSignalsBadge" class="badge nav-badge" style="display: none; margin-left: 8px; background: #e53e3e; color: white; border-radius: 10px; padding: 2px 6px; font-size: 0.75rem;">0</span>
           </a>
-          <a href="#positions" class="nav-item" data-page="positions">
+          <a href="#positions" class="nav-item" data-page="positions" title="Positions">
             <span class="icon">💼</span>
-            <span data-i18n="nav.positions">Positions</span>
+            <span class="nav-label" data-i18n="nav.positions">Positions</span>
           </a>
-          <a href="#news" class="nav-item" data-page="news">
+          <a href="#news" class="nav-item" data-page="news" title="News Feed">
             <span class="icon">📰</span>
-            <span data-i18n="nav.news">News Feed</span>
+            <span class="nav-label" data-i18n="nav.news">News Feed</span>
           </a>
-          <a href="#analytics" class="nav-item" data-page="analytics">
+          <a href="#analytics" class="nav-item" data-page="analytics" title="Analytics">
             <span class="icon">📊</span>
-            <span data-i18n="nav.analytics">Analytics</span>
+            <span class="nav-label" data-i18n="nav.analytics">Analytics</span>
           </a>
-          <a href="#chart" class="nav-item" data-page="chart">
+          <a href="#chart" class="nav-item" data-page="chart" title="Strategy Chart">
             <span class="icon">📈</span>
-            <span data-i18n="nav.chart">Strategy Chart</span>
+            <span class="nav-label" data-i18n="nav.chart">Strategy Chart</span>
           </a>
-          <a href="#screening" class="nav-item" data-page="screening">
+          <a href="#screening" class="nav-item" data-page="screening" title="Screening">
             <span class="icon">🔍</span>
-            <span data-i18n="nav.screening">Screening</span>
+            <span class="nav-label" data-i18n="nav.screening">Screening</span>
           </a>
-          <a href="#backtest" class="nav-item" data-page="backtest">
+          <a href="#backtest" class="nav-item" data-page="backtest" title="Backtesting">
             <span class="icon">🧪</span>
-            <span data-i18n="nav.backtest">Backtesting</span>
+            <span class="nav-label" data-i18n="nav.backtest">Backtesting</span>
           </a>
-          <a href="#settings" class="nav-item" data-page="settings">
+          <a href="#settings" class="nav-item" data-page="settings" title="Settings">
             <span class="icon">⚙️</span>
-            <span data-i18n="nav.settings">Settings</span>
+            <span class="nav-label" data-i18n="nav.settings">Settings</span>
           </a>
         </nav>
         <div class="sidebar-footer">
@@ -67,6 +73,48 @@
           </div>
         </div>
       </aside>
+
+      <!-- Modern Header -->
+      <header class="header">
+        <div class="header-left">
+          <button id="sidebarToggle" class="btn-icon" title="Toggle Sidebar">☰</button>
+        </div>
+
+        <div class="header-center">
+          <div class="status-indicator">
+            <span class="status-dot" id="headerStatus"></span>
+            <span id="headerStatusText">Connecting...</span>
+          </div>
+
+          <div class="header-info-item">
+            <span class="header-info-label">Balance:</span>
+            <span class="header-info-value" id="headerBalance">$0.00</span>
+          </div>
+
+          <div class="header-info-item">
+            <span class="header-info-label">Daily PnL:</span>
+            <span class="header-info-value" id="headerPnL">+$0.00 (+0%)</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div style="position: relative;">
+            <button id="notificationToggle" class="btn-icon" title="Notifications">🔔</button>
+            <span id="notificationBadge">0</span>
+
+            <!-- Notification Dropdown -->
+            <div id="notificationDropdown">
+              <div class="notification-header">
+                <h3>Notifications</h3>
+                <button id="markAllRead">Mark all read</button>
+              </div>
+              <div id="notificationsList"></div>
+            </div>
+          </div>
+
+          <button id="themeToggle" class="btn-icon" title="Toggle Theme">🌙</button>
+        </div>
+      </header>
 
       <!-- Main Content -->
       <main class="main-content">
@@ -843,6 +891,13 @@
       </main>
     </div>
 
+    <!-- Modern UI/UX Scripts -->
+    <script src="/theme.js"></script>
+    <script src="/sidebar.js"></script>
+    <script src="/notifications.js"></script>
+    <script src="/app-integration.js"></script>
+
+    <!-- Application Scripts -->
     <script src="/StrategyManager.js"></script>
     <script src="/strategies/BaseStrategy.js"></script>
     <script src="/strategies/PriceChannelStrategy.js"></script>

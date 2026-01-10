@@ -469,6 +469,87 @@ npm run example:exchanges
 
 Подробная документация: [src/exchanges/README.md](src/exchanges/README.md)
 
+## TradingView Webhook Integration
+
+Интеграция с TradingView позволяет использовать профессиональные индикаторы и Pine Script стратегии для генерации торговых сигналов.
+
+### Возможности
+- ✅ **Webhook Endpoint** - прием сигналов от TradingView alerts
+- ✅ **Secret Key Authentication** - защита от несанкционированного доступа
+- ✅ **Rate Limiting** - защита от злоупотребления (60 req/min)
+- ✅ **Signal Validation** - проверка корректности сигналов
+- ✅ **Auto-Execute** - автоматическое исполнение сигналов
+- ✅ **Manual Approval Mode** - режим ручного подтверждения
+- ✅ **Position Sizing** - автоматический расчет размера позиции
+- ✅ **Stop-Loss/Take-Profit** - автоматический расчет уровней
+- ✅ **Statistics Dashboard** - статистика по webhook сигналам
+
+### Быстрый старт
+
+1. **Настройте webhook secret в `.env`:**
+```env
+TRADINGVIEW_WEBHOOK_SECRET=your-secret-key-here
+WEBHOOK_AUTO_EXECUTE=true
+```
+
+2. **Создайте alert в TradingView** с JSON message:
+```json
+{
+  "secret": "your-secret-key-here",
+  "ticker": "{{ticker}}",
+  "action": "buy",
+  "price": {{close}},
+  "stop_loss": {{low}},
+  "take_profit": {{high}},
+  "confidence": 0.85
+}
+```
+
+3. **Webhook URL:**
+```
+https://your-domain.com/api/webhooks/tradingview
+```
+
+### Поддерживаемые действия
+- `buy` / `long` - Открыть длинную позицию
+- `sell` / `short` - Открыть короткую позицию
+- `close_long` - Закрыть длинную позицию
+- `close_short` - Закрыть короткую позицию
+- `close_all` - Закрыть все позиции
+
+### API Endpoints
+
+```bash
+# Получить недавние webhook сигналы
+GET /api/webhooks/signals?limit=50&status=executed
+
+# Получить статистику
+GET /api/webhooks/stats?period=24h
+
+# Получить конфигурацию
+GET /api/webhooks/config
+
+# Обновить конфигурацию
+PATCH /api/webhooks/config
+
+# Сгенерировать новый secret key
+POST /api/webhooks/config/regenerate-secret
+```
+
+### Использование
+
+```bash
+# Запуск примеров
+npm run example:webhooks
+
+# Тестирование
+npm run test:webhooks
+```
+
+### Документация
+
+Полная документация: [docs/TRADINGVIEW_WEBHOOKS.md](docs/TRADINGVIEW_WEBHOOKS.md)
+
 ## Roadmap
 
 - [x] Базовая архитектура проекта
@@ -484,6 +565,7 @@ npm run example:exchanges
 - [x] Мониторинг (Prometheus, Grafana)
 - [x] Структурированное логирование
 - [x] Интеграция с биржами (Binance, Bybit)
+- [x] TradingView Webhook Integration
 - [ ] WebSocket streams для бирж
 - [ ] OKX полная поддержка
 - [ ] Production deployment

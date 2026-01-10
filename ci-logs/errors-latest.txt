@@ -1,0 +1,50 @@
+2431:Lint & Type Check	Run ESLint	2026-01-10T18:37:33.3356695Z ##[error]Process completed with exit code 1.
+3561:Unit Tests	Run unit tests	2026-01-10T18:37:30.3815620Z 📊 Test Results: 13 passed, 0 failed
+3568:Unit Tests	Run unit tests	2026-01-10T18:37:30.7688070Z Test 1: isTransientError detection
+3569:Unit Tests	Run unit tests	2026-01-10T18:37:30.7691423Z ✅ Correctly identified transient error: Network timeout
+3570:Unit Tests	Run unit tests	2026-01-10T18:37:30.7692762Z ✅ Correctly identified transient error: Rate limit exceeded
+3571:Unit Tests	Run unit tests	2026-01-10T18:37:30.7695351Z ✅ Correctly identified transient error: 500 Internal Server Error
+3572:Unit Tests	Run unit tests	2026-01-10T18:37:30.7696309Z ✅ Correctly identified transient error: 502 Bad Gateway
+3573:Unit Tests	Run unit tests	2026-01-10T18:37:30.7697495Z ✅ Correctly identified transient error: ECONNRESET
+3574:Unit Tests	Run unit tests	2026-01-10T18:37:30.7698372Z ✅ Correctly identified non-transient error: Invalid API key
+3575:Unit Tests	Run unit tests	2026-01-10T18:37:30.7699284Z ✅ Correctly identified non-transient error: 404 Not Found
+3576:Unit Tests	Run unit tests	2026-01-10T18:37:30.7700204Z ✅ Correctly identified non-transient error: Permission denied
+3581:Unit Tests	Run unit tests	2026-01-10T18:37:30.7702435Z Test 3: Retry on transient error and eventual success
+3582:Unit Tests	Run unit tests	2026-01-10T18:37:30.7703198Z Attempt 1/3 failed: Network timeout. Retrying in 10ms...
+3583:Unit Tests	Run unit tests	2026-01-10T18:37:30.7808447Z Attempt 2/3 failed: Network timeout. Retrying in 20ms...
+3586:Unit Tests	Run unit tests	2026-01-10T18:37:30.8013555Z Test 4: Non-transient error stops retries immediately
+3587:Unit Tests	Run unit tests	2026-01-10T18:37:30.8015502Z ✅ Non-transient error stopped retries immediately
+3590:Unit Tests	Run unit tests	2026-01-10T18:37:30.8018250Z Attempt 1/3 failed: Rate limit exceeded. Retrying in 10ms...
+3591:Unit Tests	Run unit tests	2026-01-10T18:37:30.8122990Z Attempt 2/3 failed: Rate limit exceeded. Retrying in 20ms...
+3592:Unit Tests	Run unit tests	2026-01-10T18:37:30.8326659Z ✅ Max attempts reached and error thrown
+3595:Unit Tests	Run unit tests	2026-01-10T18:37:30.8328695Z Test Results: 12 passed, 0 failed
+3626:Unit Tests	Run unit tests	2026-01-10T18:37:31.2368448Z Test 6: Register error callback
+3627:Unit Tests	Run unit tests	2026-01-10T18:37:31.2369175Z ✅ Error callback registered (not triggered in test)
+3638:Unit Tests	Run unit tests	2026-01-10T18:37:31.2374259Z Test Results: 8 passed, 0 failed
+3656:Unit Tests	Run unit tests	2026-01-10T18:37:32.0750730Z [Binance] Exchange Error: Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error.
+3657:Unit Tests	Run unit tests	2026-01-10T18:37:32.0837018Z [Binance] Failed to initialize: ExchangeError: Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error.
+3658:Unit Tests	Run unit tests	2026-01-10T18:37:32.0839567Z     at BinanceExchange.handleBinanceError (/home/runner/work/btc/btc/src/exchanges/binance/BinanceExchange.ts:176:11)
+3671:Unit Tests	Run unit tests	2026-01-10T18:37:32.0854141Z    Error: Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error.
+3693:Unit Tests	Run unit tests	2026-01-10T18:37:32.7520513Z [Binance] Error: Unexpected end of JSON input
+3694:Unit Tests	Run unit tests	2026-01-10T18:37:32.7524092Z [Binance] Failed to initialize: ExchangeError: Unexpected end of JSON input
+3695:Unit Tests	Run unit tests	2026-01-10T18:37:32.7525184Z     at BinanceExchange.handleError (/home/runner/work/btc/btc/src/exchanges/BaseExchange.ts:116:13)
+3707:Unit Tests	Run unit tests	2026-01-10T18:37:32.7535130Z    Error: Unexpected end of JSON input
+3720:Unit Tests	Run unit tests	2026-01-10T18:37:32.9013267Z [Bybit] Error: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+3721:Unit Tests	Run unit tests	2026-01-10T18:37:32.9033070Z [Bybit] Failed to initialize: ExchangeError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+3722:Unit Tests	Run unit tests	2026-01-10T18:37:32.9034484Z     at BybitExchange.handleError (/home/runner/work/btc/btc/src/exchanges/BaseExchange.ts:116:13)
+3734:Unit Tests	Run unit tests	2026-01-10T18:37:32.9043954Z    Error: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+3741:Unit Tests	Run unit tests	2026-01-10T18:37:32.9590695Z [Bybit] Error: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+3743:Unit Tests	Run unit tests	2026-01-10T18:37:32.9592408Z    Error: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+3780:Unit Tests	Run unit tests	2026-01-10T18:37:32.9680072Z [Bybit] Error: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+3781:Unit Tests	Run unit tests	2026-01-10T18:37:32.9687559Z [Bybit] Failed to initialize: ExchangeError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+3782:Unit Tests	Run unit tests	2026-01-10T18:37:32.9688948Z     at BybitExchange.handleError (/home/runner/work/btc/btc/src/exchanges/BaseExchange.ts:116:13)
+3796:Unit Tests	Run unit tests	2026-01-10T18:37:32.9702881Z    Error: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+3891:Unit Tests	Run unit tests	2026-01-10T18:37:32.9767982Z 📊 Test Results: 11 passed, 20 failed
+3893:Unit Tests	Run unit tests	2026-01-10T18:37:32.9925173Z ##[error]Process completed with exit code 1.
+4327:Integration Tests	Run database tests	2026-01-10T18:37:54.2045363Z PostgreSQL: 8 passed, 0 failed
+4328:Integration Tests	Run database tests	2026-01-10T18:37:54.2045665Z Redis: 9 passed, 0 failed
+4330:Integration Tests	Run database tests	2026-01-10T18:37:54.2046204Z Total: 17 passed, 0 failed
+4545:Integration Tests	Run notifications tests	2026-01-10T18:37:55.5556861Z   failed: 0
+4922:All Checks Passed	Check job results	2026-01-10T18:38:03.2063525Z [36;1m  echo "One or more checks failed"[0m
+4928:All Checks Passed	Check job results	2026-01-10T18:38:03.5672517Z One or more checks failed
+4929:All Checks Passed	Check job results	2026-01-10T18:38:03.5701598Z ##[error]Process completed with exit code 1.

@@ -14,7 +14,6 @@ import type {
   ProjectMetricsHistory,
   ProjectRanking,
   SectorTrend,
-  SCREENING_TYPES,
 } from './screening-types.js';
 
 export class ScreeningRepository {
@@ -28,36 +27,40 @@ export class ScreeningRepository {
     await this.client.authenticate();
 
     try {
-      // Get table type IDs from environment
+      // Get table type IDs and requisite IDs from environment
       const SCREENING_TYPES = this.getTypeIds();
+      const REQ_IDS = this.getRequisiteIds();
 
       // 1. Create main report object
       const reportValue = new Date(report.generatedAt).toISOString();
       const duration = 0; // Will be calculated if needed
       const moduleVersion = process.env.npm_package_version || '0.1.0';
 
+      // Get status ID reference
+      const statusId = await this.getStatusId('completed');
+
       const reportId = await this.client.createObject(
         SCREENING_TYPES.SCREENING_REPORTS,
         reportValue,
         {
-          generatedAt: report.generatedAt.toISOString(),
-          analyzedSectors: JSON.stringify(report.analyzedSectors),
-          projectsCount: report.totalProjectsAnalyzed,
-          status: 'completed',
-          duration,
-          moduleVersion,
-          configParams: JSON.stringify({}), // Can be extended later
+          [REQ_IDS.report.generatedAt]: report.generatedAt.toISOString(),
+          [REQ_IDS.report.analyzedSectors]: JSON.stringify(report.analyzedSectors),
+          [REQ_IDS.report.projectsCount]: report.totalProjectsAnalyzed,
+          [REQ_IDS.report.status]: statusId,
+          [REQ_IDS.report.duration]: duration,
+          [REQ_IDS.report.moduleVersion]: moduleVersion,
+          [REQ_IDS.report.configParams]: JSON.stringify({}), // Can be extended later
         },
       );
 
       // 2. Save sector performance (subordinate to report)
       for (const sector of report.selectedSectors) {
-        await this.saveSectorPerformance(reportId, sector, SCREENING_TYPES);
+        await this.saveSectorPerformance(reportId, sector);
       }
 
       // 3. Save recommendations (subordinate to report)
       for (const recommendation of report.recommendations) {
-        await this.saveRecommendation(reportId, recommendation, SCREENING_TYPES);
+        await this.saveRecommendation(reportId, recommendation);
       }
 
       console.log(`✅ Screening report saved to Integram: ID ${reportId}`);
@@ -84,6 +87,9 @@ export class ScreeningRepository {
       }
 
       const latestReport = reports[0];
+      if (!latestReport) {
+        return null;
+      }
       return await this.buildReportFromIntegram(latestReport.id);
     } catch (error) {
       console.error('Failed to get latest report:', error);
@@ -339,18 +345,26 @@ export class ScreeningRepository {
   async saveProjectMetrics(ticker: string, metrics: any): Promise<void> {
     try {
       const SCREENING_TYPES = this.getTypeIds();
+      const REQ_IDS = this.getRequisiteIds();
 
-      await this.client.createObject(SCREENING_TYPES.PROJECT_METRICS_HISTORY, new Date().toISOString(), {
-        project: ticker,
-        date: new Date().toISOString(),
-        marketCap: metrics.marketCap || 0,
-        tradingVolume24h: metrics.volume24h || 0,
-        price: metrics.currentPrice || 0,
-        priceChange30d: metrics.priceChange30d || 0,
-        tvl: metrics.tvl || null,
-        socialScore: metrics.communityScore || 0,
-        compositeScore: metrics.totalScore || 0,
-      });
+      // Get project ID reference
+      const projectId = await this.getOrCreateCrypto(ticker);
+
+      await this.client.createObject(
+        SCREENING_TYPES.PROJECT_METRICS_HISTORY,
+        new Date().toISOString(),
+        {
+          [REQ_IDS.metrics.project]: projectId,
+          [REQ_IDS.metrics.date]: new Date().toISOString(),
+          [REQ_IDS.metrics.marketCap]: metrics.marketCap || 0,
+          [REQ_IDS.metrics.volume24h]: metrics.volume24h || 0,
+          [REQ_IDS.metrics.price]: metrics.currentPrice || 0,
+          [REQ_IDS.metrics.priceChange30d]: metrics.priceChange30d || 0,
+          [REQ_IDS.metrics.tvl]: metrics.tvl || null,
+          [REQ_IDS.metrics.socialScore]: metrics.communityScore || 0,
+          [REQ_IDS.metrics.compositeScore]: metrics.totalScore || 0,
+        },
+      );
     } catch (error) {
       console.error(`Failed to save project metrics for ${ticker}:`, error);
     }
@@ -359,19 +373,21 @@ export class ScreeningRepository {
   /**
    * Helper: Save sector performance
    */
-  private async saveSectorPerformance(
-    reportId: number,
-    sector: any,
-    SCREENING_TYPES: any,
-  ): Promise<void> {
+  private async saveSectorPerformance(reportId: number, sector: any): Promise<void> {
+    const SCREENING_TYPES = this.getTypeIds();
+    const REQ_IDS = this.getRequisiteIds();
+
+    // Get sector ID reference
+    const sectorId = await this.getSectorId(sector.sector);
+
     await this.client.createObject(SCREENING_TYPES.SECTOR_PERFORMANCE, sector.sector, {
-      up: reportId,
-      sector: sector.sector,
-      marketCapGrowth30d: sector.marketCapChange30d || 0,
-      marketCapGrowth90d: sector.marketCapChange90d || 0,
-      sectorScore: sector.score || 0,
-      selected: true,
-      rationale: sector.narrative || '',
+      [REQ_IDS.sectorPerf.up]: reportId,
+      [REQ_IDS.sectorPerf.sector]: sectorId,
+      [REQ_IDS.sectorPerf.mcapGrowth30d]: sector.marketCapChange30d || 0,
+      [REQ_IDS.sectorPerf.mcapGrowth90d]: sector.marketCapChange90d || 0,
+      [REQ_IDS.sectorPerf.score]: sector.score || 0,
+      [REQ_IDS.sectorPerf.selected]: true,
+      [REQ_IDS.sectorPerf.rationale]: sector.narrative || '',
     });
   }
 
@@ -381,28 +397,35 @@ export class ScreeningRepository {
   private async saveRecommendation(
     reportId: number,
     recommendation: ProjectRecommendation,
-    SCREENING_TYPES: any,
   ): Promise<void> {
+    const SCREENING_TYPES = this.getTypeIds();
+    const REQ_IDS = this.getRequisiteIds();
+
+    // Get reference IDs
+    const tickerId = await this.getOrCreateCrypto(recommendation.ticker);
+    const sectorId = await this.getSectorId(recommendation.sector || '');
+    const riskLevelId = await this.getRiskLevelId(recommendation.riskLevel);
+
     await this.client.createObject(
       SCREENING_TYPES.SCREENING_RECOMMENDATIONS,
       recommendation.ticker,
       {
-        up: reportId,
-        rank: recommendation.rank,
-        ticker: recommendation.ticker,
-        name: recommendation.name,
-        sector: recommendation.sector || '',
-        compositeScore: recommendation.score,
-        fundamentalScore: 0, // Can be extracted from detailed scoring
-        marketScore: 0,
-        communityScore: 0,
-        rationale: recommendation.rationale,
-        keyRisk: recommendation.keyRisk,
-        riskLevel: recommendation.riskLevel,
-        marketCap: recommendation.marketCap,
-        priceToAth: recommendation.priceToAth,
-        volume24h: recommendation.volume24h,
-        tradingPairs: JSON.stringify(recommendation.tradingPairs),
+        [REQ_IDS.recommendation.up]: reportId,
+        [REQ_IDS.recommendation.rank]: recommendation.rank,
+        [REQ_IDS.recommendation.ticker]: tickerId,
+        [REQ_IDS.recommendation.name]: recommendation.name,
+        [REQ_IDS.recommendation.sector]: sectorId,
+        [REQ_IDS.recommendation.compositeScore]: recommendation.score,
+        [REQ_IDS.recommendation.fundamentalScore]: 0, // Can be extracted from detailed scoring
+        [REQ_IDS.recommendation.marketScore]: 0,
+        [REQ_IDS.recommendation.communityScore]: 0,
+        [REQ_IDS.recommendation.rationale]: recommendation.rationale,
+        [REQ_IDS.recommendation.keyRisk]: recommendation.keyRisk,
+        [REQ_IDS.recommendation.riskLevel]: riskLevelId,
+        [REQ_IDS.recommendation.marketCap]: recommendation.marketCap,
+        [REQ_IDS.recommendation.priceToAth]: recommendation.priceToAth,
+        [REQ_IDS.recommendation.volume24h]: recommendation.volume24h,
+        [REQ_IDS.recommendation.tradingPairs]: JSON.stringify(recommendation.tradingPairs),
       },
     );
   }
@@ -510,6 +533,133 @@ export class ScreeningRepository {
       PROJECT_METRICS_HISTORY: parseInt(
         process.env.INTEGRAM_TYPE_PROJECT_METRICS_HISTORY || '0',
       ),
+      REPORT_STATUS: parseInt(process.env.INTEGRAM_TYPE_REPORT_STATUS || '0'),
+      RISK_LEVELS: parseInt(process.env.INTEGRAM_TYPE_RISK_LEVELS || '0'),
     };
+  }
+
+  /**
+   * Helper: Get requisite IDs from environment
+   */
+  private getRequisiteIds() {
+    return {
+      report: {
+        generatedAt: parseInt(process.env.INTEGRAM_REQ_REPORT_GENERATED_AT || '0'),
+        analyzedSectors: parseInt(process.env.INTEGRAM_REQ_REPORT_ANALYZED_SECTORS || '0'),
+        projectsCount: parseInt(process.env.INTEGRAM_REQ_REPORT_PROJECTS_COUNT || '0'),
+        status: parseInt(process.env.INTEGRAM_REQ_REPORT_STATUS || '0'),
+        duration: parseInt(process.env.INTEGRAM_REQ_REPORT_DURATION || '0'),
+        moduleVersion: parseInt(process.env.INTEGRAM_REQ_REPORT_MODULE_VERSION || '0'),
+        configParams: parseInt(process.env.INTEGRAM_REQ_REPORT_CONFIG_PARAMS || '0'),
+      },
+      recommendation: {
+        up: parseInt(process.env.INTEGRAM_REQ_REC_UP || '0'),
+        rank: parseInt(process.env.INTEGRAM_REQ_REC_RANK || '0'),
+        ticker: parseInt(process.env.INTEGRAM_REQ_REC_TICKER || '0'),
+        name: parseInt(process.env.INTEGRAM_REQ_REC_NAME || '0'),
+        sector: parseInt(process.env.INTEGRAM_REQ_REC_SECTOR || '0'),
+        compositeScore: parseInt(process.env.INTEGRAM_REQ_REC_COMPOSITE_SCORE || '0'),
+        fundamentalScore: parseInt(process.env.INTEGRAM_REQ_REC_FUNDAMENTAL_SCORE || '0'),
+        marketScore: parseInt(process.env.INTEGRAM_REQ_REC_MARKET_SCORE || '0'),
+        communityScore: parseInt(process.env.INTEGRAM_REQ_REC_COMMUNITY_SCORE || '0'),
+        rationale: parseInt(process.env.INTEGRAM_REQ_REC_RATIONALE || '0'),
+        keyRisk: parseInt(process.env.INTEGRAM_REQ_REC_KEY_RISK || '0'),
+        riskLevel: parseInt(process.env.INTEGRAM_REQ_REC_RISK_LEVEL || '0'),
+        marketCap: parseInt(process.env.INTEGRAM_REQ_REC_MARKET_CAP || '0'),
+        priceToAth: parseInt(process.env.INTEGRAM_REQ_REC_PRICE_TO_ATH || '0'),
+        volume24h: parseInt(process.env.INTEGRAM_REQ_REC_VOLUME_24H || '0'),
+        tradingPairs: parseInt(process.env.INTEGRAM_REQ_REC_TRADING_PAIRS || '0'),
+      },
+      sectorPerf: {
+        up: parseInt(process.env.INTEGRAM_REQ_SECTOR_PERF_UP || '0'),
+        sector: parseInt(process.env.INTEGRAM_REQ_SECTOR_PERF_SECTOR || '0'),
+        mcapGrowth30d: parseInt(process.env.INTEGRAM_REQ_SECTOR_PERF_MCAP_GROWTH_30D || '0'),
+        mcapGrowth90d: parseInt(process.env.INTEGRAM_REQ_SECTOR_PERF_MCAP_GROWTH_90D || '0'),
+        score: parseInt(process.env.INTEGRAM_REQ_SECTOR_PERF_SCORE || '0'),
+        selected: parseInt(process.env.INTEGRAM_REQ_SECTOR_PERF_SELECTED || '0'),
+        rationale: parseInt(process.env.INTEGRAM_REQ_SECTOR_PERF_RATIONALE || '0'),
+      },
+      metrics: {
+        project: parseInt(process.env.INTEGRAM_REQ_METRICS_PROJECT || '0'),
+        date: parseInt(process.env.INTEGRAM_REQ_METRICS_DATE || '0'),
+        marketCap: parseInt(process.env.INTEGRAM_REQ_METRICS_MARKET_CAP || '0'),
+        volume24h: parseInt(process.env.INTEGRAM_REQ_METRICS_VOLUME_24H || '0'),
+        price: parseInt(process.env.INTEGRAM_REQ_METRICS_PRICE || '0'),
+        priceChange30d: parseInt(process.env.INTEGRAM_REQ_METRICS_PRICE_CHANGE_30D || '0'),
+        tvl: parseInt(process.env.INTEGRAM_REQ_METRICS_TVL || '0'),
+        socialScore: parseInt(process.env.INTEGRAM_REQ_METRICS_SOCIAL_SCORE || '0'),
+        compositeScore: parseInt(process.env.INTEGRAM_REQ_METRICS_COMPOSITE_SCORE || '0'),
+      },
+      crypto: {
+        name: parseInt(process.env.INTEGRAM_REQ_CRYPTO_NAME || '0'),
+        coinGeckoId: parseInt(process.env.INTEGRAM_REQ_CRYPTO_COINGECKO_ID || '0'),
+        logoUrl: parseInt(process.env.INTEGRAM_REQ_CRYPTO_LOGO_URL || '0'),
+        website: parseInt(process.env.INTEGRAM_REQ_CRYPTO_WEBSITE || '0'),
+        description: parseInt(process.env.INTEGRAM_REQ_CRYPTO_DESCRIPTION || '0'),
+        lastUpdated: parseInt(process.env.INTEGRAM_REQ_CRYPTO_LAST_UPDATED || '0'),
+      },
+      sector: {
+        description: parseInt(process.env.INTEGRAM_REQ_SECTOR_DESCRIPTION || '0'),
+        narrative: parseInt(process.env.INTEGRAM_REQ_SECTOR_NARRATIVE || '0'),
+        color: parseInt(process.env.INTEGRAM_REQ_SECTOR_COLOR || '0'),
+      },
+    };
+  }
+
+  /**
+   * Helper: Get status ID from lookup table
+   */
+  private async getStatusId(status: string): Promise<string> {
+    const SCREENING_TYPES = this.getTypeIds();
+    const statuses = await this.client.getObjects(SCREENING_TYPES.REPORT_STATUS);
+    const found = statuses.find((s) => s.value === status);
+    return found?.id.toString() || '';
+  }
+
+  /**
+   * Helper: Get sector ID from lookup table
+   */
+  private async getSectorId(sectorName: string): Promise<string> {
+    const SCREENING_TYPES = this.getTypeIds();
+    const sectors = await this.client.getObjects(SCREENING_TYPES.SECTORS);
+    const found = sectors.find((s) => s.value === sectorName);
+    return found?.id.toString() || '';
+  }
+
+  /**
+   * Helper: Get risk level ID from lookup table
+   */
+  private async getRiskLevelId(riskLevel: string): Promise<string> {
+    const SCREENING_TYPES = this.getTypeIds();
+    const levels = await this.client.getObjects(SCREENING_TYPES.RISK_LEVELS);
+    const found = levels.find((l) => l.value === riskLevel);
+    return found?.id.toString() || '';
+  }
+
+  /**
+   * Helper: Get or create cryptocurrency entry
+   */
+  private async getOrCreateCrypto(ticker: string): Promise<string> {
+    const SCREENING_TYPES = this.getTypeIds();
+    const REQ_IDS = this.getRequisiteIds();
+
+    const cryptos = await this.client.getObjects(SCREENING_TYPES.CRYPTOCURRENCIES);
+    const found = cryptos.find((c) => c.value === ticker);
+
+    if (found) {
+      return found.id.toString();
+    }
+
+    // Create new crypto entry
+    const newCryptoId = await this.client.createObject(
+      SCREENING_TYPES.CRYPTOCURRENCIES,
+      ticker,
+      {
+        [REQ_IDS.crypto.name]: ticker,
+        [REQ_IDS.crypto.lastUpdated]: new Date().toISOString(),
+      },
+    );
+
+    return newCryptoId.toString();
   }
 }

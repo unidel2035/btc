@@ -35,7 +35,7 @@ export class PortfolioAnalytics {
   /**
    * Calculate returns for a given period
    */
-  async calculateReturns(equityCurve: EquityPoint[], period: AnalyticsPeriod): Promise<Returns> {
+  calculateReturns(equityCurve: EquityPoint[], period: AnalyticsPeriod): Returns {
     if (equityCurve.length < 2) {
       throw new Error('Insufficient data for returns calculation');
     }
@@ -85,10 +85,10 @@ export class PortfolioAnalytics {
   /**
    * Calculate comprehensive performance metrics
    */
-  async calculatePerformanceMetrics(
+  calculatePerformanceMetrics(
     trades: AnalyticsTrade[],
     equityCurve: EquityPoint[],
-  ): Promise<PerformanceMetrics> {
+  ): PerformanceMetrics {
     if (equityCurve.length < 2) {
       throw new Error('Insufficient equity curve data');
     }
@@ -680,7 +680,7 @@ export class PortfolioAnalytics {
     const n = assets.length;
     const matrix: number[][] = Array(n)
       .fill(0)
-      .map(() => Array(n).fill(0));
+      .map(() => Array(n).fill(0) as number[]);
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
@@ -769,6 +769,7 @@ export class PortfolioAnalytics {
   /**
    * Generate comprehensive analytics report
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async generateReport(
     trades: AnalyticsTrade[],
     equityCurve: EquityPoint[],
@@ -779,7 +780,7 @@ export class PortfolioAnalytics {
     },
     currentPositions: Array<{ asset: string; size: number }> = [],
   ): Promise<AnalyticsReport> {
-    const performance = await this.calculatePerformanceMetrics(trades, equityCurve);
+    const performance = this.calculatePerformanceMetrics(trades, equityCurve);
     const tradeStats = this.calculateTradeStatistics(trades);
     const strategyPerformance = this.getStrategyPerformance(trades);
     const assetPerformance = this.getAssetPerformance(trades);
