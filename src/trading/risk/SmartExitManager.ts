@@ -1,6 +1,5 @@
 import type { Position, SmartExitConfig, OHLCVData, SteppedTrailingStep } from './types.js';
 import { SmartStopLoss } from './SmartStopLoss.js';
-import { SmartTakeProfit } from './SmartTakeProfit.js';
 import { TechnicalIndicators } from './TechnicalIndicators.js';
 
 /**
