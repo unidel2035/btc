@@ -84,7 +84,7 @@ export class PortfolioBuilder {
 
     for (const sector of sectors) {
       const projects = projectsBySector.get(sector);
-      if (projects && projects.length > 0 && selected.length < targetCount) {
+      if (projects && projects.length > 0 && projects[0] && selected.length < targetCount) {
         selected.push(projects[0]);
       }
     }
@@ -163,7 +163,7 @@ export class PortfolioBuilder {
     const parts: string[] = [];
 
     // Add top reasoning point
-    if (project.reasoning && project.reasoning.length > 0) {
+    if (project.reasoning && project.reasoning.length > 0 && project.reasoning[0]) {
       parts.push(project.reasoning[0]);
     }
 
@@ -198,11 +198,11 @@ export class PortfolioBuilder {
       risk => !risk.includes('market volatility')
     );
 
-    if (specificRisks.length > 0) {
+    if (specificRisks.length > 0 && specificRisks[0]) {
       return specificRisks[0];
     }
 
-    return project.risks[0];
+    return project.risks[0] || 'General market volatility';
   }
 
   /**
