@@ -53,6 +53,7 @@
     "example:screening-integram": "tsx examples/screening-integram-example.ts",
     "example:analytics": "tsx examples/analytics-example.ts",
     "screening": "tsx examples/screening-example.ts",
+    "screening:integram": "tsx examples/screening-integram-example.ts",
     "db:migrate": "tsx src/database/migrate.ts",
     "db:seed": "tsx src/database/seed.ts",
     "db:backup": "tsx src/database/backup.ts",
