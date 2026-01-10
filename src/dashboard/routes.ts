@@ -505,7 +505,9 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       // Validate timeframe
       const validTimeframes = Object.values(CandleInterval);
       if (!validTimeframes.includes(timeframe as CandleInterval)) {
-        res.status(400).json({ error: `Invalid timeframe. Valid values: ${validTimeframes.join(', ')}` });
+        res
+          .status(400)
+          .json({ error: `Invalid timeframe. Valid values: ${validTimeframes.join(', ')}` });
         return;
       }
 
@@ -522,11 +524,11 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       const candles: Candle[] = await exchangeInstance.getCandles(
         symbol,
         timeframe as CandleInterval,
-        limit
+        limit,
       );
 
       // Transform to chart format
-      const chartData = candles.map(candle => ({
+      const chartData = candles.map((candle) => ({
         time: Math.floor(candle.timestamp / 1000), // Convert to seconds for lightweight-charts
         open: candle.open,
         high: candle.high,

@@ -14,8 +14,12 @@ interface ClientSubscription {
   subscriptions: Set<string>; // Set of subscription keys like "chart:binance:BTC/USDT:1h"
 }
 
+interface ChartDataProviderInterface {
+  subscribeToChart(exchange: string, symbol: string, timeframe: string): void;
+}
+
 interface DashboardServerInterface {
-  getChartDataProvider(): any;
+  getChartDataProvider(): ChartDataProviderInterface | null;
 }
 
 export class DashboardWebSocket {
@@ -92,7 +96,16 @@ export class DashboardWebSocket {
     });
   }
 
-  private handleMessage(ws: WebSocket, message: { type?: string; channel?: string; exchange?: string; symbol?: string; timeframe?: string }): void {
+  private handleMessage(
+    ws: WebSocket,
+    message: {
+      type?: string;
+      channel?: string;
+      exchange?: string;
+      symbol?: string;
+      timeframe?: string;
+    },
+  ): void {
     console.log('📨 Received message:', message);
 
     switch (message.type) {
@@ -105,7 +118,12 @@ export class DashboardWebSocket {
         break;
 
       case 'subscribe':
-        if (message.channel === 'chart' && message.exchange && message.symbol && message.timeframe) {
+        if (
+          message.channel === 'chart' &&
+          message.exchange &&
+          message.symbol &&
+          message.timeframe
+        ) {
           const subscriptionKey = `chart:${message.exchange}:${message.symbol}:${message.timeframe}`;
           const clientSub = this.clientSubscriptions.get(ws);
           if (clientSub) {
@@ -115,12 +133,21 @@ export class DashboardWebSocket {
             // Trigger subscription on ChartDataProvider
             const chartDataProvider = this.dashboardServer?.getChartDataProvider();
             if (chartDataProvider) {
-              chartDataProvider.subscribeToChart(message.exchange, message.symbol, message.timeframe);
+              chartDataProvider.subscribeToChart(
+                message.exchange,
+                message.symbol,
+                message.timeframe,
+              );
             }
 
             this.sendToClient(ws, {
               type: 'subscribed',
-              data: { channel: 'chart', exchange: message.exchange, symbol: message.symbol, timeframe: message.timeframe },
+              data: {
+                channel: 'chart',
+                exchange: message.exchange,
+                symbol: message.symbol,
+                timeframe: message.timeframe,
+              },
               timestamp: new Date().toISOString(),
             });
           }
@@ -128,7 +155,12 @@ export class DashboardWebSocket {
         break;
 
       case 'unsubscribe':
-        if (message.channel === 'chart' && message.exchange && message.symbol && message.timeframe) {
+        if (
+          message.channel === 'chart' &&
+          message.exchange &&
+          message.symbol &&
+          message.timeframe
+        ) {
           const subscriptionKey = `chart:${message.exchange}:${message.symbol}:${message.timeframe}`;
           const clientSub = this.clientSubscriptions.get(ws);
           if (clientSub) {
@@ -136,7 +168,12 @@ export class DashboardWebSocket {
             console.log(`Client unsubscribed from ${subscriptionKey}`);
             this.sendToClient(ws, {
               type: 'unsubscribed',
-              data: { channel: 'chart', exchange: message.exchange, symbol: message.symbol, timeframe: message.timeframe },
+              data: {
+                channel: 'chart',
+                exchange: message.exchange,
+                symbol: message.symbol,
+                timeframe: message.timeframe,
+              },
               timestamp: new Date().toISOString(),
             });
           }
@@ -253,7 +290,12 @@ export class DashboardWebSocket {
     });
   }
 
-  public broadcastChartCandle(candle: { exchange: string; symbol: string; timeframe: string; [key: string]: unknown }): void {
+  public broadcastChartCandle(candle: {
+    exchange: string;
+    symbol: string;
+    timeframe: string;
+    [key: string]: unknown;
+  }): void {
     const subscriptionKey = `chart:${candle.exchange}:${candle.symbol}:${candle.timeframe}`;
     const message = JSON.stringify({
       type: 'chart_candle',
@@ -263,7 +305,10 @@ export class DashboardWebSocket {
 
     // Send only to subscribed clients
     this.clientSubscriptions.forEach((clientSub) => {
-      if (clientSub.subscriptions.has(subscriptionKey) && clientSub.ws.readyState === WebSocket.OPEN) {
+      if (
+        clientSub.subscriptions.has(subscriptionKey) &&
+        clientSub.ws.readyState === WebSocket.OPEN
+      ) {
         clientSub.ws.send(message);
       }
     });
