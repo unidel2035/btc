@@ -44,7 +44,57 @@ if (decision) {
 
 ## Доступные стратегии
 
-### 1. News Momentum
+### 1. Price Channel Breakout
+
+**Описание**: Техническая стратегия торговли на пробое ценовых каналов.
+
+**Особенности**:
+- Определяет ценовые каналы на основе исторических максимумов и минимумов
+- Генерирует сигналы при пробое верхней или нижней границы канала
+- Использует ширину канала для динамического расчета stop-loss и take-profit
+- Может работать с несколькими таймфреймами одновременно (18, 54, 108 периодов)
+- Опциональное требование подтверждения сигналом
+
+**Параметры**:
+
+| Параметр | Тип | По умолчанию | Описание |
+|----------|-----|--------------|----------|
+| `enabled` | boolean | true | Включить/выключить стратегию |
+| `minImpact` | number | 0.3 | Минимальный impact сигнала (0-1) |
+| `minConfidence` | number | 0.6 | Минимальная уверенность для входа |
+| `maxPositionSize` | number | 6 | Максимальный размер позиции (%) |
+| `channelPeriod` | number | 18 | Период для расчета канала |
+| `minChannelPercent` | number | 0.5 | Минимальная ширина канала в % |
+| `maxChannelPercent` | number | 3 | Максимальная ширина канала в % |
+| `breakoutThreshold` | number | 0.1 | Порог для определения пробоя (%) |
+| `requireSignalConfirmation` | boolean | false | Требовать подтверждения сигналом |
+| `useMultipleTimeframes` | boolean | false | Использовать несколько таймфреймов |
+
+**Пример использования**:
+
+```typescript
+const channelStrategy = new PriceChannelStrategy({
+  channelPeriod: 18,
+  minChannelPercent: 0.5,
+  maxChannelPercent: 3,
+  requireSignalConfirmation: true,
+  useMultipleTimeframes: true,
+});
+
+// Накопление истории цен
+for (const historicalData of priceHistory) {
+  channelStrategy.analyze(historicalData, []);
+}
+
+// Анализ текущей цены
+const decision = channelStrategy.analyze(currentMarketData, signals);
+
+// Получение текущего канала
+const channel = channelStrategy.getCurrentChannel();
+console.log(`Channel: [${channel.low}, ${channel.high}], width: ${channel.widthPercent}%`);
+```
+
+### 2. News Momentum
 
 **Описание**: Быстрая реакция на важные новости с высоким impact.
 
@@ -84,7 +134,7 @@ const newsStrategy = new NewsMomentumStrategy({
 const decision = newsStrategy.analyze(marketData, newsSignals);
 ```
 
-### 2. Sentiment Swing
+### 3. Sentiment Swing
 
 **Описание**: Позиционная торговля на основе агрегированных настроений за период.
 
@@ -302,6 +352,7 @@ npx tsx examples/strategies-example.ts
 
 ## Roadmap
 
+- [x] Price Channel Breakout стратегия
 - [ ] Event-Driven стратегия для запланированных событий
 - [ ] Social Momentum стратегия на основе социальных всплесков
 - [ ] Hybrid стратегия с комбинацией технического анализа
