@@ -76,7 +76,7 @@ export class SectorAnalyzer {
         marketCapGrowth30d,
         marketCapGrowth90d,
         narrativeStrength,
-        volumeToMcapRatio
+        volumeToMcapRatio,
       );
 
       sectorInfos.push({
@@ -100,7 +100,7 @@ export class SectorAnalyzer {
     growth30d: number,
     growth90d: number,
     narrativeStrength: number,
-    volumeRatio: number
+    volumeRatio: number,
   ): number {
     // Weighted scoring
     const growthScore = (growth30d * 0.6 + growth90d * 0.4) / 100;

@@ -22,7 +22,7 @@ export class PortfolioConstruction {
    */
   constructPortfolio(
     rankedProjects: ProjectScore[],
-    selectedSectors: SectorMetrics[]
+    selectedSectors: SectorMetrics[],
   ): ScreeningReport {
     console.info('🎯 Stage 3: Portfolio Construction - Building final portfolio...\n');
 
@@ -73,10 +73,7 @@ export class PortfolioConstruction {
         }
       }
 
-      const recommendation = this.createRecommendation(
-        project,
-        recommendations.length + 1
-      );
+      const recommendation = this.createRecommendation(project, recommendations.length + 1);
       recommendations.push(recommendation);
       selectedProjects.add(project.symbol);
       if (project.sector) {
@@ -89,7 +86,7 @@ export class PortfolioConstruction {
     // Ensure minimum projects
     if (recommendations.length < this.config.minProjectsCount) {
       console.warn(
-        `  ⚠ Only ${recommendations.length} projects selected, minimum is ${this.config.minProjectsCount}`
+        `  ⚠ Only ${recommendations.length} projects selected, minimum is ${this.config.minProjectsCount}`,
       );
     }
 
@@ -120,12 +117,10 @@ export class PortfolioConstruction {
    */
   private selectBlueChip(
     projects: ProjectScore[],
-    exclude: Set<string>
+    exclude: Set<string>,
   ): ProjectRecommendation | null {
     const blueChips = projects.filter(
-      (p) =>
-        p.marketData.marketCapRank <= this.config.blueChipThreshold &&
-        !exclude.has(p.symbol)
+      (p) => p.marketData.marketCapRank <= this.config.blueChipThreshold && !exclude.has(p.symbol),
     );
 
     if (blueChips.length === 0 || !blueChips[0]) {
@@ -140,13 +135,13 @@ export class PortfolioConstruction {
    */
   private selectGazer(
     projects: ProjectScore[],
-    exclude: Set<string>
+    exclude: Set<string>,
   ): ProjectRecommendation | null {
     const gazers = projects.filter(
       (p) =>
         p.marketData.marketCapRank >= this.config.gazerMinRank &&
         p.marketData.marketCapRank <= this.config.gazerMaxRank &&
-        !exclude.has(p.symbol)
+        !exclude.has(p.symbol),
     );
 
     if (gazers.length === 0 || !gazers[0]) {
@@ -159,10 +154,7 @@ export class PortfolioConstruction {
   /**
    * Create a project recommendation from a scored project
    */
-  private createRecommendation(
-    project: ProjectScore,
-    rank: number
-  ): ProjectRecommendation {
+  private createRecommendation(project: ProjectScore, rank: number): ProjectRecommendation {
     const rationale = this.generateRationale(project);
     const keyRisk = this.identifyKeyRisk(project);
     const riskLevel = this.assessRiskLevel(project);
@@ -181,9 +173,7 @@ export class PortfolioConstruction {
       marketCap: project.marketData.marketCap,
       priceToAth,
       volume24h: project.marketData.volume24h,
-      tradingPairs: project.marketData.exchanges.map(
-        (ex) => `${project.symbol}/USDT on ${ex}`
-      ),
+      tradingPairs: project.marketData.exchanges.map((ex) => `${project.symbol}/USDT on ${ex}`),
     };
   }
 
@@ -195,14 +185,14 @@ export class PortfolioConstruction {
 
     // Sector narrative
     if (project.sector) {
-      reasons.push(
-        `Leading project in ${project.sector} sector with strong fundamentals`
-      );
+      reasons.push(`Leading project in ${project.sector} sector with strong fundamentals`);
     }
 
     // Market performance
     if (project.marketData.priceChange30d > 20) {
-      reasons.push('Strong price momentum (+' + project.marketData.priceChange30d.toFixed(1) + '% in 30d)');
+      reasons.push(
+        'Strong price momentum (+' + project.marketData.priceChange30d.toFixed(1) + '% in 30d)',
+      );
     } else if (project.marketData.priceChange30d > 0) {
       reasons.push('Positive trend with upward momentum');
     }
@@ -239,10 +229,7 @@ export class PortfolioConstruction {
    */
   private identifyKeyRisk(project: ProjectScore): string {
     // Check for upcoming unlocks
-    if (
-      project.fundamentalData.nextUnlockPercent > 5 &&
-      project.fundamentalData.nextUnlockDate
-    ) {
+    if (project.fundamentalData.nextUnlockPercent > 5 && project.fundamentalData.nextUnlockDate) {
       return `Major token unlock (${project.fundamentalData.nextUnlockPercent.toFixed(1)}%) scheduled`;
     }
 
@@ -348,16 +335,14 @@ export class PortfolioConstruction {
 
     lines.push('## 🎯 RECOMMENDED PROJECTS');
     lines.push('');
-    lines.push(
-      '| Rank | Ticker | Name | Sector | Score | Market Cap | Price/ATH | Risk |'
-    );
+    lines.push('| Rank | Ticker | Name | Sector | Score | Market Cap | Price/ATH | Risk |');
     lines.push('|------|--------|------|--------|-------|------------|-----------|------|');
 
     for (const rec of report.recommendations) {
       const mcap = `$${(rec.marketCap / 1e9).toFixed(2)}B`;
       const sector = rec.sector || 'N/A';
       lines.push(
-        `| ${rec.rank} | **${rec.ticker}** | ${rec.name} | ${sector} | ${rec.score.toFixed(1)} | ${mcap} | ${rec.priceToAth.toFixed(1)}% | ${rec.riskLevel} |`
+        `| ${rec.rank} | **${rec.ticker}** | ${rec.name} | ${sector} | ${rec.score.toFixed(1)} | ${mcap} | ${rec.priceToAth.toFixed(1)}% | ${rec.riskLevel} |`,
       );
     }
 

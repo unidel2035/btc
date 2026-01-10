@@ -94,11 +94,7 @@ export class CoinGeckoClient {
   /**
    * Get market data for top cryptocurrencies
    */
-  async getMarketData(
-    page = 1,
-    perPage = 250,
-    category?: string
-  ): Promise<CoinGeckoMarketData[]> {
+  async getMarketData(page = 1, perPage = 250, category?: string): Promise<CoinGeckoMarketData[]> {
     try {
       const params: Record<string, string | number | boolean> = {
         vs_currency: 'usd',
@@ -154,9 +150,10 @@ export class CoinGeckoClient {
    */
   async getCategories(): Promise<Array<{ category_id: string; name: string }>> {
     try {
-      const response = await this.client.get<
-        Array<{ category_id: string; name: string; market_cap: number }>
-      >('/coins/categories');
+      const response =
+        await this.client.get<Array<{ category_id: string; name: string; market_cap: number }>>(
+          '/coins/categories',
+        );
 
       await this.delay();
       return response.data;
@@ -171,7 +168,7 @@ export class CoinGeckoClient {
    */
   async convertToProjectInfo(
     marketData: CoinGeckoMarketData,
-    includeDetail = false
+    includeDetail = false,
   ): Promise<ProjectInfo> {
     let detail: CoinGeckoCoinDetail | null = null;
     let exchanges: Exchange[] = [];
@@ -220,10 +217,7 @@ export class CoinGeckoClient {
   /**
    * Get projects by category with full details
    */
-  async getProjectsByCategory(
-    category: string,
-    maxProjects = 50
-  ): Promise<ProjectInfo[]> {
+  async getProjectsByCategory(category: string, maxProjects = 50): Promise<ProjectInfo[]> {
     const projects: ProjectInfo[] = [];
     const perPage = 250;
     let page = 1;

@@ -390,7 +390,10 @@ export class SignalsProvider {
     return null;
   }
 
-  validateStrategyParams(name: string, params: Record<string, unknown>): { valid: boolean; errors: string[] } {
+  validateStrategyParams(
+    name: string,
+    params: Record<string, unknown>,
+  ): { valid: boolean; errors: string[] } {
     const strategy = this.strategyManager.getStrategy(name);
     if (strategy) {
       return strategy.validateParameters(params);
