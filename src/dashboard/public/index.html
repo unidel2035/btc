@@ -221,8 +221,30 @@
         <!-- Strategy Chart Page -->
         <div class="page" id="chart-page">
           <div class="page-header">
-            <h1 data-i18n="chart.title">Price Channel Strategy</h1>
-            <p data-i18n="chart.subtitle">Real-time visualization of Price Channel Breakout algorithm</p>
+            <h1 data-i18n="chart.title">Multi-Strategy Chart</h1>
+            <p data-i18n="chart.subtitle">Real-time visualization and comparison of multiple trading strategies</p>
+          </div>
+
+          <!-- Strategy Selector -->
+          <div class="card strategy-selector-card">
+            <h3>Active Strategies</h3>
+            <div class="strategy-selector">
+              <label class="strategy-checkbox-label">
+                <input type="checkbox" class="strategy-checkbox" data-strategy="price-channel" checked>
+                <span class="strategy-color" style="background: #10b981"></span>
+                <span>Price Channel Breakout</span>
+              </label>
+              <label class="strategy-checkbox-label">
+                <input type="checkbox" class="strategy-checkbox" data-strategy="ema-crossover">
+                <span class="strategy-color" style="background: #3b82f6"></span>
+                <span>EMA Crossover</span>
+              </label>
+              <label class="strategy-checkbox-label">
+                <input type="checkbox" class="strategy-checkbox" data-strategy="rsi">
+                <span class="strategy-color" style="background: #f59e0b"></span>
+                <span>RSI Strategy</span>
+              </label>
+            </div>
           </div>
 
           <div class="chart-layout">
@@ -247,36 +269,40 @@
                   <span class="stat-value" id="chartPrice">$50,000</span>
                 </div>
                 <div class="stat-row">
-                  <span class="stat-label" data-i18n="chart.channelHigh">Channel High</span>
-                  <span class="stat-value positive" id="chartChannelHigh">-</span>
-                </div>
-                <div class="stat-row">
-                  <span class="stat-label" data-i18n="chart.channelLow">Channel Low</span>
-                  <span class="stat-value negative" id="chartChannelLow">-</span>
-                </div>
-                <div class="stat-row">
-                  <span class="stat-label" data-i18n="chart.channelWidth">Channel Width</span>
-                  <span class="stat-value" id="chartChannelWidth">-</span>
-                </div>
-                <div class="stat-row">
-                  <span class="stat-label" data-i18n="chart.signal">Signal</span>
-                  <span id="chartSignalStatus"><span class="badge badge-neutral">No Signal</span></span>
+                  <span class="stat-label" data-i18n="chart.signal">Signals</span>
+                  <span id="chartSignalStatus"><span class="badge badge-neutral">No Signals</span></span>
                 </div>
               </div>
 
               <div class="card">
-                <h3 data-i18n="chart.lastSignal">Last Signal</h3>
-                <div id="chartLastSignal">
-                  <p class="text-muted" data-i18n="chart.waitingForBreakout">Waiting for channel breakout...</p>
+                <h3>Recent Signals</h3>
+                <div id="chartLastSignals" class="signals-container">
+                  <p class="text-muted">Waiting for signals...</p>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div class="card">
-                <h3 data-i18n="chart.tradeHistory">Trade History</h3>
-                <div id="chartTradeHistory" class="trade-history-list">
-                  <p class="text-muted" data-i18n="chart.noTrades">No trades yet</p>
-                </div>
-              </div>
+          <!-- Strategy Comparison Table -->
+          <div class="card strategy-comparison-card">
+            <h3>Strategy Performance Comparison</h3>
+            <div class="strategy-comparison">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Strategy</th>
+                    <th>Signals</th>
+                    <th>Win Rate</th>
+                    <th>P&L</th>
+                    <th>Sharpe Ratio</th>
+                  </tr>
+                </thead>
+                <tbody id="strategyMetrics">
+                  <tr>
+                    <td colspan="5" class="text-muted">No active strategies</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -335,6 +361,11 @@
       </main>
     </div>
 
+    <script src="/StrategyManager.js"></script>
+    <script src="/strategies/BaseStrategy.js"></script>
+    <script src="/strategies/PriceChannelStrategy.js"></script>
+    <script src="/strategies/EMACrossoverStrategy.js"></script>
+    <script src="/strategies/RSIStrategy.js"></script>
     <script src="/chart.js"></script>
     <script src="/app.js"></script>
   </body>
