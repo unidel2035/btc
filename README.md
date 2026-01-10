@@ -27,6 +27,7 @@ btc/
 │   │   ├── strategies/    # Торговые стратегии
 │   │   ├── execution/     # Исполнение ордеров
 │   │   └── risk/          # Риск-менеджмент
+│   ├── visualization/     # Визуализация торговых сетапов
 │   ├── api/               # REST API
 │   └── dashboard/         # Веб-интерфейс
 ├── config/                # Конфигурации
@@ -550,6 +551,85 @@ npm run test:webhooks
 
 Полная документация: [docs/TRADINGVIEW_WEBHOOKS.md](docs/TRADINGVIEW_WEBHOOKS.md)
 
+## Visualization Module (Модуль визуализации)
+
+Модуль для автоматической генерации интерактивных графиков в TradingView с визуализацией торговых сетапов.
+
+### Возможности
+- ✅ **Pine Script Generation** - автоматическая генерация Pine Script индикаторов
+- ✅ **TradingView Charting Library** - конфигурация для встроенных виджетов
+- ✅ **Visual Reports** - HTML и Markdown отчеты
+- ✅ **SMC Structures** - визуализация Order Blocks, FVG, ликвидности
+- ✅ **Entry/Exit Zones** - отображение зон входа и уровней TP/SL
+- ✅ **Batch Processing** - обработка множественных сетапов
+
+### Что визуализируется
+- 🎯 **Торговые сетапы** (Long/Short) согласно SMC-анализу
+- 📍 **Точки входа** (лимитные ордера)
+- 🛑 **Уровни стоп-лосса и тейк-профита**
+- 🔷 **SMC структуры**: Order Blocks, Fair Value Gaps, Liquidity Pools
+- 📊 **Risk/Reward метрики**
+
+### Использование
+
+```bash
+# Запуск примера
+npm run example:visualization
+
+# Тестирование
+npm run test:visualization
+```
+
+### Быстрый старт
+
+```typescript
+import { VisualizationModule, TradingSetup, TradingDirection, SMCStructureType } from './visualization';
+
+const setup: TradingSetup = {
+  symbol: 'BTCUSDT',
+  direction: TradingDirection.LONG,
+  currentPrice: 45000,
+  entryZones: [
+    { priceHigh: 44500, priceLow: 44000, orderType: 'limit', positionPercent: 50 },
+  ],
+  stopLoss: 42500,
+  takeProfits: [
+    { price: 47000, positionPercent: 50 },
+    { price: 50000, positionPercent: 50 },
+  ],
+  smcStructures: [
+    {
+      type: SMCStructureType.ORDER_BLOCK,
+      direction: 'bullish',
+      priceHigh: 44800,
+      priceLow: 44200,
+    },
+  ],
+  riskPercent: 2.0,
+  riskRewardRatio: 2.5,
+  confidence: 0.75,
+  analysis: 'Strong bullish setup with Order Block confluence',
+  timestamp: new Date(),
+};
+
+const visualization = new VisualizationModule();
+const report = await visualization.visualize(setup);
+
+// Использовать Pine Script
+console.log(report.pineScript?.code);
+
+// Или сохранить HTML отчет
+fs.writeFileSync('setup.html', report.htmlReport);
+```
+
+### Методы визуализации
+
+1. **Pine Script** - генерация индикаторов для TradingView
+2. **TradingView Embedded** - встроенные виджеты для веб-интерфейса
+3. **Local** (планируется) - локальная визуализация с библиотеками
+
+Подробная документация: [src/visualization/README.md](src/visualization/README.md)
+
 ## Roadmap
 
 - [x] Базовая архитектура проекта
@@ -566,6 +646,7 @@ npm run test:webhooks
 - [x] Структурированное логирование
 - [x] Интеграция с биржами (Binance, Bybit)
 - [x] TradingView Webhook Integration
+- [x] Visualization Module (TradingView Setup Visualization)
 - [ ] WebSocket streams для бирж
 - [ ] OKX полная поддержка
 - [ ] Production deployment
