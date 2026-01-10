@@ -111,7 +111,7 @@ export async function handleClosePosition(
 
     if (ctx.session?.pendingAction?.data?.symbol) {
       // Symbol from pendingAction (after PIN confirmation)
-      symbol = ctx.session.pendingAction.data.symbol;
+      symbol = ctx.session.pendingAction.data.symbol as string;
     } else {
       // Extract symbol from command text
       const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
@@ -231,6 +231,24 @@ async function handleCloseAllPositions(
 
     if (positions.length === 0) {
       await ctx.reply('ℹ️ Нет открытых позиций для закрытия.');
+      return;
+    }
+
+    // Check if PIN is required
+    if (service.config.pinCode && !skipPinCheck) {
+      ctx.session!.awaitingPin = true;
+      ctx.session!.pendingAction = {
+        type: 'close_all',
+        data: {},
+        expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      };
+
+      await ctx.reply(
+        templates.confirmationMessage(
+          `Close All ${positions.length} Positions`,
+          `Please enter your PIN code to confirm`,
+        ),
+      );
       return;
     }
 
