@@ -63,10 +63,9 @@ export function getScreeningConfig(): ScreeningConfig {
       maxMarketCapRank: Number(process.env.SCREENING_MAX_MCAP_RANK) || 150,
       minVolume24h: Number(process.env.SCREENING_MIN_VOLUME_24H) || 10_000_000,
       minPriceChange30d: Number(process.env.SCREENING_MIN_PRICE_CHANGE_30D) || 0,
-      requiredExchanges:
-        (process.env.SCREENING_REQUIRED_EXCHANGES?.split(',') as Array<
-          'binance' | 'bybit' | 'okx' | 'kucoin'
-        >) || ['binance', 'bybit'],
+      requiredExchanges: (process.env.SCREENING_REQUIRED_EXCHANGES?.split(',') as Array<
+        'binance' | 'bybit' | 'okx' | 'kucoin'
+      >) || ['binance', 'bybit'],
       minExchangeCount: Number(process.env.SCREENING_MIN_EXCHANGE_COUNT) || 2,
       topProjectsPerSector: Number(process.env.SCREENING_TOP_PROJECTS_PER_SECTOR) || 7,
     },
@@ -82,8 +81,7 @@ export function getScreeningConfig(): ScreeningConfig {
     portfolio: {
       minProjectsCount: Number(process.env.SCREENING_MIN_PROJECTS) || 2,
       maxProjectsCount: Number(process.env.SCREENING_MAX_PROJECTS) || 4,
-      diversificationRequired:
-        process.env.SCREENING_REQUIRE_DIVERSIFICATION !== 'false',
+      diversificationRequired: process.env.SCREENING_REQUIRE_DIVERSIFICATION !== 'false',
       includeBlueChips: process.env.SCREENING_INCLUDE_BLUE_CHIPS !== 'false',
       blueChipThreshold: Number(process.env.SCREENING_BLUE_CHIP_THRESHOLD) || 50,
       includeGazers: process.env.SCREENING_INCLUDE_GAZERS !== 'false',
@@ -97,15 +95,12 @@ export function getScreeningConfig(): ScreeningConfig {
  * Sector narratives and descriptions
  */
 export const sectorNarratives: Record<string, string> = {
-  'ai-crypto':
-    'Decentralized AI infrastructure and data markets, benefiting from the AI boom',
-  depin:
-    'Decentralized Physical Infrastructure Networks, tokenizing real-world infrastructure',
+  'ai-crypto': 'Decentralized AI infrastructure and data markets, benefiting from the AI boom',
+  depin: 'Decentralized Physical Infrastructure Networks, tokenizing real-world infrastructure',
   rwa: 'Real World Assets, bridging traditional finance with blockchain technology',
   'modular-blockchain':
     'Modular blockchain architecture, enabling scalable and flexible blockchain solutions',
-  'l2-solutions':
-    'Layer 2 scaling solutions, reducing costs and increasing throughput',
+  'l2-solutions': 'Layer 2 scaling solutions, reducing costs and increasing throughput',
   dex: 'Decentralized exchanges with innovative trading mechanisms',
   'nft-fi': 'NFT financialization, unlocking liquidity for digital assets',
   defi: 'Decentralized Finance protocols and platforms',

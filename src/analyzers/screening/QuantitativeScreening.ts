@@ -1,9 +1,4 @@
-import type {
-  ProjectInfo,
-  QuantitativeScreeningConfig,
-  CryptoSector,
-  Exchange,
-} from './types.js';
+import type { ProjectInfo, QuantitativeScreeningConfig, CryptoSector, Exchange } from './types.js';
 import { CoinGeckoClient } from './CoinGeckoClient.js';
 
 /**
@@ -14,7 +9,7 @@ import { CoinGeckoClient } from './CoinGeckoClient.js';
 export class QuantitativeScreening {
   constructor(
     private client: CoinGeckoClient,
-    private config: QuantitativeScreeningConfig
+    private config: QuantitativeScreeningConfig,
   ) {}
 
   /**
@@ -149,9 +144,7 @@ export class QuantitativeScreening {
    * Check if project is listed on required exchanges
    */
   private hasRequiredExchanges(projectExchanges: Exchange[]): boolean {
-    return this.config.requiredExchanges.every((required) =>
-      projectExchanges.includes(required)
-    );
+    return this.config.requiredExchanges.every((required) => projectExchanges.includes(required));
   }
 
   /**
@@ -188,7 +181,7 @@ export class QuantitativeScreening {
           priceChange30d: acc.priceChange30d + p.priceChange30d,
         };
       },
-      { marketCap: 0, volume24h: 0, priceChange30d: 0 }
+      { marketCap: 0, volume24h: 0, priceChange30d: 0 },
     );
 
     return {

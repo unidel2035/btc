@@ -769,7 +769,8 @@ export class PortfolioAnalytics {
   /**
    * Generate comprehensive analytics report
    */
-  generateReport(
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async generateReport(
     trades: AnalyticsTrade[],
     equityCurve: EquityPoint[],
     period: {
@@ -778,7 +779,7 @@ export class PortfolioAnalytics {
       type: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
     },
     currentPositions: Array<{ asset: string; size: number }> = [],
-  ): AnalyticsReport {
+  ): Promise<AnalyticsReport> {
     const performance = this.calculatePerformanceMetrics(trades, equityCurve);
     const tradeStats = this.calculateTradeStatistics(trades);
     const strategyPerformance = this.getStrategyPerformance(trades);

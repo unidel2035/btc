@@ -15,7 +15,7 @@ import { CoinGeckoClient } from './CoinGeckoClient.js';
 export class FundamentalScoring {
   constructor(
     private client: CoinGeckoClient,
-    private config: ScoringConfig
+    private config: ScoringConfig,
   ) {}
 
   /**
@@ -71,7 +71,7 @@ export class FundamentalScoring {
       // Calculate community score
       const communityScore = this.calculateCommunityScore(
         twitterFollowers,
-        detail.community_data?.telegram_channel_user_count || 0
+        detail.community_data?.telegram_channel_user_count || 0,
       );
 
       // Estimate investor tier from description and market cap
@@ -85,9 +85,7 @@ export class FundamentalScoring {
       // Calculate TVL metrics if available (DeFi projects)
       const tvl = null; // Would need DefiLlama API
       const fdvToTvlRatio =
-        tvl && project.fullyDilutedValuation
-          ? project.fullyDilutedValuation / tvl
-          : null;
+        tvl && project.fullyDilutedValuation ? project.fullyDilutedValuation / tvl : null;
 
       return {
         investorTier,
@@ -121,10 +119,7 @@ export class FundamentalScoring {
   /**
    * Calculate composite score for a project
    */
-  private calculateScore(
-    project: ProjectInfo,
-    fundamentalData: FundamentalData
-  ): ProjectScore {
+  private calculateScore(project: ProjectInfo, fundamentalData: FundamentalData): ProjectScore {
     // A. Fundamental Score (0-100)
     const fundamentalScore = this.calculateFundamentalScore(project, fundamentalData);
 
@@ -160,10 +155,7 @@ export class FundamentalScoring {
   /**
    * Calculate fundamental score (0-100)
    */
-  private calculateFundamentalScore(
-    _project: ProjectInfo,
-    data: FundamentalData
-  ): number {
+  private calculateFundamentalScore(_project: ProjectInfo, data: FundamentalData): number {
     let score = 0;
 
     // Investor quality (0-30)
@@ -207,10 +199,7 @@ export class FundamentalScoring {
   /**
    * Calculate market score (0-100)
    */
-  private calculateMarketScore(
-    project: ProjectInfo,
-    fundamentalData: FundamentalData
-  ): number {
+  private calculateMarketScore(project: ProjectInfo, fundamentalData: FundamentalData): number {
     let score = 0;
 
     // TVL/MarketCap ratio for DeFi (0-25)
@@ -275,10 +264,7 @@ export class FundamentalScoring {
   /**
    * Calculate community score (0-100)
    */
-  private calculateCommunityScore(
-    twitterFollowers: number,
-    telegramUsers: number
-  ): number {
+  private calculateCommunityScore(twitterFollowers: number, telegramUsers: number): number {
     let score = 0;
 
     // Twitter following (0-50)
@@ -316,10 +302,7 @@ export class FundamentalScoring {
   /**
    * Estimate investor tier from project characteristics
    */
-  private estimateInvestorTier(
-    project: ProjectInfo,
-    description: string
-  ): InvestorTier {
+  private estimateInvestorTier(project: ProjectInfo, description: string): InvestorTier {
     // TIER 1 indicators
     const tier1Investors = [
       'a16z',

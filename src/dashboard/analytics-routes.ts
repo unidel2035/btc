@@ -295,7 +295,8 @@ export function setupAnalyticsRoutes(router: Router): void {
    * GET /api/analytics/report
    * Generate comprehensive analytics report
    */
-  router.get('/api/analytics/report', (req: Request, res: Response) => {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  router.get('/api/analytics/report', async (req: Request, res: Response) => {
     try {
       const periodType =
         (req.query.periodType as 'daily' | 'weekly' | 'monthly' | 'yearly') || 'monthly';
@@ -322,7 +323,7 @@ export function setupAnalyticsRoutes(router: Router): void {
         { asset: 'ETH/USDT', size: 5000 },
       ];
 
-      const report = analyticsService!.generateReport(
+      const report = await analyticsService!.generateReport(
         filteredTrades,
         filteredEquity,
         {
@@ -380,7 +381,8 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.post('/api/analytics/trades', (req: Request, res: Response) => {
     try {
-      const trade = req.body as AnalyticsTrade;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const trade: AnalyticsTrade = req.body;
 
       // Validate trade data
       if (!trade.id || !trade.strategy || !trade.asset) {
@@ -407,7 +409,8 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.post('/api/analytics/equity', (req: Request, res: Response) => {
     try {
-      const point = req.body as EquityPoint;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const point: EquityPoint = req.body;
 
       // Convert date string to Date object
       point.timestamp = new Date(point.timestamp);

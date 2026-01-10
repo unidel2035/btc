@@ -1,8 +1,4 @@
-import type {
-  CryptoSector,
-  SectorMetrics,
-  MacroFilterConfig,
-} from './types.js';
+import type { CryptoSector, SectorMetrics, MacroFilterConfig } from './types.js';
 import { CoinGeckoClient } from './CoinGeckoClient.js';
 import { sectorNarratives } from './config.js';
 
@@ -14,15 +10,13 @@ import { sectorNarratives } from './config.js';
 export class MacroFilter {
   constructor(
     private client: CoinGeckoClient,
-    private config: MacroFilterConfig
+    private config: MacroFilterConfig,
   ) {}
 
   /**
    * Analyze all sectors and select top performers
    */
-  async selectTopSectors(
-    availableSectors: CryptoSector[]
-  ): Promise<SectorMetrics[]> {
+  async selectTopSectors(availableSectors: CryptoSector[]): Promise<SectorMetrics[]> {
     console.info('📊 Stage 0: Macro Filter - Analyzing sectors...\n');
 
     const sectorMetrics: SectorMetrics[] = [];
@@ -47,7 +41,7 @@ export class MacroFilter {
     const qualifyingSectors = sectorMetrics.filter(
       (s) =>
         s.marketCapChange30d >= this.config.minMarketCapGrowth30d ||
-        s.marketCapChange90d >= this.config.minMarketCapGrowth90d
+        s.marketCapChange90d >= this.config.minMarketCapGrowth90d,
     );
 
     // Sort by score (descending)
@@ -106,19 +100,17 @@ export class MacroFilter {
       projects.reduce(
         (sum, p) =>
           sum + (p.price_change_percentage_30d_in_currency || 0) * (p.market_cap / totalMCap),
-        0
+        0,
       ) || 0;
 
     const marketCapChange90d =
       projects.reduce(
         (sum, p) =>
           sum + (p.price_change_percentage_90d_in_currency || 0) * (p.market_cap / totalMCap),
-        0
+        0,
       ) || 0;
 
-    const topProjects = projects
-      .slice(0, 10)
-      .map((p) => `${p.name} (${p.symbol.toUpperCase()})`);
+    const topProjects = projects.slice(0, 10).map((p) => `${p.name} (${p.symbol.toUpperCase()})`);
 
     // Calculate sector score
     const score = this.calculateSectorScore({
@@ -193,14 +185,6 @@ export class MacroFilter {
    * Get recommended sectors based on current market conditions
    */
   static getRecommendedSectors(): CryptoSector[] {
-    return [
-      'ai-crypto',
-      'depin',
-      'rwa',
-      'l2-solutions',
-      'modular-blockchain',
-      'dex',
-      'defi',
-    ];
+    return ['ai-crypto', 'depin', 'rwa', 'l2-solutions', 'modular-blockchain', 'dex', 'defi'];
   }
 }

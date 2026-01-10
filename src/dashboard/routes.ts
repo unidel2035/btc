@@ -926,6 +926,7 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
         storage.screeningConfigOverrides = {};
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       storage.screeningConfigOverrides = {
         ...storage.screeningConfigOverrides,
         ...(req.body as Record<string, unknown>),

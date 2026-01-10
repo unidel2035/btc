@@ -72,22 +72,22 @@ export interface SectorMetrics {
  * Stage 0: Macro Filter configuration
  */
 export interface MacroFilterConfig {
-  minMarketCapGrowth30d: number;  // Minimum 30-day market cap growth (%)
-  minMarketCapGrowth90d: number;  // Minimum 90-day market cap growth (%)
-  topSectorsCount: number;         // Number of top sectors to select
+  minMarketCapGrowth30d: number; // Minimum 30-day market cap growth (%)
+  minMarketCapGrowth90d: number; // Minimum 90-day market cap growth (%)
+  topSectorsCount: number; // Number of top sectors to select
 }
 
 /**
  * Stage 1: Quantitative Screening configuration
  */
 export interface QuantitativeScreeningConfig {
-  minMarketCapRank: number;        // Minimum market cap rank (1-150)
-  maxMarketCapRank: number;        // Maximum market cap rank (1-150)
-  minVolume24h: number;            // Minimum 24h volume (USD)
-  minPriceChange30d: number;       // Minimum 30d price change (%)
-  requiredExchanges: Exchange[];   // Required exchanges
-  minExchangeCount: number;        // Minimum number of exchanges
-  topProjectsPerSector: number;    // Number of top projects per sector
+  minMarketCapRank: number; // Minimum market cap rank (1-150)
+  maxMarketCapRank: number; // Maximum market cap rank (1-150)
+  minVolume24h: number; // Minimum 24h volume (USD)
+  minPriceChange30d: number; // Minimum 30d price change (%)
+  requiredExchanges: Exchange[]; // Required exchanges
+  minExchangeCount: number; // Minimum number of exchanges
+  topProjectsPerSector: number; // Number of top projects per sector
 }
 
 /**
@@ -116,12 +116,12 @@ export interface FundamentalData {
  */
 export interface ScoringConfig {
   weights: {
-    fundamental: number;     // Weight for fundamental metrics (0-1)
-    market: number;          // Weight for market metrics (0-1)
-    community: number;       // Weight for community metrics (0-1)
+    fundamental: number; // Weight for fundamental metrics (0-1)
+    market: number; // Weight for market metrics (0-1)
+    community: number; // Weight for community metrics (0-1)
   };
-  unlockPenalty: number;      // Penalty for large upcoming unlocks
-  unlockThreshold: number;    // Unlock threshold to apply penalty (%)
+  unlockPenalty: number; // Penalty for large upcoming unlocks
+  unlockThreshold: number; // Unlock threshold to apply penalty (%)
 }
 
 /**
@@ -170,14 +170,14 @@ export interface ProjectRecommendation {
  * Stage 3: Portfolio Construction configuration
  */
 export interface PortfolioConfig {
-  minProjectsCount: number;        // Minimum projects to select
-  maxProjectsCount: number;        // Maximum projects to select
+  minProjectsCount: number; // Minimum projects to select
+  maxProjectsCount: number; // Maximum projects to select
   diversificationRequired: boolean; // Require sector diversification
-  includeBlueChips: boolean;       // Include high-cap "blue chips"
-  blueChipThreshold: number;       // Market cap rank threshold for blue chips
-  includeGazers: boolean;          // Include mid-cap "gazers"
-  gazerMinRank: number;            // Min rank for gazers
-  gazerMaxRank: number;            // Max rank for gazers
+  includeBlueChips: boolean; // Include high-cap "blue chips"
+  blueChipThreshold: number; // Market cap rank threshold for blue chips
+  includeGazers: boolean; // Include mid-cap "gazers"
+  gazerMinRank: number; // Min rank for gazers
+  gazerMaxRank: number; // Max rank for gazers
 }
 
 /**
