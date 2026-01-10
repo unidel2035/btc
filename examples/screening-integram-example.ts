@@ -11,6 +11,7 @@ import {
   ScreeningAnalytics,
   ScreeningSync,
 } from '../src/database/integram/index.js';
+import { INTEGRAM_CONFIG } from '../src/database/integram/config.js';
 
 dotenv.config();
 
@@ -19,18 +20,20 @@ async function main() {
   console.log('='.repeat(60));
   console.log('');
 
-  // Initialize Integram client
+  // Initialize Integram client using config
   const integramClient = new IntegramClient({
-    serverURL: process.env.INTEGRAM_SERVER_URL || 'https://api.integram.ru',
-    database: process.env.INTEGRAM_DATABASE || '',
-    login: process.env.INTEGRAM_LOGIN || '',
-    password: process.env.INTEGRAM_PASSWORD || '',
+    serverURL: INTEGRAM_CONFIG.serverUrl,
+    database: INTEGRAM_CONFIG.database,
+    login: INTEGRAM_CONFIG.login,
+    password: INTEGRAM_CONFIG.password,
   });
 
   // Authenticate with Integram
   try {
     await integramClient.authenticate();
     console.log('✅ Connected to Integram');
+    console.log(`   Database: ${INTEGRAM_CONFIG.database}`);
+    console.log(`   Server: ${INTEGRAM_CONFIG.serverUrl}`);
   } catch (error) {
     console.error('❌ Failed to connect to Integram:', error);
     process.exit(1);
