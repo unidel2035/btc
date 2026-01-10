@@ -109,7 +109,15 @@ export interface PerformanceStats {
 }
 
 export interface WebSocketMessage {
-  type: 'metrics' | 'position' | 'signal' | 'news' | 'price' | 'notification' | 'pong';
+  type:
+    | 'metrics'
+    | 'position'
+    | 'signal'
+    | 'news'
+    | 'price'
+    | 'notification'
+    | 'pong'
+    | 'filtersUpdated';
   data: unknown;
   timestamp: string;
 }

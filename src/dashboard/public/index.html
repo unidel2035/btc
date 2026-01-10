@@ -29,6 +29,7 @@
           <a href="#signals" class="nav-item" data-page="signals">
             <span class="icon">📡</span>
             <span data-i18n="nav.signals">Signals</span>
+            <span id="newSignalsBadge" class="badge" style="display: none; margin-left: 8px; background: #e53e3e; color: white; border-radius: 10px; padding: 2px 6px; font-size: 0.75rem;">0</span>
           </a>
           <a href="#positions" class="nav-item" data-page="positions">
             <span class="icon">💼</span>
@@ -389,6 +390,29 @@
             <div class="card">
               <h3 data-i18n="settings.strategyConfiguration">Strategy Configuration</h3>
               <div id="strategiesList"></div>
+            </div>
+
+            <div class="card">
+              <h3>Notification Settings</h3>
+              <form id="notificationSettingsForm">
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" id="desktopNotifications" />
+                    <span>Enable Desktop Notifications</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" id="audioNotifications" />
+                    <span>Enable Audio Notifications</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>Min Confidence for Notifications (%)</label>
+                  <input type="number" id="minConfidenceNotifications" min="0" max="100" step="1" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+              </form>
             </div>
           </div>
         </div>
