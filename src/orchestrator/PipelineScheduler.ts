@@ -97,9 +97,15 @@ export class PipelineScheduler {
    * Schedule a new job
    */
   private scheduleJob(name: string, schedule: string, task: () => void | Promise<void>): void {
-    const cronTask = cron.schedule(schedule, task, {
-      timezone: 'UTC',
-    });
+    const cronTask = cron.schedule(
+      schedule,
+      () => {
+        void task();
+      },
+      {
+        timezone: 'UTC',
+      },
+    );
 
     this.jobs.set(name, {
       name,
@@ -118,7 +124,7 @@ export class PipelineScheduler {
     console.info('▶️  Starting all scheduled jobs...');
     for (const [name, job] of Array.from(this.jobs.entries())) {
       if (job.enabled) {
-        job.task.start();
+        void job.task.start();
         console.info(`  ✓ Started: ${name}`);
       }
     }
@@ -130,7 +136,7 @@ export class PipelineScheduler {
   stop(): void {
     console.info('⏹️  Stopping all scheduled jobs...');
     for (const [name, job] of Array.from(this.jobs.entries())) {
-      job.task.stop();
+      void job.task.stop();
       console.info(`  ✓ Stopped: ${name}`);
     }
   }
@@ -142,7 +148,7 @@ export class PipelineScheduler {
     const job = this.jobs.get(name);
     if (job) {
       job.enabled = true;
-      job.task.start();
+      void job.task.start();
       console.info(`✅ Enabled job: ${name}`);
     }
   }
@@ -154,7 +160,7 @@ export class PipelineScheduler {
     const job = this.jobs.get(name);
     if (job) {
       job.enabled = false;
-      job.task.stop();
+      void job.task.stop();
       console.info(`⏸️  Disabled job: ${name}`);
     }
   }

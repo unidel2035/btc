@@ -21,7 +21,7 @@ export class PortfolioRotationManager {
     const closeActions = toClose.map((pair) => ({
       pair,
       reason: 'No longer in screening recommendations',
-      urgency: ('gradual' as const),
+      urgency: 'gradual' as const,
       // TODO: Get actual PnL
       currentPnL: undefined,
     }));

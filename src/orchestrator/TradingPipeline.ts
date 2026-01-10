@@ -222,7 +222,7 @@ export class TradingPipeline {
           if (!analysis.tradeDecision) continue;
 
           try {
-            const executed = await this.executeTrade(analysis, report.mode);
+            const executed = this.executeTrade(analysis, report.mode);
 
             if (executed) {
               report.positionsOpened++;
@@ -297,12 +297,8 @@ export class TradingPipeline {
     }
 
     // Determine market conditions
-    const bullishCount = analyses.filter(
-      (a) => a.technicalAnalysis.trend === 'bullish',
-    ).length;
-    const bearishCount = analyses.filter(
-      (a) => a.technicalAnalysis.trend === 'bearish',
-    ).length;
+    const bullishCount = analyses.filter((a) => a.technicalAnalysis.trend === 'bullish').length;
+    const bearishCount = analyses.filter((a) => a.technicalAnalysis.trend === 'bearish').length;
 
     let overallTrend: 'bullish' | 'bearish' | 'neutral' = 'neutral';
     if (bullishCount > bearishCount * 1.5) overallTrend = 'bullish';
@@ -326,7 +322,8 @@ export class TradingPipeline {
         .filter((a) => a.tradeDecision)
         .map((a) => ({
           pair: a.pair,
-          action: a.tradeDecision!.direction === 'long' ? ('buy' as const) : ('sell' as const),
+          action:
+            String(a.tradeDecision!.direction) === 'long' ? ('buy' as const) : ('sell' as const),
           confidence: a.tradeDecision!.confidence,
           reason: a.tradeDecision!.reason,
         })),
@@ -363,7 +360,7 @@ export class TradingPipeline {
     this.state.emergencyStop = true;
     this.state.status = 'stopped' as PipelineStatus;
 
-    this.notificationManager.sendNotification({
+    void this.notificationManager.sendNotification({
       type: 'warning',
       title: '🚨 Emergency Stop Activated',
       message: 'Pipeline has been stopped. All automated operations are halted.',
@@ -455,26 +452,31 @@ export class TradingPipeline {
 
   /**
    * Execute a trade (with risk checks)
+   * TODO: Implement actual trade execution
    */
-  private async executeTrade(analysis: PairAnalysis, mode: PipelineMode): Promise<boolean> {
+  private executeTrade(analysis: PairAnalysis, mode: PipelineMode): boolean {
     if (!analysis.tradeDecision) {
       return false;
     }
 
     // Dry run mode - just log
     if (mode === ('dry_run' as PipelineMode)) {
-      console.info(`[DRY RUN] Would open position: ${analysis.pair} ${analysis.tradeDecision.direction}`);
+      console.info(
+        `[DRY RUN] Would open position: ${analysis.pair} ${analysis.tradeDecision.direction}`,
+      );
       return true;
     }
 
     // Manual approval mode - would require user confirmation
     if (mode === ('manual_approval' as PipelineMode)) {
-      console.info(`[MANUAL APPROVAL REQUIRED] Position: ${analysis.pair} ${analysis.tradeDecision.direction}`);
+      console.info(
+        `[MANUAL APPROVAL REQUIRED] Position: ${analysis.pair} ${analysis.tradeDecision.direction}`,
+      );
       return false; // Would need to implement approval mechanism
     }
 
     // Risk evaluation
-    const riskEvaluation = await this.evaluateRisk(analysis);
+    const riskEvaluation = this.evaluateRisk(analysis);
 
     if (!riskEvaluation.approved) {
       console.warn(`Position rejected: ${riskEvaluation.reason}`);
@@ -498,7 +500,7 @@ export class TradingPipeline {
   /**
    * Evaluate risk for a trade
    */
-  private async evaluateRisk(analysis: PairAnalysis): Promise<RiskEvaluationResult> {
+  private evaluateRisk(analysis: PairAnalysis): RiskEvaluationResult {
     if (!analysis.tradeDecision) {
       return {
         approved: false,
@@ -534,7 +536,9 @@ export class TradingPipeline {
   /**
    * Execute portfolio rotation
    */
-  private executeRotation(rotationPlan: ReturnType<PortfolioRotationManager['planRotation']>): void {
+  private executeRotation(
+    rotationPlan: ReturnType<PortfolioRotationManager['planRotation']>,
+  ): void {
     // TODO: Implement actual rotation logic
     console.info('📊 Executing portfolio rotation...');
 

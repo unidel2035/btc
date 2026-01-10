@@ -289,7 +289,13 @@ export interface PipelineState {
  * Notification event
  */
 export interface PipelineNotification {
-  type: 'screening_complete' | 'signal_detected' | 'position_opened' | 'position_closed' | 'error' | 'warning';
+  type:
+    | 'screening_complete'
+    | 'signal_detected'
+    | 'position_opened'
+    | 'position_closed'
+    | 'error'
+    | 'warning';
   title: string;
   message: string;
   priority: 'low' | 'medium' | 'high' | 'critical';

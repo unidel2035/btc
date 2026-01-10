@@ -779,36 +779,43 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       });
 
       // Run screening asynchronously
-      screening.runScreening().then((report) => {
-        if (storage.screeningTasks) {
-          const existingTask = storage.screeningTasks.get(taskId) as { startedAt?: string } | undefined;
-          storage.screeningTasks.set(taskId, {
-            id: taskId,
-            status: 'completed',
-            stage: 3,
-            progress: 'Screening completed',
-            startedAt: existingTask?.startedAt || new Date().toISOString(),
-            completedAt: new Date().toISOString(),
-            report,
-          });
-        }
+      screening
+        .runScreening()
+        .then((report) => {
+          if (storage.screeningTasks) {
+            const existingTask = storage.screeningTasks.get(taskId) as
+              | { startedAt?: string }
+              | undefined;
+            storage.screeningTasks.set(taskId, {
+              id: taskId,
+              status: 'completed',
+              stage: 3,
+              progress: 'Screening completed',
+              startedAt: existingTask?.startedAt || new Date().toISOString(),
+              completedAt: new Date().toISOString(),
+              report,
+            });
+          }
 
-        // Store latest report
-        storage.latestScreeningReport = report;
-      }).catch((error) => {
-        if (storage.screeningTasks) {
-          const existingTask = storage.screeningTasks.get(taskId) as { startedAt?: string } | undefined;
-          storage.screeningTasks.set(taskId, {
-            id: taskId,
-            status: 'failed',
-            stage: -1,
-            progress: 'Screening failed',
-            startedAt: existingTask?.startedAt || new Date().toISOString(),
-            completedAt: new Date().toISOString(),
-            error: error instanceof Error ? error.message : String(error),
-          });
-        }
-      });
+          // Store latest report
+          storage.latestScreeningReport = report;
+        })
+        .catch((error) => {
+          if (storage.screeningTasks) {
+            const existingTask = storage.screeningTasks.get(taskId) as
+              | { startedAt?: string }
+              | undefined;
+            storage.screeningTasks.set(taskId, {
+              id: taskId,
+              status: 'failed',
+              stage: -1,
+              progress: 'Screening failed',
+              startedAt: existingTask?.startedAt || new Date().toISOString(),
+              completedAt: new Date().toISOString(),
+              error: error instanceof Error ? error.message : String(error),
+            });
+          }
+        });
 
       res.json({ status: 'running', taskId });
     } catch (error) {
@@ -823,7 +830,9 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
   // GET /api/screening/status/:taskId - Get screening status
   router.get('/api/screening/status/:taskId', (req: Request, res: Response): void => {
     try {
-      const taskId = (Array.isArray(req.params.taskId) ? req.params.taskId[0] : req.params.taskId) as string;
+      const taskId = (
+        Array.isArray(req.params.taskId) ? req.params.taskId[0] : req.params.taskId
+      ) as string;
 
       if (!storage.screeningTasks) {
         res.status(404).json({ error: 'Task not found' });

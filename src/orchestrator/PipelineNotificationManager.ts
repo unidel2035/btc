@@ -88,7 +88,7 @@ export class PipelineNotificationManager {
   /**
    * Send to Telegram
    */
-  private async sendToTelegram(notification: PipelineNotification): Promise<void> {
+  private sendToTelegram(notification: PipelineNotification): void {
     // TODO: Implement Telegram integration
     console.debug('[Telegram] Would send:', notification.title);
   }
@@ -96,7 +96,7 @@ export class PipelineNotificationManager {
   /**
    * Send to Email
    */
-  private async sendToEmail(notification: PipelineNotification): Promise<void> {
+  private sendToEmail(notification: PipelineNotification): void {
     // TODO: Implement Email integration
     console.debug('[Email] Would send:', notification.title);
   }
@@ -104,7 +104,7 @@ export class PipelineNotificationManager {
   /**
    * Send to SMS
    */
-  private async sendToSMS(notification: PipelineNotification): Promise<void> {
+  private sendToSMS(notification: PipelineNotification): void {
     // TODO: Implement SMS integration
     console.debug('[SMS] Would send:', notification.title);
   }
