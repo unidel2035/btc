@@ -68,6 +68,48 @@
         </div>
       </aside>
 
+      <!-- Modern Header -->
+      <header class="header">
+        <div class="header-left">
+          <button id="sidebarToggle" class="btn-icon" title="Toggle Sidebar">☰</button>
+        </div>
+
+        <div class="header-center">
+          <div class="status-indicator">
+            <span class="status-dot" id="headerStatus"></span>
+            <span id="headerStatusText">Connecting...</span>
+          </div>
+
+          <div class="header-info-item">
+            <span class="header-info-label">Balance:</span>
+            <span class="header-info-value" id="headerBalance">$0.00</span>
+          </div>
+
+          <div class="header-info-item">
+            <span class="header-info-label">Daily PnL:</span>
+            <span class="header-info-value" id="headerPnL">+$0.00 (+0%)</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div style="position: relative;">
+            <button id="notificationToggle" class="btn-icon" title="Notifications">🔔</button>
+            <span id="notificationBadge">0</span>
+
+            <!-- Notification Dropdown -->
+            <div id="notificationDropdown">
+              <div class="notification-header">
+                <h3>Notifications</h3>
+                <button id="markAllRead">Mark all read</button>
+              </div>
+              <div id="notificationsList"></div>
+            </div>
+          </div>
+
+          <button id="themeToggle" class="btn-icon" title="Toggle Theme">🌙</button>
+        </div>
+      </header>
+
       <!-- Main Content -->
       <main class="main-content">
         <!-- Dashboard Page -->
@@ -843,6 +885,13 @@
       </main>
     </div>
 
+    <!-- Modern UI/UX Scripts -->
+    <script src="/theme.js"></script>
+    <script src="/sidebar.js"></script>
+    <script src="/notifications.js"></script>
+    <script src="/app-integration.js"></script>
+
+    <!-- Application Scripts -->
     <script src="/StrategyManager.js"></script>
     <script src="/strategies/BaseStrategy.js"></script>
     <script src="/strategies/PriceChannelStrategy.js"></script>
