@@ -9,8 +9,6 @@ import { CoinGeckoClient } from '../../analyzers/screening/CoinGeckoClient.js';
 import type {
   PredictionAccuracy,
   SectorAnalysis,
-  // IntegramScreeningReport,
-  // IntegramScreeningRecommendation,
 } from './screening-types.js';
 import type { ScoringConfig } from '../../analyzers/screening/types.js';
 

@@ -37,7 +37,7 @@ export class ScreeningOrchestrator {
    */
   async runScreening(): Promise<ScreeningReport> {
     console.log('🚀 Starting AI Screening Module...\n');
-    console.log('=' .repeat(80));
+    console.log('='.repeat(80));
 
     const startTime = Date.now();
 
@@ -58,13 +58,13 @@ export class ScreeningOrchestrator {
       const validation = this.portfolioBuilder.validateDiversification(portfolio);
       if (!validation.valid) {
         console.warn('\n⚠️  Portfolio validation warnings:');
-        validation.issues.forEach(issue => console.warn(`   - ${issue}`));
+        validation.issues.forEach((issue) => console.warn(`   - ${issue}`));
       }
 
       // Generate report
       const report: ScreeningReport = {
         generatedAt: new Date().toISOString(),
-        analyzedSectors: sectors.map(s => s.name),
+        analyzedSectors: sectors.map((s) => s.name),
         recommendedProjects: portfolio,
         nextActions: [
           'Выполнить технический анализ для определения точек входа',
@@ -100,7 +100,7 @@ export class ScreeningOrchestrator {
    */
   async runAndSaveReport(
     outputDir: string = './reports',
-    formats: Array<'markdown' | 'json' | 'csv'> = ['markdown', 'json']
+    formats: Array<'markdown' | 'json' | 'csv'> = ['markdown', 'json'],
   ): Promise<ScreeningReport> {
     const report = await this.runScreening();
 

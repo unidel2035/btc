@@ -680,7 +680,7 @@ export class PortfolioAnalytics {
     const n = assets.length;
     const matrix: number[][] = Array(n)
       .fill(0)
-      .map(() => Array(n).fill(0));
+      .map(() => Array(n).fill(0) as number[]);
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
@@ -769,6 +769,7 @@ export class PortfolioAnalytics {
   /**
    * Generate comprehensive analytics report
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async generateReport(
     trades: AnalyticsTrade[],
     equityCurve: EquityPoint[],

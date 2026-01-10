@@ -238,7 +238,7 @@ export abstract class BaseStrategy extends EventEmitter implements Strategy {
     const schema = this.getParameterSchema();
 
     for (const [key, value] of Object.entries(params)) {
-      const paramSchema = schema.find(s => s.name === key);
+      const paramSchema = schema.find((s) => s.name === key);
       if (!paramSchema) {
         continue; // Неизвестный параметр - игнорируем
       }
@@ -269,7 +269,7 @@ export abstract class BaseStrategy extends EventEmitter implements Strategy {
 
       // Проверка допустимых значений для select
       if (paramSchema.type === 'select' && paramSchema.options) {
-        const validValues = paramSchema.options.map(o => o.value);
+        const validValues = paramSchema.options.map((o) => o.value);
         if (!validValues.includes(value)) {
           errors.push(`${key}: недопустимое значение`);
         }

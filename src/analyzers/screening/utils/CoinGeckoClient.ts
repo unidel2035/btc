@@ -18,12 +18,10 @@ export class CoinGeckoClient {
     // apiKey is used in the client initialization
 
     this.client = axios.create({
-      baseURL: apiKey
-        ? 'https://pro-api.coingecko.com/api/v3'
-        : 'https://api.coingecko.com/api/v3',
+      baseURL: apiKey ? 'https://pro-api.coingecko.com/api/v3' : 'https://api.coingecko.com/api/v3',
       timeout: 30000,
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         ...(apiKey && { 'x-cg-pro-api-key': apiKey }),
       },
     });
@@ -37,9 +35,7 @@ export class CoinGeckoClient {
     const timeSinceLastRequest = now - this.lastRequestTime;
 
     if (timeSinceLastRequest < this.requestDelay) {
-      await new Promise(resolve =>
-        setTimeout(resolve, this.requestDelay - timeSinceLastRequest)
-      );
+      await new Promise((resolve) => setTimeout(resolve, this.requestDelay - timeSinceLastRequest));
     }
 
     this.lastRequestTime = Date.now();
@@ -48,15 +44,17 @@ export class CoinGeckoClient {
   /**
    * Get market data for multiple coins
    */
-  async getMarketData(params: {
-    vsCurrency?: string;
-    category?: string;
-    order?: string;
-    perPage?: number;
-    page?: number;
-    sparkline?: boolean;
-    priceChangePercentage?: string;
-  } = {}): Promise<CoinGeckoMarketData[]> {
+  async getMarketData(
+    params: {
+      vsCurrency?: string;
+      category?: string;
+      order?: string;
+      perPage?: number;
+      page?: number;
+      sparkline?: boolean;
+      priceChangePercentage?: string;
+    } = {},
+  ): Promise<CoinGeckoMarketData[]> {
     await this.rateLimit();
 
     const response = await this.client.get<CoinGeckoMarketData[]>('/coins/markets', {
@@ -108,7 +106,10 @@ export class CoinGeckoClient {
   /**
    * Get coins by category
    */
-  async getCoinsByCategory(categoryId: string, limit: number = 100): Promise<CoinGeckoMarketData[]> {
+  async getCoinsByCategory(
+    categoryId: string,
+    limit: number = 100,
+  ): Promise<CoinGeckoMarketData[]> {
     return this.getMarketData({
       category: categoryId,
       perPage: limit,
@@ -184,7 +185,7 @@ export class CoinGeckoClient {
   async getMarketChart(
     coinId: string,
     vsCurrency: string = 'usd',
-    days: number = 90
+    days: number = 90,
   ): Promise<any> {
     await this.rateLimit();
 
@@ -204,15 +205,15 @@ export class CoinGeckoClient {
   filterByExchanges(
     coins: CoinGeckoDetailedData[],
     requiredExchanges: string[],
-    minListings: number = 2
+    minListings: number = 2,
   ): CoinGeckoDetailedData[] {
-    return coins.filter(coin => {
+    return coins.filter((coin) => {
       const exchanges = new Set(
-        coin.tickers.map(ticker => ticker.market.identifier.toLowerCase())
+        coin.tickers.map((ticker) => ticker.market.identifier.toLowerCase()),
       );
 
-      const matchingExchanges = requiredExchanges.filter(exchange =>
-        exchanges.has(exchange.toLowerCase())
+      const matchingExchanges = requiredExchanges.filter((exchange) =>
+        exchanges.has(exchange.toLowerCase()),
       );
 
       return matchingExchanges.length >= minListings;
@@ -231,15 +232,11 @@ export class CoinGeckoClient {
    */
   hasRequiredExchanges(
     tickers: CoinGeckoDetailedData['tickers'],
-    requiredExchanges: string[]
+    requiredExchanges: string[],
   ): boolean {
-    const exchanges = new Set(
-      tickers.map(ticker => ticker.market.identifier.toLowerCase())
-    );
+    const exchanges = new Set(tickers.map((ticker) => ticker.market.identifier.toLowerCase()));
 
-    return requiredExchanges.some(exchange =>
-      exchanges.has(exchange.toLowerCase())
-    );
+    return requiredExchanges.some((exchange) => exchanges.has(exchange.toLowerCase()));
   }
 }
 
