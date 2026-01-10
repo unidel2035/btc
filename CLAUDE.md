@@ -63,13 +63,3 @@ Your prepared working directory: /tmp/gh-issue-solver-1768065205474
 Proceed.
 
 Run timestamp: 2026-01-10T17:13:27.609Z
-
----
-
-Issue to solve: https://github.com/unidel2035/btc/issues/78
-Your prepared branch: issue-78-51424e341951
-Your prepared working directory: /tmp/gh-issue-solver-1768068634587
-
-Proceed.
-
-Run timestamp: 2026-01-10T18:10:36.378Z
