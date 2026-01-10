@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url';
 import { setupRoutes } from './routes.js';
 import { DashboardWebSocket } from './websocket.js';
 import { DemoDataGenerator } from './demo.js';
+import { IntegramClient } from '../database/integram/IntegramClient.js';
+import { IntegramStorage } from './storage/IntegramStorage.js';
+import { storage as memoryStorage } from './storage.js';
 import { RealDataProvider } from './providers/RealDataProvider.js';
 import { NewsProvider } from './providers/NewsProvider.js';
 import { ExchangeManager } from '../exchanges/ExchangeManager.js';
@@ -153,8 +156,37 @@ class DashboardServer {
     }
   }
 
-  public start(): void {
+  private async setupStorage(): Promise<void> {
+    const storageType = process.env.DASHBOARD_STORAGE || 'memory';
+
+    if (storageType === 'integram') {
+      console.log('🗄️  Initializing Integram storage...');
+
+      const integramClient = new IntegramClient({
+        serverURL: process.env.INTEGRAM_URL || 'https://интеграм.рф',
+        database: process.env.INTEGRAM_DATABASE || 'bts',
+        login: process.env.INTEGRAM_LOGIN || 'd',
+        password: process.env.INTEGRAM_PASSWORD || 'd',
+      });
+
+      const integramStorage = new IntegramStorage(integramClient);
+      await integramStorage.initialize();
+
+      // Заменяем глобальный storage (для совместимости с существующими роутами)
+      // Примечание: это не идеальное решение, но работает для текущей архитектуры
+      Object.assign(memoryStorage, integramStorage);
+
+      console.log('✅ Integram storage initialized');
+    } else {
+      console.log('💾 Using in-memory storage');
+    }
+  }
+
+  public async start(): Promise<void> {
     try {
+      // Инициализация storage должна быть до setupRoutes
+      await this.setupStorage();
+
       this.setupMiddleware();
       this.setupRoutes();
       this.setupWebSocket();
@@ -225,4 +257,4 @@ class DashboardServer {
 
 // Запуск сервера
 const dashboard = new DashboardServer();
-dashboard.start();
+void dashboard.start();

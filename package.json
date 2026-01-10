@@ -45,9 +45,11 @@
     "example:reddit": "tsx examples/reddit-collector-example.ts",
     "example:social": "tsx examples/social-orchestrator-example.ts",
     "example:exchanges": "tsx examples/exchanges-example.ts",
+    "example:integram": "tsx examples/integram-example.ts",
     "db:migrate": "tsx src/database/migrate.ts",
     "db:seed": "tsx src/database/seed.ts",
-    "db:backup": "tsx src/database/backup.ts"
+    "db:backup": "tsx src/database/backup.ts",
+    "integram:setup": "tsx scripts/setup-integram.ts"
   },
   "keywords": [
     "bitcoin",
@@ -81,6 +83,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/ws": "^8.18.1",
+    "axios": "^1.13.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^5.2.1",
