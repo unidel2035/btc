@@ -528,10 +528,12 @@ export class ChartPatternAnalyzer {
     else if (marketPhase === MarketPhase.DOWNTREND) score -= 20;
 
     // Pattern quality score (0-30 points)
-    const highConfidenceOBs = orderBlocks.filter((ob) => ob.confidence === ConfidenceLevel.HIGH)
-      .length;
-    const highConfidenceFVGs = fairValueGaps.filter((fvg) => fvg.confidence === ConfidenceLevel.HIGH)
-      .length;
+    const highConfidenceOBs = orderBlocks.filter(
+      (ob) => ob.confidence === ConfidenceLevel.HIGH,
+    ).length;
+    const highConfidenceFVGs = fairValueGaps.filter(
+      (fvg) => fvg.confidence === ConfidenceLevel.HIGH,
+    ).length;
 
     score += Math.min(highConfidenceOBs * 10, 15);
     score += Math.min(highConfidenceFVGs * 5, 15);
@@ -578,8 +580,10 @@ export class ChartPatternAnalyzer {
           100
         : 0;
 
-    return `Order Block patterns on ${timeframe} timeframe show ${Math.round(obEffectiveness)}% effectiveness for bounces. ` +
-      `Fair Value Gaps act as price magnets in ${Math.round(fvgEffectiveness)}% of cases.`;
+    return (
+      `Order Block patterns on ${timeframe} timeframe show ${Math.round(obEffectiveness)}% effectiveness for bounces. ` +
+      `Fair Value Gaps act as price magnets in ${Math.round(fvgEffectiveness)}% of cases.`
+    );
   }
 
   /**
@@ -594,8 +598,9 @@ export class ChartPatternAnalyzer {
       reasons.push('Strong uptrend');
     }
 
-    const highConfOBs = tm.orderBlocks.filter((ob) => ob.confidence === ConfidenceLevel.HIGH)
-      .length;
+    const highConfOBs = tm.orderBlocks.filter(
+      (ob) => ob.confidence === ConfidenceLevel.HIGH,
+    ).length;
     if (highConfOBs > 0) {
       reasons.push(`${highConfOBs} high-confidence order blocks`);
     }

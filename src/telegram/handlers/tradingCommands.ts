@@ -118,7 +118,9 @@ export async function handleClosePosition(
       const parts = text.split(' ');
 
       if (parts.length < 2 || !parts[1]) {
-        await ctx.reply('❌ Usage: /close\\_position <symbol>\nExample: /close\\_position BTC/USDT');
+        await ctx.reply(
+          '❌ Usage: /close\\_position <symbol>\nExample: /close\\_position BTC/USDT',
+        );
         return;
       }
 

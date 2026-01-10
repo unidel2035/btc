@@ -74,9 +74,7 @@ export class VolumeAnalyzer {
     const volumeRatio = recentAvgVolume / avgVolume;
 
     // Accumulation: Low volatility (< 3%) + High volume (> threshold)
-    return (
-      volatilityPercent < 3 && volumeRatio > this.config.volumeAccumulationThreshold
-    );
+    return volatilityPercent < 3 && volumeRatio > this.config.volumeAccumulationThreshold;
   }
 
   /**
@@ -100,8 +98,7 @@ export class VolumeAnalyzer {
 
     // Check if volume is elevated
     const avgVolume = this.calculateAverageVolume(candles.slice(-this.config.volumeLookback));
-    const last10AvgVolume =
-      candles.slice(-10).reduce((sum, c) => sum + c.volume, 0) / 10;
+    const last10AvgVolume = candles.slice(-10).reduce((sum, c) => sum + c.volume, 0) / 10;
     const volumeRatio = last10AvgVolume / avgVolume;
 
     if (volumeRatio < 1.3) {
@@ -143,10 +140,13 @@ export class VolumeAnalyzer {
       const priceIncreasing = lastTwo[1].price > lastTwo[0].price;
       const volumeDecreasing = lastTwo[1].volume < lastTwo[0].volume;
 
-      const volumeDecline =
-        ((lastTwo[0].volume - lastTwo[1].volume) / lastTwo[0].volume) * 100;
+      const volumeDecline = ((lastTwo[0].volume - lastTwo[1].volume) / lastTwo[0].volume) * 100;
 
-      if (priceIncreasing && volumeDecreasing && volumeDecline > this.config.volumeDivergenceThreshold) {
+      if (
+        priceIncreasing &&
+        volumeDecreasing &&
+        volumeDecline > this.config.volumeDivergenceThreshold
+      ) {
         return { detected: true, type: 'bearish' };
       }
     }
@@ -157,10 +157,13 @@ export class VolumeAnalyzer {
       const priceDecreasing = lastTwo[1].price < lastTwo[0].price;
       const volumeDecreasing = lastTwo[1].volume < lastTwo[0].volume;
 
-      const volumeDecline =
-        ((lastTwo[0].volume - lastTwo[1].volume) / lastTwo[0].volume) * 100;
+      const volumeDecline = ((lastTwo[0].volume - lastTwo[1].volume) / lastTwo[0].volume) * 100;
 
-      if (priceDecreasing && volumeDecreasing && volumeDecline > this.config.volumeDivergenceThreshold) {
+      if (
+        priceDecreasing &&
+        volumeDecreasing &&
+        volumeDecline > this.config.volumeDivergenceThreshold
+      ) {
         return { detected: true, type: 'bullish' };
       }
     }
@@ -171,9 +174,7 @@ export class VolumeAnalyzer {
   /**
    * Find swing highs with their associated volumes
    */
-  private findSwingHighsWithVolume(
-    candles: Candle[],
-  ): Array<{ price: number; volume: number }> {
+  private findSwingHighsWithVolume(candles: Candle[]): Array<{ price: number; volume: number }> {
     const swingHighs: Array<{ price: number; volume: number }> = [];
     const lookback = 5;
 
@@ -203,9 +204,7 @@ export class VolumeAnalyzer {
   /**
    * Find swing lows with their associated volumes
    */
-  private findSwingLowsWithVolume(
-    candles: Candle[],
-  ): Array<{ price: number; volume: number }> {
+  private findSwingLowsWithVolume(candles: Candle[]): Array<{ price: number; volume: number }> {
     const swingLows: Array<{ price: number; volume: number }> = [];
     const lookback = 5;
 

@@ -197,12 +197,12 @@ export function createUserMiddleware(config: TelegramBotConfig): MiddlewareFn<Te
         // Send welcome message
         await ctx.reply(
           `🎉 *Добро пожаловать в торговый бот BTC!*\n\n` +
-          `Вы успешно зарегистрированы.\n\n` +
-          `👤 Имя: ${user.fullName || user.username}\n` +
-          `🆔 ID: ${user.id}\n\n` +
-          `Рекомендуем заполнить дополнительную информацию:\n` +
-          `/profile - Перейти в профиль`,
-          { parse_mode: 'Markdown' }
+            `Вы успешно зарегистрированы.\n\n` +
+            `👤 Имя: ${user.fullName || user.username}\n` +
+            `🆔 ID: ${user.id}\n\n` +
+            `Рекомендуем заполнить дополнительную информацию:\n` +
+            `/profile - Перейти в профиль`,
+          { parse_mode: 'Markdown' },
         );
       } else {
         // Update activity for existing user

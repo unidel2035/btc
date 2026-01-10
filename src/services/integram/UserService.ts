@@ -97,9 +97,8 @@ export class UserService {
     try {
       // Generate username from Telegram data
       const username = telegramUser.username || `user_${telegramUser.id}`;
-      const fullName = [telegramUser.first_name, telegramUser.last_name]
-        .filter(Boolean)
-        .join(' ') || username;
+      const fullName =
+        [telegramUser.first_name, telegramUser.last_name].filter(Boolean).join(' ') || username;
 
       // Generate temporary email (required field)
       const tempEmail = `user_${telegramUser.id}@telegram.temp`;
@@ -282,7 +281,8 @@ export class UserService {
 
     return {
       id: obj.id,
-      telegramId: typeof telegramId === 'string' ? parseInt(telegramId, 10) : (telegramId as number),
+      telegramId:
+        typeof telegramId === 'string' ? parseInt(telegramId, 10) : (telegramId as number),
       username: obj.value,
       fullName: typeof fullName === 'string' ? fullName : undefined,
       email: typeof email === 'string' ? email : undefined,

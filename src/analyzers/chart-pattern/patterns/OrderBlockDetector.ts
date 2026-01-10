@@ -6,12 +6,7 @@
  */
 
 import { Candle } from '../../../exchanges/types.js';
-import {
-  OrderBlock,
-  OrderBlockType,
-  ConfidenceLevel,
-  PatternDetectionConfig,
-} from '../types.js';
+import { OrderBlock, OrderBlockType, ConfidenceLevel, PatternDetectionConfig } from '../types.js';
 
 export class OrderBlockDetector {
   constructor(private config: PatternDetectionConfig) {}
@@ -87,7 +82,9 @@ export class OrderBlockDetector {
     }
 
     // Verify impulse breaks above recent highs
-    const recentHigh = Math.max(...candles.slice(Math.max(0, index - 5), index + 1).map((c) => c.high));
+    const recentHigh = Math.max(
+      ...candles.slice(Math.max(0, index - 5), index + 1).map((c) => c.high),
+    );
     const impulseHigh = Math.max(...impulseCandles.map((c) => c.high));
 
     if (impulseHigh <= recentHigh * 1.005) {
@@ -129,7 +126,9 @@ export class OrderBlockDetector {
     }
 
     // Verify impulse breaks below recent lows
-    const recentLow = Math.min(...candles.slice(Math.max(0, index - 5), index + 1).map((c) => c.low));
+    const recentLow = Math.min(
+      ...candles.slice(Math.max(0, index - 5), index + 1).map((c) => c.low),
+    );
     const impulseLow = Math.min(...impulseCandles.map((c) => c.low));
 
     if (impulseLow >= recentLow * 0.995) {
@@ -205,7 +204,8 @@ export class OrderBlockDetector {
     }
 
     // Effectiveness = (reactions / touches) or 0 if no touches
-    const effectiveness = touchCount >= this.config.backtestMinTouches ? reactionCount / touchCount : 0;
+    const effectiveness =
+      touchCount >= this.config.backtestMinTouches ? reactionCount / touchCount : 0;
 
     return {
       effectiveness,
