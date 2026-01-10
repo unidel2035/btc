@@ -32,7 +32,7 @@ function getBackupConfig(): BackupConfig {
 /**
  * Create a database backup using pg_dump
  */
-async function createBackup(): Promise<string> {
+function createBackup(): string {
   const config = getBackupConfig();
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const backupFileName = `backup_${config.database}_${timestamp}.sql`;
@@ -83,7 +83,7 @@ async function createBackup(): Promise<string> {
 /**
  * Restore a database from backup
  */
-async function restoreBackup(backupPath: string): Promise<void> {
+function restoreBackup(backupPath: string): void {
   const config = getBackupConfig();
 
   if (!existsSync(backupPath)) {
@@ -115,7 +115,7 @@ async function restoreBackup(backupPath: string): Promise<void> {
 /**
  * Create a backup of Redis data
  */
-async function createRedisBackup(): Promise<string> {
+function createRedisBackup(): string {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const backupFileName = `redis_backup_${timestamp}.rdb`;
   const backupDir = process.env.BACKUP_DIR || './backups';
@@ -150,14 +150,14 @@ async function createRedisBackup(): Promise<string> {
 /**
  * Main backup function
  */
-async function backup(): Promise<void> {
+function backup(): void {
   const args = process.argv.slice(2);
   const command = args[0];
 
   try {
     switch (command) {
       case 'create':
-        await createBackup();
+        createBackup();
         break;
 
       case 'restore':
@@ -166,11 +166,11 @@ async function backup(): Promise<void> {
           console.log('Usage: npm run db:backup restore <backup-file-path>');
           process.exit(1);
         }
-        await restoreBackup(args[1]);
+        restoreBackup(args[1]);
         break;
 
       case 'redis':
-        await createRedisBackup();
+        createRedisBackup();
         break;
 
       default:

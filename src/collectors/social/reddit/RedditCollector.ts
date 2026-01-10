@@ -1,5 +1,9 @@
-import { randomUUID } from 'crypto';
-import type { SocialPost, RedditConfig, SocialCollectionResult, SocialDeduplicationOptions } from '../types.js';
+import type {
+  SocialPost,
+  RedditConfig,
+  SocialCollectionResult,
+  SocialDeduplicationOptions,
+} from '../types.js';
 import { SocialPlatform } from '../types.js';
 import { RateLimiter } from '../utils/rateLimiter.js';
 import { withRetry } from '../utils/retry.js';
@@ -67,7 +71,9 @@ export class RedditCollector {
     return withRetry(async () => {
       this.logger.debug('Fetching new access token');
 
-      const auth = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString('base64');
+      const auth = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
+        'base64',
+      );
 
       const response = await fetch('https://www.reddit.com/api/v1/access_token', {
         method: 'POST',
@@ -226,7 +232,9 @@ export class RedditCollector {
       }
 
       const duration = Date.now() - startTime;
-      this.logger.info(`Completed in ${duration}ms. Unique: ${totalPosts}, Duplicates: ${duplicatesSkipped}`);
+      this.logger.info(
+        `Completed in ${duration}ms. Unique: ${totalPosts}, Duplicates: ${duplicatesSkipped}`,
+      );
 
       return {
         platform: SocialPlatform.REDDIT,

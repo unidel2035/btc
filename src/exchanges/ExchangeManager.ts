@@ -80,8 +80,9 @@ export class ExchangeManager {
         const key = this.getExchangeKey('okx', marketType);
         this.exchanges.set(key, exchange);
         initPromises.push(
-          exchange.initialize().catch((error) => {
-            console.warn(`[OKX] Initialization failed (stub implementation):`, error.message);
+          exchange.initialize().catch((error: unknown) => {
+            const message = error instanceof Error ? error.message : String(error);
+            console.warn(`[OKX] Initialization failed (stub implementation):`, message);
           }),
         );
       }
@@ -284,8 +285,8 @@ export class ExchangeManager {
       try {
         const orderBook = await exchange.getOrderBook(symbol, depth);
         const parts = key.split(':');
-      const name = parts[0] || '';
-      const marketType = (parts[1] || MarketType.SPOT) as MarketType;
+        const name = parts[0] || '';
+        const marketType = (parts[1] || MarketType.SPOT) as MarketType;
         orderBooks.push({
           exchange: name,
           marketType: marketType as MarketType,

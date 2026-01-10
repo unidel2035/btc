@@ -82,7 +82,7 @@ export class Logger {
     }
   }
 
-  public error(message: string, error?: Error | unknown, metadata?: LogMetadata): void {
+  public error(message: string, error?: unknown, metadata?: LogMetadata): void {
     if (this.shouldLog(LogLevel.ERROR)) {
       const errorMetadata = {
         ...metadata,

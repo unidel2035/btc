@@ -28,7 +28,7 @@ class DashboardServer {
 
   constructor() {
     this.port = parseInt(process.env.DASHBOARD_PORT || '8080');
-    this.host = process.env.DASHBOARD_HOST || 'localhost';
+    this.host = process.env.DASHBOARD_HOST || '0.0.0.0';
     this.app = express();
     this.server = createServer(this.app);
   }
@@ -62,8 +62,8 @@ class DashboardServer {
     setupRoutes(router);
     this.app.use(router);
 
-    // Fallback для SPA
-    this.app.get('*', (_req, res) => {
+    // Fallback для SPA - middleware вместо route
+    this.app.use((_req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'index.html'));
     });
   }
