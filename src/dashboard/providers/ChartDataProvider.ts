@@ -42,9 +42,13 @@ export class ChartDataProvider {
       );
 
       // Subscribe to candles from exchange
-      exchangeInstance.subscribeToCandles(symbol, timeframe as CandleInterval, (candle: Candle) => {
-        this.handleCandle(exchange, symbol, timeframe, candle);
-      });
+      exchangeInstance.subscribeToCandles(
+        symbol,
+        timeframe as CandleInterval,
+        (candle: Candle) => {
+          this.handleCandle(exchange, symbol, timeframe, candle);
+        },
+      );
 
       this.activeSubscriptions.set(key, {
         exchange,
