@@ -12,6 +12,7 @@ import { IntegramClient } from '../database/integram/IntegramClient.js';
 import { IntegramStorage } from './storage/IntegramStorage.js';
 import { storage as memoryStorage } from './storage.js';
 import { RealDataProvider } from './providers/RealDataProvider.js';
+import { SignalsProvider } from './providers/SignalsProvider.js';
 import { ExchangeManager } from '../exchanges/ExchangeManager.js';
 import { MarketType } from '../exchanges/types.js';
 
@@ -30,6 +31,8 @@ class DashboardServer {
   private ws: DashboardWebSocket | null = null;
   private demoGenerator: DemoDataGenerator | null = null;
   private realDataProvider: RealDataProvider | null = null;
+  private signalsProvider: SignalsProvider | null = null;
+  private exchangeManager: ExchangeManager | null = null;
   private port: number;
   private host: string;
 
@@ -66,7 +69,7 @@ class DashboardServer {
 
   private setupRoutes(): void {
     const router = express.Router();
-    setupRoutes(router);
+    setupRoutes(router, this);
     this.app.use(router);
 
     // Fallback для SPA - middleware вместо route
@@ -123,11 +126,16 @@ class DashboardServer {
           },
         };
 
-        const exchangeManager = new ExchangeManager(exchangeConfig);
-        this.realDataProvider = new RealDataProvider(exchangeManager, this.ws || undefined);
+        this.exchangeManager = new ExchangeManager(exchangeConfig);
+        this.realDataProvider = new RealDataProvider(this.exchangeManager, this.ws || undefined);
         await this.realDataProvider.start();
 
         console.log('✅ Real data provider initialized');
+
+        // Запускаем провайдер сигналов (если не в демо-режиме)
+        if (process.env.ENABLE_SIGNALS_PROVIDER !== 'false') {
+          await this.setupSignalsProvider();
+        }
       } catch (error) {
         console.error('❌ Failed to initialize real data provider:', error);
         console.log('⚠️  Falling back to demo mode');
@@ -136,6 +144,29 @@ class DashboardServer {
         this.demoGenerator = new DemoDataGenerator(this.ws || undefined);
         this.demoGenerator.start();
       }
+    }
+  }
+
+  private async setupSignalsProvider(): Promise<void> {
+    if (!this.exchangeManager) {
+      console.warn('⚠️  Exchange manager not initialized, skipping signals provider');
+      return;
+    }
+
+    try {
+      console.log('🎯 Initializing signals provider...');
+
+      this.signalsProvider = new SignalsProvider({
+        exchangeManager: this.exchangeManager,
+        ws: this.ws || undefined,
+        analysisInterval: parseInt(process.env.STRATEGY_ANALYSIS_INTERVAL || '30000'),
+      });
+
+      await this.signalsProvider.start();
+
+      console.log('✅ Signals provider initialized');
+    } catch (error) {
+      console.error('❌ Failed to initialize signals provider:', error);
     }
   }
 
@@ -223,6 +254,10 @@ class DashboardServer {
       this.realDataProvider.stop();
     }
 
+    if (this.signalsProvider) {
+      this.signalsProvider.stop();
+    }
+
     if (this.ws) {
       this.ws.stop();
     }
@@ -231,6 +266,11 @@ class DashboardServer {
       console.log('✅ Dashboard server stopped');
       process.exit(0);
     });
+  }
+
+  // Expose signals provider for routes
+  public getSignalsProvider(): SignalsProvider | null {
+    return this.signalsProvider;
   }
 }
 
