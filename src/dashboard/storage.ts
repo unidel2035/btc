@@ -16,6 +16,7 @@ import type {
   DashboardMetrics,
   StrategyPreset,
 } from './types.js';
+import type { ScreeningReport } from '../analyzers/screening/types.js';
 
 class DashboardStorage {
   private positions: Map<string, Position> = new Map();
@@ -39,8 +40,7 @@ class DashboardStorage {
 
   // Screening-related properties
   public screeningTasks: Map<string, unknown> | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  public latestScreeningReport: unknown | undefined;
+  public latestScreeningReport: ScreeningReport | undefined;
   public screeningHistory: unknown[] | undefined;
   public screeningConfigOverrides: Record<string, unknown> | undefined;
 

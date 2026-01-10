@@ -31,7 +31,7 @@ export class WebhookService {
   /**
    * Process incoming webhook payload
    */
-  async processWebhook(payload: TradingViewWebhookPayload): Promise<WebhookSignalRecord> {
+  processWebhook(payload: TradingViewWebhookPayload): WebhookSignalRecord {
     // 1. Parse the webhook payload
     const signal = this.parseSignal(payload);
 
@@ -148,10 +148,7 @@ export class WebhookService {
   /**
    * Validate webhook signal
    */
-  async validateSignal(
-    signal: WebhookSignal,
-    currentPrice?: number,
-  ): Promise<WebhookValidationResult> {
+  validateSignal(signal: WebhookSignal, currentPrice?: number): WebhookValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -268,7 +265,7 @@ export class WebhookService {
     return this.recentSignals.some(
       (recent) =>
         recent.ticker === signal.ticker &&
-        recent.action === signal.action &&
+        recent.action === String(signal.action) &&
         recent.timestamp > cutoffTime,
     );
   }

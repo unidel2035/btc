@@ -1,0 +1,50 @@
+3097:Unit Tests	Run unit tests	2026-01-10T18:11:08.2813061Z     at BinanceExchange.handleBinanceError (/home/runner/work/btc/btc/src/exchanges/binance/BinanceExchange.ts:176:11)
+3111:Unit Tests	Run unit tests	2026-01-10T18:11:08.2828719Z    Error: Service unavailable from a restricted location according to 'b. Eligibility' in https://www.binance.com/en/terms. Please contact customer service if you believe you received this message in error.
+3113:Unit Tests	Run unit tests	2026-01-10T18:11:08.2831144Z    Error: Binance not initialized
+3116:Unit Tests	Run unit tests	2026-01-10T18:11:08.2833495Z [binance:spot] Failed to get ticker for BTCUSDT: ExchangeError: Binance exchange is not initialized. Call initialize() first.
+3127:Unit Tests	Run unit tests	2026-01-10T18:11:08.2845045Z [bybit:spot] Failed to get ticker for BTCUSDT: ExchangeError: Bybit exchange is not initialized. Call initialize() first.
+3139:Unit Tests	Run unit tests	2026-01-10T18:11:08.2854227Z    Error: No prices returned
+3140:Unit Tests	Run unit tests	2026-01-10T18:11:08.2854854Z [binance:spot] Failed to get ticker for BTCUSDT: ExchangeError: Binance exchange is not initialized. Call initialize() first.
+3152:Unit Tests	Run unit tests	2026-01-10T18:11:08.2862044Z [bybit:spot] Failed to get ticker for BTCUSDT: ExchangeError: Bybit exchange is not initialized. Call initialize() first.
+3165:Unit Tests	Run unit tests	2026-01-10T18:11:08.2868882Z    Error: No best price found
+3172:Unit Tests	Run unit tests	2026-01-10T18:11:08.2872668Z [binance:spot] Failed to get ticker for BTCUSDT: ExchangeError: Binance exchange is not initialized. Call initialize() first.
+3184:Unit Tests	Run unit tests	2026-01-10T18:11:08.2883273Z [bybit:spot] Failed to get ticker for BTCUSDT: ExchangeError: Bybit exchange is not initialized. Call initialize() first.
+3197:Unit Tests	Run unit tests	2026-01-10T18:11:08.2890326Z    Error: No best price found
+3206:Unit Tests	Run unit tests	2026-01-10T18:11:08.2892833Z 📊 Test Results: 11 passed, 20 failed
+3208:Unit Tests	Run unit tests	2026-01-10T18:11:08.3049157Z ##[error]Process completed with exit code 1.
+3383:Build	Build project	2026-01-10T18:11:06.6190318Z ##[error]src/analyzers/screening/stage3/PortfolioBuilder.ts(88,23): error TS2345: Argument of type 'ScoredProject | undefined' is not assignable to parameter of type 'ScoredProject'.
+3385:Build	Build project	2026-01-10T18:11:06.6201117Z ##[error]src/analyzers/screening/stage3/PortfolioBuilder.ts(167,18): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+3387:Build	Build project	2026-01-10T18:11:06.6203477Z ##[error]src/analyzers/screening/stage3/PortfolioBuilder.ts(202,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+3389:Build	Build project	2026-01-10T18:11:06.6205650Z ##[error]src/analyzers/screening/stage3/PortfolioBuilder.ts(205,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+3391:Build	Build project	2026-01-10T18:11:06.6207992Z ##[error]src/dashboard/routes.ts(493,9): error TS2304: Cannot find name 'res'.
+3392:Build	Build project	2026-01-10T18:11:06.6209318Z ##[error]src/dashboard/routes.ts(498,23): error TS2304: Cannot find name 'req'.
+3393:Build	Build project	2026-01-10T18:11:06.6210748Z ##[error]src/dashboard/routes.ts(498,42): error TS2304: Cannot find name 'req'.
+3394:Build	Build project	2026-01-10T18:11:06.6211909Z ##[error]src/dashboard/routes.ts(498,63): error TS2304: Cannot find name 'req'.
+3395:Build	Build project	2026-01-10T18:11:06.6213010Z ##[error]src/dashboard/routes.ts(503,9): error TS2304: Cannot find name 'res'.
+3396:Build	Build project	2026-01-10T18:11:06.6214146Z ##[error]src/dashboard/routes.ts(507,7): error TS2304: Cannot find name 'res'.
+3397:Build	Build project	2026-01-10T18:11:06.6215255Z ##[error]src/dashboard/routes.ts(508,7): error TS1005: 'try' expected.
+3398:Build	Build project	2026-01-10T18:11:06.6216331Z ##[error]src/dashboard/routes.ts(509,7): error TS2304: Cannot find name 'res'.
+3399:Build	Build project	2026-01-10T18:11:06.6217513Z ##[error]src/dashboard/routes.ts(511,3): error TS1128: Declaration or statement expected.
+3400:Build	Build project	2026-01-10T18:11:06.6218696Z ##[error]src/dashboard/routes.ts(511,4): error TS1128: Declaration or statement expected.
+3401:Build	Build project	2026-01-10T18:11:06.6220183Z ##[error]src/dashboard/routes.ts(514,3): error TS2304: Cannot find name 'router'.
+3402:Build	Build project	2026-01-10T18:11:06.6221418Z ##[error]src/dashboard/routes.ts(516,31): error TS2304: Cannot find name 'dashboardServer'.
+3403:Build	Build project	2026-01-10T18:11:06.6222587Z ##[error]src/dashboard/routes.ts(539,3): error TS2304: Cannot find name 'router'.
+3404:Build	Build project	2026-01-10T18:11:06.6223721Z ##[error]src/dashboard/routes.ts(549,3): error TS2304: Cannot find name 'router'.
+3405:Build	Build project	2026-01-10T18:11:06.6224829Z ##[error]src/dashboard/routes.ts(562,3): error TS2304: Cannot find name 'router'.
+3406:Build	Build project	2026-01-10T18:11:06.6225931Z ##[error]src/dashboard/routes.ts(579,3): error TS2304: Cannot find name 'router'.
+3407:Build	Build project	2026-01-10T18:11:06.6227030Z ##[error]src/dashboard/routes.ts(594,3): error TS2304: Cannot find name 'router'.
+3408:Build	Build project	2026-01-10T18:11:06.6228116Z ##[error]src/dashboard/routes.ts(609,3): error TS2304: Cannot find name 'router'.
+3409:Build	Build project	2026-01-10T18:11:06.6229491Z ##[error]src/dashboard/routes.ts(613,33): error TS2304: Cannot find name 'dashboardServer'.
+3410:Build	Build project	2026-01-10T18:11:06.6230774Z ##[error]src/dashboard/routes.ts(646,3): error TS2304: Cannot find name 'router'.
+3411:Build	Build project	2026-01-10T18:11:06.6232011Z ##[error]src/dashboard/routes.ts(646,43): error TS6133: 'req' is declared but its value is never read.
+3412:Build	Build project	2026-01-10T18:11:06.6233283Z ##[error]src/dashboard/routes.ts(646,57): error TS6133: 'res' is declared but its value is never read.
+3413:Build	Build project	2026-01-10T18:11:06.6234447Z ##[error]src/dashboard/routes.ts(649,3): error TS2304: Cannot find name 'router'.
+3414:Build	Build project	2026-01-10T18:11:06.6235614Z ##[error]src/dashboard/routes.ts(651,31): error TS2304: Cannot find name 'dashboardServer'.
+3415:Build	Build project	2026-01-10T18:11:06.6237092Z ##[error]src/dashboard/routes.ts(710,3): error TS2304: Cannot find name 'router'.
+3416:Build	Build project	2026-01-10T18:11:06.6238229Z ##[error]src/dashboard/routes.ts(779,3): error TS1472: 'catch' or 'finally' expected.
+3417:Build	Build project	2026-01-10T18:11:06.6239511Z ##[error]src/dashboard/routes.ts(779,3): error TS2304: Cannot find name 'router'.
+3418:Build	Build project	2026-01-10T18:11:06.6240595Z ##[error]src/dashboard/routes.ts(846,1): error TS1005: ')' expected.
+3419:Build	Build project	2026-01-10T18:11:06.6708237Z ##[error]Process completed with exit code 1.
+3469:All Checks Passed	Check job results	2026-01-10T18:11:38.4904394Z [36;1m  echo "One or more checks failed"[0m
+3475:All Checks Passed	Check job results	2026-01-10T18:11:38.5779131Z One or more checks failed
+3476:All Checks Passed	Check job results	2026-01-10T18:11:38.5911821Z ##[error]Process completed with exit code 1.

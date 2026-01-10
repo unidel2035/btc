@@ -295,7 +295,8 @@ export function setupAnalyticsRoutes(router: Router): void {
    * GET /api/analytics/report
    * Generate comprehensive analytics report
    */
-  router.get('/api/analytics/report', (req: Request, res: Response) => {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  router.get('/api/analytics/report', async (req: Request, res: Response) => {
     try {
       const periodType =
         (req.query.periodType as 'daily' | 'weekly' | 'monthly' | 'yearly') || 'monthly';
@@ -322,7 +323,7 @@ export function setupAnalyticsRoutes(router: Router): void {
         { asset: 'ETH/USDT', size: 5000 },
       ];
 
-      const report = analyticsService!.generateReport(
+      const report = await analyticsService!.generateReport(
         filteredTrades,
         filteredEquity,
         {

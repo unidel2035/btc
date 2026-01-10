@@ -14,7 +14,6 @@ import type {
   ProjectMetricsHistory,
   ProjectRanking,
   SectorTrend,
-  // SCREENING_TYPES,
 } from './screening-types.js';
 
 export class ScreeningRepository {
