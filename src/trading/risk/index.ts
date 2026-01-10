@@ -17,6 +17,13 @@ export { CorrelationAnalysis } from './CorrelationAnalysis.js';
 export { RiskEventLogger } from './RiskEventLogger.js';
 export { NotificationManager } from './NotificationManager.js';
 
+// Smart Exit Management
+export { SmartStopLoss } from './SmartStopLoss.js';
+export { SmartTakeProfit } from './SmartTakeProfit.js';
+export { SmartExitManager } from './SmartExitManager.js';
+export type { SmartExitUpdateResult } from './SmartExitManager.js';
+export { TechnicalIndicators } from './TechnicalIndicators.js';
+
 // Типы
 export type {
   RiskConfig,
@@ -34,11 +41,14 @@ export type {
   OHLCVData,
   NotificationConfig,
   PositionUpdateParams,
+  SmartExitConfig,
+  SteppedTrailingStep,
 } from './types.js';
 
 export {
   PositionSizingMethod,
   StopLossType,
+  TakeProfitType,
   PositionSide,
   PositionStatus,
   RiskEventType,

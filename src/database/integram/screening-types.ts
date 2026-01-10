@@ -8,6 +8,9 @@ import type {
   ProjectRecommendation,
 } from '../../analyzers/screening/types.js';
 
+// Re-export for external use
+export type { SectorMetrics, ScreeningReport } from '../../analyzers/screening/types.js';
+
 /**
  * Table Type IDs in Integram
  * These should be set in environment variables after creating tables in Integram web interface

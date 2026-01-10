@@ -84,8 +84,11 @@ export class PortfolioBuilder {
 
     for (const sector of sectors) {
       const projects = projectsBySector.get(sector);
-      if (projects && projects.length > 0 && projects[0] && selected.length < targetCount) {
-        selected.push(projects[0]);
+      if (projects && projects.length > 0 && selected.length < targetCount) {
+        const firstProject = projects[0];
+        if (firstProject) {
+          selected.push(firstProject);
+        }
       }
     }
 
@@ -163,8 +166,11 @@ export class PortfolioBuilder {
     const parts: string[] = [];
 
     // Add top reasoning point
-    if (project.reasoning && project.reasoning.length > 0 && project.reasoning[0]) {
-      parts.push(project.reasoning[0]);
+    if (project.reasoning && project.reasoning.length > 0) {
+      const firstReason = project.reasoning[0];
+      if (firstReason) {
+        parts.push(firstReason);
+      }
     }
 
     // Add market position
@@ -194,15 +200,14 @@ export class PortfolioBuilder {
     }
 
     // Prioritize specific risks over general ones
-    const specificRisks = project.risks.filter(
-      risk => !risk.includes('market volatility')
-    );
+    const specificRisks = project.risks.filter((risk) => !risk.includes('market volatility'));
 
-    if (specificRisks.length > 0 && specificRisks[0]) {
-      return specificRisks[0];
+    if (specificRisks.length > 0) {
+      const firstSpecificRisk = specificRisks[0];
+      return firstSpecificRisk || project.risks[0] || 'General market risk';
     }
 
-    return project.risks[0] || 'General market volatility';
+    return project.risks[0] || 'General market risk';
   }
 
   /**

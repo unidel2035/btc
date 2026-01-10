@@ -6,6 +6,7 @@ import { createServer } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupRoutes } from './routes.js';
+import { setupAnalyticsRoutes } from './analytics-routes.js';
 import { DashboardWebSocket } from './websocket.js';
 import { DemoDataGenerator } from './demo.js';
 import { IntegramClient } from '../database/integram/IntegramClient.js';
@@ -74,6 +75,7 @@ class DashboardServer {
   private setupRoutes(): void {
     const router = express.Router();
     setupRoutes(router, this);
+    setupAnalyticsRoutes(router);
     this.app.use(router);
 
     // Fallback для SPA - middleware вместо route
