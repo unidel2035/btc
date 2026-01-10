@@ -34,9 +34,7 @@ export class FundamentalScorer {
         const scored = await this.scoreProject(candidate, details);
         scoredProjects.push(scored);
 
-        console.log(
-          `   ✅ ${candidate.symbol}: ${scored.scores.total.toFixed(1)}/100`
-        );
+        console.log(`   ✅ ${candidate.symbol}: ${scored.scores.total.toFixed(1)}/100`);
       } catch (error) {
         console.error(`   ❌ Error scoring ${candidate.symbol}:`, error);
         continue;
@@ -56,7 +54,7 @@ export class FundamentalScorer {
    */
   private async scoreProject(
     candidate: ProjectCandidate,
-    details: CoinGeckoDetailedData
+    details: CoinGeckoDetailedData,
   ): Promise<ScoredProject> {
     // Calculate individual scores
     const fundamentalScore = this.calculateFundamentalScore(candidate, details);
@@ -77,7 +75,7 @@ export class FundamentalScorer {
       candidate,
       details,
       { fundamental: fundamentalScore, market: marketScore, community: communityScore },
-      metrics
+      metrics,
     );
 
     // Identify risks
@@ -102,7 +100,7 @@ export class FundamentalScorer {
    */
   private calculateFundamentalScore(
     candidate: ProjectCandidate,
-    details: CoinGeckoDetailedData
+    details: CoinGeckoDetailedData,
   ): number {
     let score = 0;
 
@@ -160,7 +158,7 @@ export class FundamentalScorer {
    */
   private calculateMarketScore(
     candidate: ProjectCandidate,
-    _details: CoinGeckoDetailedData // Reserved for future on-chain metrics
+    _details: CoinGeckoDetailedData, // Reserved for future on-chain metrics
   ): number {
     let score = 0;
 
@@ -291,7 +289,7 @@ export class FundamentalScorer {
    */
   private calculateMetrics(
     candidate: ProjectCandidate,
-    details: CoinGeckoDetailedData
+    details: CoinGeckoDetailedData,
   ): ScoredProject['metrics'] {
     return {
       priceToAth: candidate.currentPrice / candidate.ath,
@@ -310,7 +308,7 @@ export class FundamentalScorer {
     candidate: ProjectCandidate,
     _details: CoinGeckoDetailedData, // Reserved for future detailed analysis
     scores: { fundamental: number; market: number; community: number },
-    metrics: ScoredProject['metrics']
+    metrics: ScoredProject['metrics'],
   ): string[] {
     const reasoning: string[] = [];
 
@@ -324,7 +322,7 @@ export class FundamentalScorer {
     // Market reasoning
     if (metrics.priceToAth < 0.5) {
       reasoning.push(
-        `Trading at ${(metrics.priceToAth * 100).toFixed(0)}% of ATH, significant recovery potential`
+        `Trading at ${(metrics.priceToAth * 100).toFixed(0)}% of ATH, significant recovery potential`,
       );
     }
 
@@ -354,7 +352,7 @@ export class FundamentalScorer {
   private identifyRisks(
     candidate: ProjectCandidate,
     _details: CoinGeckoDetailedData, // Reserved for future risk analysis
-    metrics: ScoredProject['metrics']
+    metrics: ScoredProject['metrics'],
   ): string[] {
     const risks: string[] = [];
 

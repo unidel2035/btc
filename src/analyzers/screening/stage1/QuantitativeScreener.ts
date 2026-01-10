@@ -55,7 +55,7 @@ export class QuantitativeScreener {
     // Get market data for coins in this category
     const marketData = await this.client.getCoinsByCategory(
       sector.category,
-      this.config.projectsPerSector * 2 // Get more to account for filtering
+      this.config.projectsPerSector * 2, // Get more to account for filtering
     );
 
     // Apply quantitative filters
@@ -90,9 +90,9 @@ export class QuantitativeScreener {
    */
   private applyQuantitativeFilters(
     marketData: CoinGeckoMarketData[],
-    _sector: SectorInfo // Reserved for future sector-specific filters
+    _sector: SectorInfo, // Reserved for future sector-specific filters
   ): CoinGeckoMarketData[] {
-    return marketData.filter(coin => {
+    return marketData.filter((coin) => {
       // Market cap rank filter
       if (
         coin.market_cap_rank < this.config.minMarketCapRank ||
@@ -121,11 +121,11 @@ export class QuantitativeScreener {
    */
   private hasRequiredExchanges(details: CoinGeckoDetailedData): boolean {
     const exchanges = new Set(
-      details.tickers.map(ticker => ticker.market.identifier.toLowerCase())
+      details.tickers.map((ticker) => ticker.market.identifier.toLowerCase()),
     );
 
-    const matchCount = this.config.requiredExchanges.filter(exchange =>
-      exchanges.has(exchange.toLowerCase())
+    const matchCount = this.config.requiredExchanges.filter((exchange) =>
+      exchanges.has(exchange.toLowerCase()),
     ).length;
 
     return matchCount >= this.config.minExchangeListings;
@@ -137,11 +137,11 @@ export class QuantitativeScreener {
   private convertToCandidate(
     marketData: CoinGeckoMarketData,
     details: CoinGeckoDetailedData,
-    sector: string
+    sector: string,
   ): ProjectCandidate {
     // Extract exchanges from tickers
     const exchanges = Array.from(
-      new Set(details.tickers.map(ticker => ticker.market.name))
+      new Set(details.tickers.map((ticker) => ticker.market.name)),
     ).slice(0, 10); // Top 10 exchanges
 
     return {
@@ -164,12 +164,12 @@ export class QuantitativeScreener {
       maxSupply: marketData.max_supply,
       exchanges,
       links: {
-        homepage: details.links.homepage.filter(h => h),
+        homepage: details.links.homepage.filter((h) => h),
         twitter: details.links.twitter_screen_name
           ? `https://twitter.com/${details.links.twitter_screen_name}`
           : undefined,
         reddit: details.links.subreddit_url || undefined,
-        github: details.links.repos_url.github.filter(g => g),
+        github: details.links.repos_url.github.filter((g) => g),
       },
     };
   }

@@ -11,10 +11,7 @@ export class ReportGenerator {
   /**
    * Generate markdown report from screening results
    */
-  generateReport(
-    report: ScreeningReport,
-    outputPath?: string
-  ): string {
+  generateReport(report: ScreeningReport, outputPath?: string): string {
     const markdown = this.buildMarkdown(report);
 
     if (outputPath) {
@@ -85,7 +82,7 @@ export class ReportGenerator {
 | № | Тикер | Название | Сектор | Рейтинг (0-100) | Краткое обоснование | Ключевой риск |
 |---|-------|----------|--------|----------------|-------------------|---------------|`;
 
-    const rows = projects.map(p => {
+    const rows = projects.map((p) => {
       return `| ${p.rank} | **${p.ticker}** | ${p.name} | ${p.sector} | ${p.rating} | ${p.justification} | ${p.keyRisk} |`;
     });
 
@@ -96,9 +93,7 @@ export class ReportGenerator {
    * Build next actions section
    */
   private buildNextActions(report: ScreeningReport): string {
-    const tradingPairs = report.recommendedProjects
-      .map(p => `'${p.tradingPair}'`)
-      .join(', ');
+    const tradingPairs = report.recommendedProjects.map((p) => `'${p.tradingPair}'`).join(', ');
 
     const actions = [
       `**Передать список** (\`[${tradingPairs}]\`) в модуль технического анализа (TradingView/индикаторы) для определения точек входа.`,
@@ -115,17 +110,18 @@ ${actions.map((action, idx) => `${idx + 1}. ${action}`).join('\n')}`;
    * Build macro risks section
    */
   private buildMacroRisks(report: ScreeningReport): string {
-    const risks = report.macroRisks.length > 0
-      ? report.macroRisks
-      : [
-          'Общая коррекция на рынке криптовалют',
-          'Геополитические риски и регуляторные изменения',
-          'Изменения в макроэкономической среде (процентные ставки, инфляция)',
-        ];
+    const risks =
+      report.macroRisks.length > 0
+        ? report.macroRisks
+        : [
+            'Общая коррекция на рынке криптовалют',
+            'Геополитические риски и регуляторные изменения',
+            'Изменения в макроэкономической среде (процентные ставки, инфляция)',
+          ];
 
     return `## ⚠️ КЛЮЧЕВЫЕ МАКРО-РИСКИ
 
-${risks.map(risk => `- ${risk}`).join('\n')}`;
+${risks.map((risk) => `- ${risk}`).join('\n')}`;
   }
 
   /**
@@ -137,12 +133,14 @@ ${risks.map(risk => `- ${risk}`).join('\n')}`;
     console.log('='.repeat(80));
 
     console.log(`\n📅 Generated: ${new Date(report.generatedAt).toLocaleString()}`);
-    console.log(`📊 Analyzed: ${report.summary.totalProjectsAnalyzed} projects across ${report.summary.sectorsAnalyzed} sectors`);
+    console.log(
+      `📊 Analyzed: ${report.summary.totalProjectsAnalyzed} projects across ${report.summary.sectorsAnalyzed} sectors`,
+    );
     console.log(`✅ Selected: ${report.summary.finalSelectionCount} projects\n`);
 
     console.log('🎯 RECOMMENDED PROJECTS:\n');
 
-    report.recommendedProjects.forEach(project => {
+    report.recommendedProjects.forEach((project) => {
       console.log(`${project.rank}. ${project.ticker} - ${project.name}`);
       console.log(`   Sector: ${project.sector}`);
       console.log(`   Rating: ${project.rating}/100`);
@@ -168,7 +166,7 @@ ${risks.map(risk => `- ${risk}`).join('\n')}`;
    */
   generateCSV(projects: PortfolioProject[], outputPath: string): void {
     const header = 'Rank,Ticker,Name,Sector,Rating,Justification,Key Risk,Trading Pair\n';
-    const rows = projects.map(p => {
+    const rows = projects.map((p) => {
       return `${p.rank},"${p.ticker}","${p.name}","${p.sector}",${p.rating},"${p.justification}","${p.keyRisk}","${p.tradingPair}"`;
     });
 
