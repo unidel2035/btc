@@ -523,7 +523,10 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
         Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
       ) as string;
 
-      const result = signalsProvider.validateStrategyParams(name || '', req.body as Record<string, unknown>);
+      const result = signalsProvider.validateStrategyParams(
+        name || '',
+        req.body as Record<string, unknown>,
+      );
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: 'Failed to validate strategy parameters' });
@@ -558,12 +561,14 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
   // POST /api/strategies/presets - Create new preset
   router.post('/api/strategies/presets', (req: Request, res: Response): void => {
     try {
-      const preset = storage.createStrategyPreset(req.body as {
-        name: string;
-        strategy: string;
-        params: Record<string, unknown>;
-        description?: string;
-      });
+      const preset = storage.createStrategyPreset(
+        req.body as {
+          name: string;
+          strategy: string;
+          params: Record<string, unknown>;
+          description?: string;
+        },
+      );
       res.status(201).json(preset);
     } catch (error) {
       res.status(500).json({ error: 'Failed to create preset' });
@@ -601,38 +606,41 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
   });
 
   // POST /api/strategies/:name/apply-preset/:presetId - Apply preset to strategy
-  router.post('/api/strategies/:name/apply-preset/:presetId', (req: Request, res: Response): void => {
-    try {
-      const signalsProvider = dashboardServer?.getSignalsProvider();
-      if (!signalsProvider) {
-        res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
-        return;
+  router.post(
+    '/api/strategies/:name/apply-preset/:presetId',
+    (req: Request, res: Response): void => {
+      try {
+        const signalsProvider = dashboardServer?.getSignalsProvider();
+        if (!signalsProvider) {
+          res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
+          return;
+        }
+
+        const name = (
+          Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+        ) as string;
+        const presetId = (
+          Array.isArray(req.params.presetId) ? req.params.presetId[0] : req.params.presetId
+        ) as string;
+
+        const preset = storage.getStrategyPreset(presetId || '');
+        if (!preset) {
+          res.status(404).json({ error: 'Preset not found' });
+          return;
+        }
+
+        if (preset.strategy !== name) {
+          res.status(400).json({ error: 'Preset is for different strategy' });
+          return;
+        }
+
+        signalsProvider.updateStrategyParams(name || '', preset.params);
+        res.json({ success: true, message: `Preset "${preset.name}" applied to ${name}` });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to apply preset' });
       }
-
-      const name = (
-        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
-      ) as string;
-      const presetId = (
-        Array.isArray(req.params.presetId) ? req.params.presetId[0] : req.params.presetId
-      ) as string;
-
-      const preset = storage.getStrategyPreset(presetId || '');
-      if (!preset) {
-        res.status(404).json({ error: 'Preset not found' });
-        return;
-      }
-
-      if (preset.strategy !== name) {
-        res.status(400).json({ error: 'Preset is for different strategy' });
-        return;
-      }
-
-      signalsProvider.updateStrategyParams(name || '', preset.params);
-      res.json({ success: true, message: `Preset "${preset.name}" applied to ${name}` });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to apply preset' });
-    }
-  });
+    },
+  );
 
   // POST /api/backtest/run - Run backtest
   router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {

@@ -349,7 +349,7 @@ class DashboardStorage {
   getStrategyPresets(strategyName?: string): StrategyPreset[] {
     const allPresets = Array.from(this.strategyPresets.values());
     if (strategyName) {
-      return allPresets.filter(p => p.strategy === strategyName);
+      return allPresets.filter((p) => p.strategy === strategyName);
     }
     return allPresets;
   }
@@ -377,7 +377,10 @@ class DashboardStorage {
     return preset;
   }
 
-  updateStrategyPreset(id: string, updates: Partial<Omit<StrategyPreset, 'id' | 'createdAt'>>): StrategyPreset | null {
+  updateStrategyPreset(
+    id: string,
+    updates: Partial<Omit<StrategyPreset, 'id' | 'createdAt'>>,
+  ): StrategyPreset | null {
     const preset = this.strategyPresets.get(id);
     if (!preset) return null;
 
