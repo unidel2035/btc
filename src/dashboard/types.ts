@@ -127,6 +127,9 @@ export interface WebSocketMessage {
     | 'price'
     | 'notification'
     | 'pong'
+    | 'subscribed'
+    | 'unsubscribed'
+    | 'chart_candle'
     | 'filtersUpdated';
   data: unknown;
   timestamp: string;

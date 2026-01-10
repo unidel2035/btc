@@ -6,10 +6,13 @@
 import type { Request, Response, Router } from 'express';
 import { storage } from './storage.js';
 import type { SignalsProvider } from './providers/SignalsProvider.js';
+import type { ExchangeManager } from '../exchanges/ExchangeManager.js';
+import { CandleInterval, type Candle } from '../exchanges/types.js';
 
-// Type for dashboard server to access signals provider
+// Type for dashboard server to access signals provider and exchange manager
 interface DashboardServerInterface {
   getSignalsProvider(): SignalsProvider | null;
+  getExchangeManager(): ExchangeManager | null;
 }
 
 export function setupRoutes(router: Router, dashboardServer?: DashboardServerInterface): void {
@@ -485,9 +488,6 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
     }
   });
 
-  // GET /api/strategies/:name/schema - Get strategy parameter schema
-  router.get('/api/strategies/:name/schema', (req: Request, res: Response): void => {
-    try {
       const signalsProvider = dashboardServer?.getSignalsProvider();
       if (!signalsProvider) {
         res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
@@ -641,6 +641,139 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       }
     },
   );
+
+  // POST /api/backtest/run - Run backtest
+  router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
+    try {
+  // GET /api/chart/history - Chart historical data
+  router.get('/api/chart/history', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const exchangeManager = dashboardServer?.getExchangeManager();
+      if (!exchangeManager) {
+        res.status(503).json({ error: 'Exchange manager not available (demo mode or disabled)' });
+        return;
+      }
+
+      const exchange = (req.query.exchange as string) || 'binance';
+      const symbol = (req.query.symbol as string) || 'BTC/USDT';
+      const timeframe = (req.query.timeframe as string) || '1h';
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+
+      // Validate timeframe
+      const validTimeframes = Object.values(CandleInterval);
+      if (!validTimeframes.includes(timeframe as CandleInterval)) {
+        res
+          .status(400)
+          .json({ error: `Invalid timeframe. Valid values: ${validTimeframes.join(', ')}` });
+        return;
+      }
+
+      // Get exchange instance
+      let exchangeInstance;
+      try {
+        exchangeInstance = exchangeManager.getExchange(exchange as 'binance' | 'bybit' | 'okx');
+      } catch (error) {
+        res.status(404).json({ error: `Exchange ${exchange} not found or not initialized` });
+        return;
+      }
+
+      // Fetch historical candles
+      const candles: Candle[] = await exchangeInstance.getCandles(
+        symbol,
+        timeframe as CandleInterval,
+        limit,
+      );
+
+      // Transform to chart format
+      const chartData = candles.map((candle) => ({
+        time: Math.floor(candle.timestamp / 1000), // Convert to seconds for lightweight-charts
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+        volume: candle.volume,
+      }));
+
+      res.json({
+        exchange,
+        symbol,
+        timeframe,
+        data: chartData,
+      });
+    } catch (error) {
+      console.error('Failed to fetch chart history:', error);
+      res.status(500).json({ error: 'Failed to fetch chart history', message: String(error) });
+    }
+  });
+
+  // POST /api/backtest/run - Run backtest
+  router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const {
+        strategy,
+        symbol,
+        startDate,
+        endDate,
+        initialCapital,
+        positionSize,
+        timeframe,
+        fees,
+        slippage,
+        allowShorts,
+      } = req.body as {
+        strategy: string;
+        symbol: string;
+        startDate: string;
+        endDate: string;
+        initialCapital: number;
+        positionSize: number;
+        timeframe: string;
+        fees: number;
+        slippage: number;
+        allowShorts: boolean;
+      };
+
+      // Validate required fields
+      if (
+        !strategy ||
+        !symbol ||
+        !startDate ||
+        !endDate ||
+        !initialCapital ||
+        !positionSize ||
+        !timeframe
+      ) {
+        res.status(400).json({ error: 'Missing required fields' });
+        return;
+      }
+
+      // Dynamic import to avoid circular dependencies
+      const { runBacktest } = await import('./backtest-runner.js');
+
+      // Run backtest
+      const results = await runBacktest({
+        strategy,
+        symbol,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        initialCapital,
+        positionSize,
+        timeframe,
+        fees: fees || 0.1,
+        slippage: slippage || 0.05,
+        allowShorts: allowShorts || false,
+      });
+
+      res.json(results);
+    } catch (error) {
+      console.error('Backtest error:', error);
+      res.status(500).json({
+        error: 'Failed to run backtest',
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+}
 
   // POST /api/backtest/run - Run backtest
   router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
