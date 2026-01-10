@@ -97,7 +97,9 @@ export class RealDataProvider {
     }
   }
 
-  private async fetchAllPositions(): Promise<Omit<DashboardPosition, 'id' | 'openedAt' | 'updatedAt'>[]> {
+  private async fetchAllPositions(): Promise<
+    Omit<DashboardPosition, 'id' | 'openedAt' | 'updatedAt'>[]
+  > {
     const allPositions: Omit<DashboardPosition, 'id' | 'openedAt' | 'updatedAt'>[] = [];
 
     // Получить список всех доступных бирж
