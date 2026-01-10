@@ -330,9 +330,17 @@ function updateConnectionStatus(connected) {
   if (connected) {
     statusDot.classList.add('connected');
     statusText.textContent = t('status.connected');
+    // Update header status
+    if (typeof window.updateSystemStatus === 'function') {
+      window.updateSystemStatus('live');
+    }
   } else {
     statusDot.classList.remove('connected');
     statusText.textContent = t('status.disconnected');
+    // Update header status
+    if (typeof window.updateSystemStatus === 'function') {
+      window.updateSystemStatus('error');
+    }
   }
 }
 
@@ -473,6 +481,14 @@ function updateMetrics() {
   updateChangeIndicator('balanceChange', dailyPnlPercent);
   updateChangeIndicator('equityChange', pnlPercent);
   updatePnlIndicator('pnl', pnl);
+
+  // Update header
+  if (typeof window.updateBalance === 'function') {
+    window.updateBalance(balance || 0);
+  }
+  if (typeof window.updatePnL === 'function') {
+    window.updatePnL(dailyPnl || 0, dailyPnlPercent || 0);
+  }
 }
 
 function updateChangeIndicator(elementId, value) {

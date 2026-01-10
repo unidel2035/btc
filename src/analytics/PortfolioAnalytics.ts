@@ -680,7 +680,7 @@ export class PortfolioAnalytics {
     const n = assets.length;
     const matrix: number[][] = Array(n)
       .fill(0)
-      .map(() => Array(n).fill(0) as number[]);
+      .map(() => Array<number>(n).fill(0));
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {

@@ -7,6 +7,7 @@ import type { MiddlewareFn } from 'telegraf';
 
 /**
  * Whitelist middleware - only allow authorized users
+ * If whitelist is empty or contains -1, all users are allowed
  */
 export function createWhitelistMiddleware(
   config: TelegramBotConfig,
@@ -15,15 +16,23 @@ export function createWhitelistMiddleware(
     const userId = ctx.from?.id;
 
     if (!userId) {
-      await ctx.reply('❌ Unable to identify user');
+      await ctx.reply('❌ Невозможно идентифицировать пользователя');
       return;
     }
 
-    // Check if user is in whitelist
-    if (!config.whitelist.includes(userId)) {
+    // Check if whitelist is enabled
+    const isWhitelistEnabled = config.whitelist.length > 0 && !config.whitelist.includes(-1);
+
+    // Check if user is in whitelist (if whitelist is enabled)
+    if (isWhitelistEnabled && !config.whitelist.includes(userId)) {
       console.warn(`Unauthorized access attempt from user ${userId} (@${ctx.from?.username})`);
-      await ctx.reply('❌ Access denied. You are not authorized to use this bot.');
+      await ctx.reply('❌ Доступ запрещен. Вы не авторизованы для использования этого бота.');
       return;
+    }
+
+    // Log user access
+    if (!isWhitelistEnabled) {
+      console.log(`[Telegram] New user access: ${userId} (@${ctx.from?.username})`);
     }
 
     // Initialize session if not exists
@@ -65,7 +74,7 @@ export function createPinMiddleware(
         ctx.session.awaitingPin = false;
         await next();
       } else {
-        await ctx.reply('❌ Invalid PIN. Action cancelled.');
+        await ctx.reply('❌ Неверный PIN-код. Действие отменено.');
         ctx.session.awaitingPin = false;
         ctx.session.pendingAction = undefined;
       }

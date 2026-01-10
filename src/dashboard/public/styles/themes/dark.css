@@ -1,0 +1,26 @@
+/* Dark Theme Colors */
+
+[data-theme="dark"] {
+  --bg-primary: #1A1D23;
+  --bg-secondary: #23272F;
+  --bg-tertiary: #2D3139;
+  --bg-card: #23272F;
+
+  --text-primary: #E9ECEF;
+  --text-secondary: #ADB5BD;
+
+  --primary-color: #4D9EFF;
+  --primary-color-alpha: rgba(77, 158, 255, 0.1);
+  --accent-color: #6BB6FF;
+  --accent-primary: #4D9EFF;
+  --accent-secondary: #6BB6FF;
+
+  --success: #4ADE80;
+  --success-color: #4ADE80;
+  --danger: #F87171;
+  --danger-color: #F87171;
+  --warning: #FFC107;
+
+  --border: #3A3F4B;
+  --border-color: #3A3F4B;
+}

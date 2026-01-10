@@ -12,7 +12,25 @@
   "status": {
     "connecting": "Connecting...",
     "connected": "Connected",
-    "disconnected": "Disconnected"
+    "disconnected": "Disconnected",
+    "live": "✅ Live Trading",
+    "paper": "⏸️ Paper Trading",
+    "warning": "⚠️ Warning",
+    "error": "❌ Error",
+    "stopped": "⏹️ Stopped"
+  },
+  "header": {
+    "balance": "Balance",
+    "pnl": "P&L Today",
+    "newPosition": "New Position",
+    "closeAll": "Close All",
+    "pauseTrading": "Pause Trading",
+    "notifications": "Notifications",
+    "noNotifications": "No new notifications",
+    "markAllRead": "Mark all read",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout"
   },
   "dashboard": {
     "title": "Dashboard",

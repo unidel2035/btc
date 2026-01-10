@@ -1,0 +1,26 @@
+/* Light Theme Colors */
+
+[data-theme="light"] {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F9FA;
+  --bg-tertiary: #E9ECEF;
+  --bg-card: #FFFFFF;
+
+  --text-primary: #212529;
+  --text-secondary: #495057;
+
+  --primary-color: #0066FF;
+  --primary-color-alpha: rgba(0, 102, 255, 0.1);
+  --accent-color: #0052CC;
+  --accent-primary: #0066FF;
+  --accent-secondary: #0052CC;
+
+  --success: #28A745;
+  --success-color: #28A745;
+  --danger: #DC3545;
+  --danger-color: #DC3545;
+  --warning: #FFC107;
+
+  --border: #DEE2E6;
+  --border-color: #DEE2E6;
+}
