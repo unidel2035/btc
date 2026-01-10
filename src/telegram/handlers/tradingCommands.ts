@@ -11,6 +11,7 @@ import * as templates from '../templates/index.js';
 export async function handleStartTrading(
   ctx: TelegramBotContext,
   service: TelegramBotService,
+  skipPinCheck: boolean = false,
 ): Promise<void> {
   try {
     if (!service.config.features.trading) {
@@ -19,7 +20,7 @@ export async function handleStartTrading(
     }
 
     // Check if PIN is required
-    if (service.config.pinCode && !ctx.session?.awaitingPin) {
+    if (service.config.pinCode && !skipPinCheck) {
       ctx.session!.awaitingPin = true;
       ctx.session!.pendingAction = {
         type: 'start_trading',
@@ -52,6 +53,7 @@ export async function handleStartTrading(
 export async function handleStopTrading(
   ctx: TelegramBotContext,
   service: TelegramBotService,
+  skipPinCheck: boolean = false,
 ): Promise<void> {
   try {
     if (!service.config.features.trading) {
@@ -60,7 +62,7 @@ export async function handleStopTrading(
     }
 
     // Check if PIN is required
-    if (service.config.pinCode && !ctx.session?.awaitingPin) {
+    if (service.config.pinCode && !skipPinCheck) {
       ctx.session!.awaitingPin = true;
       ctx.session!.pendingAction = {
         type: 'stop_trading',
@@ -96,6 +98,7 @@ export async function handleStopTrading(
 export async function handleClosePosition(
   ctx: TelegramBotContext,
   service: TelegramBotService,
+  skipPinCheck: boolean = false,
 ): Promise<void> {
   try {
     if (!service.config.features.positions) {
@@ -103,16 +106,24 @@ export async function handleClosePosition(
       return;
     }
 
-    // Extract symbol from command
-    const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
-    const parts = text.split(' ');
+    // Extract symbol from command or pendingAction data
+    let symbol: string;
 
-    if (parts.length < 2 || !parts[1]) {
-      await ctx.reply('❌ Usage: /close\\_position <symbol>\nExample: /close\\_position BTC/USDT');
-      return;
+    if (ctx.session?.pendingAction?.data?.symbol) {
+      // Symbol from pendingAction (after PIN confirmation)
+      symbol = ctx.session.pendingAction.data.symbol;
+    } else {
+      // Extract symbol from command text
+      const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
+      const parts = text.split(' ');
+
+      if (parts.length < 2 || !parts[1]) {
+        await ctx.reply('❌ Usage: /close\\_position <symbol>\nExample: /close\\_position BTC/USDT');
+        return;
+      }
+
+      symbol = parts[1].toUpperCase();
     }
-
-    const symbol = parts[1].toUpperCase();
 
     // Check if position exists
     const positions = service.tradingEngine?.getPositions() || [];
@@ -124,7 +135,7 @@ export async function handleClosePosition(
     }
 
     // Check if PIN is required
-    if (service.config.pinCode && !ctx.session?.awaitingPin) {
+    if (service.config.pinCode && !skipPinCheck) {
       ctx.session!.awaitingPin = true;
       ctx.session!.pendingAction = {
         type: 'close_position',
@@ -171,7 +182,7 @@ export async function handlePinConfirmation(
 
   // Verify PIN
   if (text !== service.config.pinCode) {
-    await ctx.reply('❌ Invalid PIN. Action cancelled.');
+    await ctx.reply('❌ Неверный PIN-код. Действие отменено.');
     ctx.session.awaitingPin = false;
     ctx.session.pendingAction = undefined;
     return;
@@ -179,7 +190,7 @@ export async function handlePinConfirmation(
 
   // Check if action has expired
   if (new Date() > ctx.session.pendingAction.expiresAt) {
-    await ctx.reply('❌ Action expired. Please try again.');
+    await ctx.reply('❌ Время истекло. Попробуйте снова.');
     ctx.session.awaitingPin = false;
     ctx.session.pendingAction = undefined;
     return;
@@ -190,18 +201,19 @@ export async function handlePinConfirmation(
   ctx.session.awaitingPin = false;
   ctx.session.pendingAction = undefined;
 
+  // Call handlers with skipPinCheck=true to avoid infinite loop
   switch (action.type) {
     case 'start_trading':
-      await handleStartTrading(ctx, service);
+      await handleStartTrading(ctx, service, true);
       break;
     case 'stop_trading':
-      await handleStopTrading(ctx, service);
+      await handleStopTrading(ctx, service, true);
       break;
     case 'close_position':
-      await handleClosePosition(ctx, service);
+      await handleClosePosition(ctx, service, true);
       break;
     case 'close_all':
-      await handleCloseAllPositions(ctx, service);
+      await handleCloseAllPositions(ctx, service, true);
       break;
   }
 }
@@ -212,25 +224,26 @@ export async function handlePinConfirmation(
 async function handleCloseAllPositions(
   ctx: TelegramBotContext,
   service: TelegramBotService,
+  skipPinCheck: boolean = false,
 ): Promise<void> {
   try {
     const positions = service.tradingEngine?.getPositions() || [];
 
     if (positions.length === 0) {
-      await ctx.reply('ℹ️ No open positions to close.');
+      await ctx.reply('ℹ️ Нет открытых позиций для закрытия.');
       return;
     }
 
-    await ctx.reply(`🔄 Closing ${positions.length} positions...`);
+    await ctx.reply(`🔄 Закрываем ${positions.length} позиций...`);
 
     // TODO: Integrate with actual trading engine
     // for (const position of positions) {
     //   await service.tradingEngine.closePosition(position.id);
     // }
 
-    await ctx.reply(templates.successMessage(`All ${positions.length} positions closed!`));
+    await ctx.reply(templates.successMessage(`Все ${positions.length} позиций закрыты!`));
   } catch (error) {
     console.error('Error in handleCloseAllPositions:', error);
-    await ctx.reply(templates.errorMessage('Failed to close all positions'));
+    await ctx.reply(templates.errorMessage('Не удалось закрыть позиции'));
   }
 }
