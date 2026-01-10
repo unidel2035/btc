@@ -217,14 +217,8 @@ export class AnalyticsRepository {
     // Create as subordinate to report
     const objectId = await this.client.createObject(typeId, performance.strategy, requisites);
 
-    // Update to set parent
-    await this.client.client.post('/_m_save', null, {
-      params: {
-        id: objectId,
-        up: reportId,
-      },
-      headers: (this.client as any).getHeaders(),
-    });
+    // Update to set parent using updateRequisites
+    await this.client.updateRequisites(objectId, { up: reportId });
 
     return objectId;
   }
@@ -254,14 +248,8 @@ export class AnalyticsRepository {
 
     const objectId = await this.client.createObject(typeId, performance.asset, requisites);
 
-    // Update to set parent
-    await this.client.client.post('/_m_save', null, {
-      params: {
-        id: objectId,
-        up: reportId,
-      },
-      headers: (this.client as any).getHeaders(),
-    });
+    // Update to set parent using updateRequisites
+    await this.client.updateRequisites(objectId, { up: reportId });
 
     return objectId;
   }
@@ -293,14 +281,8 @@ export class AnalyticsRepository {
           requisites,
         );
 
-        // Set parent
-        await this.client.client.post('/_m_save', null, {
-          params: {
-            id: objectId,
-            up: snapshotId,
-          },
-          headers: (this.client as any).getHeaders(),
-        });
+        // Set parent using updateRequisites
+        await this.client.updateRequisites(objectId, { up: snapshotId });
 
         ids.push(objectId);
       } catch (error) {

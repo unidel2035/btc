@@ -41,10 +41,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/performance', async (req: Request, res: Response) => {
     try {
-      const period = (req.query.period as AnalyticsPeriod) || 'all';
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
       // Filter trades and equity curve by period
@@ -52,9 +49,7 @@ export function setupAnalyticsRoutes(router: Router): void {
       let filteredEquity = mockEquityCurve;
 
       if (startDate && endDate) {
-        filteredTrades = mockTrades.filter(
-          (t) => t.exitDate >= startDate && t.exitDate <= endDate,
-        );
+        filteredTrades = mockTrades.filter((t) => t.exitDate >= startDate && t.exitDate <= endDate);
         filteredEquity = mockEquityCurve.filter(
           (e) => e.timestamp >= startDate && e.timestamp <= endDate,
         );
@@ -84,9 +79,7 @@ export function setupAnalyticsRoutes(router: Router): void {
   router.get('/api/analytics/returns', async (req: Request, res: Response) => {
     try {
       const period = (req.query.period as AnalyticsPeriod) || 'all';
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
       let filteredEquity = mockEquityCurve;
@@ -117,17 +110,13 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/trades/stats', (req: Request, res: Response) => {
     try {
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
       let filteredTrades = mockTrades;
 
       if (startDate && endDate) {
-        filteredTrades = mockTrades.filter(
-          (t) => t.exitDate >= startDate && t.exitDate <= endDate,
-        );
+        filteredTrades = mockTrades.filter((t) => t.exitDate >= startDate && t.exitDate <= endDate);
       }
 
       const stats = analyticsService!.calculateTradeStatistics(filteredTrades);
@@ -145,17 +134,13 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/strategies', (req: Request, res: Response) => {
     try {
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
       let filteredTrades = mockTrades;
 
       if (startDate && endDate) {
-        filteredTrades = mockTrades.filter(
-          (t) => t.exitDate >= startDate && t.exitDate <= endDate,
-        );
+        filteredTrades = mockTrades.filter((t) => t.exitDate >= startDate && t.exitDate <= endDate);
       }
 
       const strategies = analyticsService!.getStrategyPerformance(filteredTrades);
@@ -173,17 +158,13 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/assets', (req: Request, res: Response) => {
     try {
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
       let filteredTrades = mockTrades;
 
       if (startDate && endDate) {
-        filteredTrades = mockTrades.filter(
-          (t) => t.exitDate >= startDate && t.exitDate <= endDate,
-        );
+        filteredTrades = mockTrades.filter((t) => t.exitDate >= startDate && t.exitDate <= endDate);
       }
 
       const assets = analyticsService!.getAssetPerformance(filteredTrades);
@@ -201,9 +182,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/drawdown', (req: Request, res: Response) => {
     try {
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
       let filteredEquity = mockEquityCurve;
@@ -234,17 +213,13 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/correlation', (req: Request, res: Response) => {
     try {
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
       let filteredTrades = mockTrades;
 
       if (startDate && endDate) {
-        filteredTrades = mockTrades.filter(
-          (t) => t.exitDate >= startDate && t.exitDate <= endDate,
-        );
+        filteredTrades = mockTrades.filter((t) => t.exitDate >= startDate && t.exitDate <= endDate);
       }
 
       const correlation = analyticsService!.calculateCorrelationMatrix(filteredTrades);
@@ -262,17 +237,13 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/risk-exposure', (req: Request, res: Response) => {
     try {
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
       let filteredTrades = mockTrades;
 
       if (startDate && endDate) {
-        filteredTrades = mockTrades.filter(
-          (t) => t.exitDate >= startDate && t.exitDate <= endDate,
-        );
+        filteredTrades = mockTrades.filter((t) => t.exitDate >= startDate && t.exitDate <= endDate);
       }
 
       // Mock current positions (in production, get from exchange)
@@ -302,9 +273,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/equity-curve', (req: Request, res: Response) => {
     try {
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
       let filteredEquity = mockEquityCurve;
@@ -328,8 +297,8 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/report', async (req: Request, res: Response) => {
     try {
-      const periodType = (req.query.periodType as 'daily' | 'weekly' | 'monthly' | 'yearly') ||
-        'monthly';
+      const periodType =
+        (req.query.periodType as 'daily' | 'weekly' | 'monthly' | 'yearly') || 'monthly';
       const startDate = req.query.startDate
         ? new Date(req.query.startDate as string)
         : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -377,9 +346,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.get('/api/analytics/trades', (req: Request, res: Response) => {
     try {
-      const startDate = req.query.startDate
-        ? new Date(req.query.startDate as string)
-        : undefined;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
       const strategy = req.query.strategy as string | undefined;
       const asset = req.query.asset as string | undefined;

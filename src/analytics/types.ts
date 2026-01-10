@@ -249,11 +249,14 @@ export interface TradeDistribution {
 
   entryHourDistribution: Map<number, number>; // hour -> trade count
   exitHourDistribution: Map<number, number>;
-  dayOfWeekPerformance: Map<string, {
-    trades: number;
-    avgReturn: number;
-    winRate: number;
-  }>;
+  dayOfWeekPerformance: Map<
+    string,
+    {
+      trades: number;
+      avgReturn: number;
+      winRate: number;
+    }
+  >;
 }
 
 /**

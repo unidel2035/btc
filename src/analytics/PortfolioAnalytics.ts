@@ -14,13 +14,10 @@ import type {
   DrawdownPeriod,
   CorrelationMatrix,
   RiskExposure,
-  StopLossAnalysis,
-  TradeDistribution,
   AnalyticsReport,
   AnalyticsPeriod,
   AnalyticsConfig,
   Returns,
-  DailyPortfolioSnapshot,
 } from './types.js';
 
 export class PortfolioAnalytics {
@@ -38,10 +35,7 @@ export class PortfolioAnalytics {
   /**
    * Calculate returns for a given period
    */
-  async calculateReturns(
-    equityCurve: EquityPoint[],
-    period: AnalyticsPeriod,
-  ): Promise<Returns> {
+  async calculateReturns(equityCurve: EquityPoint[], period: AnalyticsPeriod): Promise<Returns> {
     if (equityCurve.length < 2) {
       throw new Error('Insufficient data for returns calculation');
     }
@@ -146,7 +140,7 @@ export class PortfolioAnalytics {
 
     // Time-weighted and money-weighted returns
     const twr = this.calculateTimeWeightedReturn(equityCurve);
-    const mwr = this.calculateMoneyWeightedReturn(trades, startEquity, endEquity);
+    const mwr = this.calculateMoneyWeightedReturn(trades);
 
     return {
       totalReturn,
@@ -180,7 +174,8 @@ export class PortfolioAnalytics {
     if (returns.length === 0) return 0;
 
     const avgReturn = returns.reduce((sum, r) => sum + r, 0) / returns.length;
-    const variance = returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length;
+    const variance =
+      returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length;
     const stdDev = Math.sqrt(variance);
 
     if (stdDev === 0) return 0;
@@ -293,8 +288,7 @@ export class PortfolioAnalytics {
           drawdownPeriods.push({
             startDate: drawdownStart,
             endDate: point.timestamp,
-            duration:
-              (point.timestamp.getTime() - drawdownStart.getTime()) / (1000 * 60 * 60 * 24),
+            duration: (point.timestamp.getTime() - drawdownStart.getTime()) / (1000 * 60 * 60 * 24),
             depth: ((drawdownPeak - point.equity) / drawdownPeak) * 100,
             recovered: true,
             recoveryDate: point.timestamp,
@@ -331,8 +325,7 @@ export class PortfolioAnalytics {
       drawdownPeriods.push({
         startDate: drawdownStart,
         endDate: lastPoint.timestamp,
-        duration:
-          (lastPoint.timestamp.getTime() - drawdownStart.getTime()) / (1000 * 60 * 60 * 24),
+        duration: (lastPoint.timestamp.getTime() - drawdownStart.getTime()) / (1000 * 60 * 60 * 24),
         depth: ((drawdownPeak - lastPoint.equity) / drawdownPeak) * 100,
         recovered: false,
       });
@@ -381,11 +374,7 @@ export class PortfolioAnalytics {
   /**
    * Calculate money-weighted return (MWR/IRR) - simplified version
    */
-  private calculateMoneyWeightedReturn(
-    trades: AnalyticsTrade[],
-    startEquity: number,
-    endEquity: number,
-  ): number {
+  private calculateMoneyWeightedReturn(trades: AnalyticsTrade[]): number {
     // Simplified: use total return weighted by capital deployed
     if (trades.length === 0) return 0;
 
@@ -561,7 +550,7 @@ export class PortfolioAnalytics {
 
     const results: StrategyPerformance[] = [];
 
-    for (const [strategy, strategyTrades] of strategyMap.entries()) {
+    for (const [strategy, strategyTrades] of Array.from(strategyMap.entries())) {
       const winningTrades = strategyTrades.filter((t) => t.pnl > 0);
       const losingTrades = strategyTrades.filter((t) => t.pnl < 0);
       const winRate = (winningTrades.length / strategyTrades.length) * 100;
@@ -577,8 +566,7 @@ export class PortfolioAnalytics {
 
       const grossProfit = winningTrades.reduce((sum, t) => sum + t.pnl, 0);
       const grossLoss = Math.abs(losingTrades.reduce((sum, t) => sum + t.pnl, 0));
-      const profitFactor =
-        grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : 0;
+      const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : 0;
 
       // Calculate Sharpe ratio for strategy (simplified)
       const returns = strategyTrades.map((t) => t.pnlPercent / 100);
@@ -637,7 +625,7 @@ export class PortfolioAnalytics {
 
     const results: AssetPerformance[] = [];
 
-    for (const [asset, assetTrades] of assetMap.entries()) {
+    for (const [asset, assetTrades] of Array.from(assetMap.entries())) {
       const winningTrades = assetTrades.filter((t) => t.pnl > 0);
       const winRate = (winningTrades.length / assetTrades.length) * 100;
 
@@ -675,7 +663,7 @@ export class PortfolioAnalytics {
    * Calculate correlation matrix for assets
    */
   calculateCorrelationMatrix(trades: AnalyticsTrade[]): CorrelationMatrix {
-    const assets = [...new Set(trades.map((t) => t.asset))].sort();
+    const assets = Array.from(new Set(trades.map((t) => t.asset))).sort();
 
     // Create return series for each asset
     const assetReturns = new Map<string, number[]>();
@@ -748,7 +736,8 @@ export class PortfolioAnalytics {
     // Calculate historical exposure metrics from trades
     const exposures = trades.map((t) => (t.size / totalEquity) * 100);
     const maxExposure = exposures.length > 0 ? Math.max(...exposures) : 0;
-    const avgExposure = exposures.length > 0 ? exposures.reduce((sum, e) => sum + e, 0) / exposures.length : 0;
+    const avgExposure =
+      exposures.length > 0 ? exposures.reduce((sum, e) => sum + e, 0) / exposures.length : 0;
 
     const avgPositionSize = avgExposure;
     const maxPositionSize = maxExposure;
