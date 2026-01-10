@@ -1,0 +1,56 @@
+/* CSS Custom Properties for Theme System */
+
+:root {
+  /* Color tokens that will be overridden by theme files */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F9FA;
+  --bg-tertiary: #E9ECEF;
+  --bg-card: #FFFFFF;
+
+  --text-primary: #212529;
+  --text-secondary: #495057;
+
+  --primary-color: #0066FF;
+  --primary-color-alpha: rgba(0, 102, 255, 0.1);
+  --accent-color: #0052CC;
+  --accent-primary: #0066FF;
+  --accent-secondary: #0052CC;
+
+  --success: #28A745;
+  --success-color: #28A745;
+  --danger: #DC3545;
+  --danger-color: #DC3545;
+  --warning: #FFC107;
+
+  --border: #DEE2E6;
+  --border-color: #DEE2E6;
+
+  /* Transition for smooth theme switching */
+  --theme-transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Apply transitions to all themed elements */
+body,
+.sidebar,
+.main-content,
+.card,
+.metric-card,
+.chart-card,
+.signal-item,
+.position-item,
+.news-item,
+.nav-item,
+.btn,
+input,
+select,
+textarea,
+.panel-tab,
+.orderbook-container,
+.trades-container,
+.info-card,
+.chart-toolbar,
+.chart-center-panel,
+.chart-left-panel,
+.chart-right-panel {
+  transition: var(--theme-transition);
+}

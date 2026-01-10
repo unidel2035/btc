@@ -5,18 +5,27 @@
   box-sizing: border-box;
 }
 
+/* Default theme variables (Light theme as per requirements)
+   These will be overridden by [data-theme="dark"] when dark mode is active */
 :root {
-  --bg-primary: #0a0e27;
-  --bg-secondary: #141932;
-  --bg-tertiary: #1e2442;
-  --text-primary: #ffffff;
-  --text-secondary: #a0aec0;
-  --accent-primary: #667eea;
-  --accent-secondary: #764ba2;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --border: #2d3748;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F9FA;
+  --bg-tertiary: #E9ECEF;
+  --bg-card: #FFFFFF;
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --accent-primary: #0066FF;
+  --accent-secondary: #0052CC;
+  --primary-color: #0066FF;
+  --primary-color-alpha: rgba(0, 102, 255, 0.1);
+  --accent-color: #0052CC;
+  --success: #28A745;
+  --success-color: #28A745;
+  --danger: #DC3545;
+  --danger-color: #DC3545;
+  --warning: #FFC107;
+  --border: #DEE2E6;
+  --border-color: #DEE2E6;
 }
 
 body {
@@ -109,18 +118,21 @@ body {
   width: 0;
 }
 
-.language-switcher {
+/* Header Controls */
+.header-controls {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   transition: opacity 0.2s ease-in-out;
 }
 
-.sidebar.collapsed .language-switcher {
+.sidebar.collapsed .header-controls {
   opacity: 0;
   width: 0;
   overflow: hidden;
 }
 
+.theme-btn,
 .lang-btn {
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
@@ -136,14 +148,21 @@ body {
   gap: 0.25rem;
 }
 
+.theme-btn:hover,
 .lang-btn:hover {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
   color: white;
 }
 
+.theme-btn:active,
 .lang-btn:active {
   transform: scale(0.95);
+}
+
+.theme-icon {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .nav {

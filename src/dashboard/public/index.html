@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BTC Trading Bot Dashboard</title>
+    <!-- Theme CSS (loaded before main styles to prevent FOUC) -->
+    <link rel="stylesheet" href="/styles/themes/variables.css" />
+    <link rel="stylesheet" href="/styles/themes/light.css" />
+    <link rel="stylesheet" href="/styles/themes/dark.css" />
     <link rel="stylesheet" href="/styles.css" />
+    <!-- Theme initialization script (must run before body renders) -->
+    <script src="/theme.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.11/i18next.min.js"></script>
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
@@ -21,7 +27,10 @@
             <span class="hamburger-icon">☰</span>
           </button>
           <h2 class="logo-text">📊 Trading Bot</h2>
-          <div class="language-switcher">
+          <div class="header-controls">
+            <button id="themeSwitcher" class="theme-btn" title="Switch theme / Переключить тему" aria-label="Switch to dark theme">
+              <span class="theme-icon">🌙</span>
+            </button>
             <button id="langSwitcher" class="lang-btn" title="Switch language / Переключить язык">
               <span id="currentLang">EN</span>
             </button>
