@@ -777,4 +777,154 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       });
     }
   });
+
+  // ============================================================================
+  // Screening API Endpoints
+  // ============================================================================
+
+  // POST /api/screening/run - Run screening
+  router.post('/api/screening/run', async (_req: Request, res: Response): Promise<void> => {
+    try {
+      // Dynamic import to avoid circular dependencies
+      const { ScreeningModule } = await import('../analyzers/screening/index.js');
+
+      const apiKey = process.env.COINGECKO_API_KEY;
+      const screening = new ScreeningModule(apiKey);
+
+      // Start screening in background and return task ID
+      const taskId = Math.random().toString(36).substring(7);
+
+      // Store task state
+      if (!storage.screeningTasks) {
+        storage.screeningTasks = new Map();
+      }
+
+      storage.screeningTasks.set(taskId, {
+        id: taskId,
+        status: 'running',
+        stage: 0,
+        progress: 'Starting screening...',
+        startedAt: new Date().toISOString(),
+      });
+
+      // Run screening asynchronously
+      screening.runScreening().then((report) => {
+        if (storage.screeningTasks) {
+          const existingTask = storage.screeningTasks.get(taskId) as { startedAt?: string } | undefined;
+          storage.screeningTasks.set(taskId, {
+            id: taskId,
+            status: 'completed',
+            stage: 3,
+            progress: 'Screening completed',
+            startedAt: existingTask?.startedAt || new Date().toISOString(),
+            completedAt: new Date().toISOString(),
+            report,
+          });
+        }
+
+        // Store latest report
+        storage.latestScreeningReport = report;
+      }).catch((error) => {
+        if (storage.screeningTasks) {
+          const existingTask = storage.screeningTasks.get(taskId) as { startedAt?: string } | undefined;
+          storage.screeningTasks.set(taskId, {
+            id: taskId,
+            status: 'failed',
+            stage: -1,
+            progress: 'Screening failed',
+            startedAt: existingTask?.startedAt || new Date().toISOString(),
+            completedAt: new Date().toISOString(),
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      });
+
+      res.json({ status: 'running', taskId });
+    } catch (error) {
+      console.error('Screening error:', error);
+      res.status(500).json({
+        error: 'Failed to start screening',
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+
+  // GET /api/screening/status/:taskId - Get screening status
+  router.get('/api/screening/status/:taskId', (req: Request, res: Response): void => {
+    try {
+      const taskId = (Array.isArray(req.params.taskId) ? req.params.taskId[0] : req.params.taskId) as string;
+
+      if (!storage.screeningTasks) {
+        res.status(404).json({ error: 'Task not found' });
+        return;
+      }
+
+      const task = storage.screeningTasks.get(taskId || '');
+      if (!task) {
+        res.status(404).json({ error: 'Task not found' });
+        return;
+      }
+
+      res.json(task);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch screening status' });
+    }
+  });
+
+  // GET /api/screening/latest - Get latest screening report
+  router.get('/api/screening/latest', (_req: Request, res: Response) => {
+    try {
+      if (!storage.latestScreeningReport) {
+        res.status(404).json({ error: 'No screening report available' });
+        return;
+      }
+
+      res.json(storage.latestScreeningReport);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch latest screening report' });
+    }
+  });
+
+  // GET /api/screening/history - Get screening history
+  router.get('/api/screening/history', (_req: Request, res: Response) => {
+    try {
+      if (!storage.screeningHistory) {
+        storage.screeningHistory = [];
+      }
+
+      res.json(storage.screeningHistory);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch screening history' });
+    }
+  });
+
+  // GET /api/screening/config - Get screening configuration
+  router.get('/api/screening/config', async (_req: Request, res: Response): Promise<void> => {
+    try {
+      const { getScreeningConfig } = await import('../analyzers/screening/config.js');
+      const config = getScreeningConfig();
+      res.json(config);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch screening config' });
+    }
+  });
+
+  // PATCH /api/screening/config - Update screening configuration
+  router.patch('/api/screening/config', async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Store config updates (in production, this would update environment variables or config file)
+      if (!storage.screeningConfigOverrides) {
+        storage.screeningConfigOverrides = {};
+      }
+
+      storage.screeningConfigOverrides = {
+        ...storage.screeningConfigOverrides,
+        ...req.body,
+      };
+
+      res.json({ success: true, config: storage.screeningConfigOverrides });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update screening config' });
+    }
+  });
 }
