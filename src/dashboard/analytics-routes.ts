@@ -60,7 +60,7 @@ export function setupAnalyticsRoutes(router: Router): void {
         return;
       }
 
-      const performance = await analyticsService!.calculatePerformanceMetrics(
+      const performance = analyticsService!.calculatePerformanceMetrics(
         filteredTrades,
         filteredEquity,
       );
@@ -95,7 +95,7 @@ export function setupAnalyticsRoutes(router: Router): void {
         return;
       }
 
-      const returns = await analyticsService!.calculateReturns(filteredEquity, period);
+      const returns = analyticsService!.calculateReturns(filteredEquity, period);
 
       res.json(returns);
     } catch (error) {
