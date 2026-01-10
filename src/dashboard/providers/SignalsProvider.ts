@@ -68,10 +68,7 @@ export class SignalsProvider {
     };
 
     // News Momentum Strategy
-    if (
-      process.env.STRATEGY_NEWS_MOMENTUM_ENABLED !== 'false' &&
-      shouldEnable('News Momentum')
-    ) {
+    if (process.env.STRATEGY_NEWS_MOMENTUM_ENABLED !== 'false' && shouldEnable('News Momentum')) {
       const newsStrategy = new NewsMomentumStrategy({
         enabled: true,
         minImpact: parseFloat(process.env.NEWS_MIN_IMPACT || '0.7'),
@@ -91,10 +88,7 @@ export class SignalsProvider {
     }
 
     // Sentiment Swing Strategy
-    if (
-      process.env.STRATEGY_SENTIMENT_SWING_ENABLED !== 'false' &&
-      shouldEnable('Sentiment Swing')
-    ) {
+    if (process.env.STRATEGY_SENTIMENT_SWING_ENABLED !== 'false' && shouldEnable('Sentiment Swing')) {
       const sentimentStrategy = new SentimentSwingStrategy({
         enabled: true,
         minImpact: parseFloat(process.env.SENTIMENT_MIN_IMPACT || '0.5'),
