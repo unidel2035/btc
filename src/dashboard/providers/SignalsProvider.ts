@@ -7,7 +7,6 @@
 import { StrategyManager, CombinationMode } from '../../trading/strategies/StrategyManager.js';
 import { NewsMomentumStrategy } from '../../trading/strategies/NewsMomentumStrategy.js';
 import { SentimentSwingStrategy } from '../../trading/strategies/SentimentSwingStrategy.js';
-import { RiskManager } from '../../trading/risk/RiskManager.js';
 import type { ExchangeManager } from '../../exchanges/ExchangeManager.js';
 import { storage } from '../storage.js';
 import type { DashboardWebSocket } from '../websocket.js';
@@ -26,7 +25,6 @@ import type {
 export interface SignalsProviderConfig {
   exchangeManager: ExchangeManager;
   ws?: DashboardWebSocket;
-  riskManagerBalance?: number;
   analysisInterval?: number;
   enabledStrategies?: string[];
 }
@@ -37,7 +35,6 @@ export interface SignalsProviderConfig {
  */
 export class SignalsProvider {
   private strategyManager: StrategyManager;
-  private riskManager: RiskManager;
   private exchangeManager: ExchangeManager;
   private ws: DashboardWebSocket | null;
   private analysisInterval: NodeJS.Timeout | null = null;
@@ -47,24 +44,6 @@ export class SignalsProvider {
   constructor(config: SignalsProviderConfig) {
     this.exchangeManager = config.exchangeManager;
     this.ws = config.ws || null;
-
-    // Инициализация Risk Manager
-    this.riskManager = new RiskManager(
-      {
-        maxPositionSize: parseFloat(process.env.MAX_POSITION_SIZE || '10'),
-        maxPositions: parseInt(process.env.MAX_POSITIONS || '5'),
-        maxDailyLoss: parseFloat(process.env.MAX_DAILY_LOSS || '5'),
-        maxTotalDrawdown: parseFloat(process.env.MAX_DRAWDOWN || '20'),
-        defaultStopLoss: parseFloat(process.env.DEFAULT_STOP_LOSS || '2'),
-        defaultTakeProfit: parseFloat(process.env.DEFAULT_TAKE_PROFIT || '5'),
-        trailingStop: process.env.TRAILING_STOP === 'true',
-        trailingStopActivation: parseFloat(process.env.TRAILING_STOP_ACTIVATION || '2'),
-        trailingStopDistance: parseFloat(process.env.TRAILING_STOP_DISTANCE || '1'),
-        maxCorrelatedPositions: parseInt(process.env.MAX_CORRELATED_POSITIONS || '3'),
-        correlationThreshold: parseFloat(process.env.CORRELATION_THRESHOLD || '0.7'),
-      },
-      config.riskManagerBalance || 10000,
-    );
 
     // Создание стратегий
     this.createStrategies(config.enabledStrategies);

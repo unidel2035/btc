@@ -159,7 +159,6 @@ class DashboardServer {
       this.signalsProvider = new SignalsProvider({
         exchangeManager: this.exchangeManager,
         ws: this.ws || undefined,
-        riskManagerBalance: parseFloat(process.env.INITIAL_BALANCE || '10000'),
         analysisInterval: parseInt(process.env.STRATEGY_ANALYSIS_INTERVAL || '30000'),
       });
 
