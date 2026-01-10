@@ -1961,3 +1961,392 @@ button:disabled:hover,
     padding: 0.5rem;
   }
 }
+
+/* ============================================================================
+   Screening Page Styles
+   ============================================================================ */
+
+/* Screening Controls */
+.screening-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.screening-controls button {
+  flex: 1;
+  min-width: 150px;
+}
+
+/* Progress Indicator */
+.screening-progress {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.progress-stages {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.stage {
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.stage span {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.stage.active {
+  border-color: var(--primary-color);
+  background: var(--primary-color-alpha);
+}
+
+.stage.completed {
+  border-color: var(--success-color);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.progress-text {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Screening Status */
+.screening-status {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+}
+
+/* Project Cards Grid */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.project-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.project-card:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.project-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.project-rank {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.project-title h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.project-sector {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--primary-color-alpha);
+  color: var(--primary-color);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.project-metrics {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.project-metrics .metric {
+  flex: 1;
+  padding: 0.75rem;
+  background: var(--card-bg);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.project-metrics .metric-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.project-metrics .metric-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.project-rationale,
+.project-risk {
+  margin-bottom: 1rem;
+}
+
+.project-rationale h5,
+.project-risk h5,
+.project-pairs h5 {
+  font-size: 0.875rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.project-rationale p,
+.project-risk p {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.project-pairs ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.project-pairs li {
+  padding: 0.375rem 0.75rem;
+  background: var(--card-bg);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+}
+
+.project-stats {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.project-stats .stat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.project-stats .stat-item span:first-child {
+  color: var(--text-secondary);
+}
+
+.project-stats .stat-item span:last-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Screening Stats */
+.screening-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Sectors Grid */
+.sectors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.sector-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.sector-card h5 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  color: var(--primary-color);
+  text-transform: capitalize;
+}
+
+.sector-narrative {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.sector-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sector-metrics .metric-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.sector-metrics .metric-item span:first-child {
+  color: var(--text-secondary);
+}
+
+.sector-metrics .metric-item span:last-child {
+  font-weight: 600;
+}
+
+.sector-projects {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.sector-projects strong {
+  color: var(--text-primary);
+}
+
+/* Risks List */
+.risks-list {
+  margin-top: 1rem;
+}
+
+.risk-item {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 3px solid var(--danger-color);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.risk-icon {
+  font-size: 1.25rem;
+}
+
+/* Actions List */
+.actions-list {
+  margin-top: 1rem;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.action-item:hover {
+  background: var(--card-bg);
+}
+
+.action-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.action-item label {
+  flex: 1;
+  font-size: 0.875rem;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Responsive Adjustments for Screening */
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .screening-controls {
+    flex-direction: column;
+  }
+
+  .screening-controls button {
+    width: 100%;
+  }
+
+  .progress-stages {
+    grid-template-columns: 1fr;
+  }
+
+  .project-metrics {
+    flex-direction: column;
+  }
+
+  .screening-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .sectors-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sector-metrics {
+    grid-template-columns: 1fr;
+  }
+}
