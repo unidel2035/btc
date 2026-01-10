@@ -633,4 +633,72 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       res.status(500).json({ error: 'Failed to apply preset' });
     }
   });
+
+  // POST /api/backtest/run - Run backtest
+  router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const {
+        strategy,
+        symbol,
+        startDate,
+        endDate,
+        initialCapital,
+        positionSize,
+        timeframe,
+        fees,
+        slippage,
+        allowShorts,
+      } = req.body as {
+        strategy: string;
+        symbol: string;
+        startDate: string;
+        endDate: string;
+        initialCapital: number;
+        positionSize: number;
+        timeframe: string;
+        fees: number;
+        slippage: number;
+        allowShorts: boolean;
+      };
+
+      // Validate required fields
+      if (
+        !strategy ||
+        !symbol ||
+        !startDate ||
+        !endDate ||
+        !initialCapital ||
+        !positionSize ||
+        !timeframe
+      ) {
+        res.status(400).json({ error: 'Missing required fields' });
+        return;
+      }
+
+      // Dynamic import to avoid circular dependencies
+      const { runBacktest } = await import('./backtest-runner.js');
+
+      // Run backtest
+      const results = await runBacktest({
+        strategy,
+        symbol,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        initialCapital,
+        positionSize,
+        timeframe,
+        fees: fees || 0.1,
+        slippage: slippage || 0.05,
+        allowShorts: allowShorts || false,
+      });
+
+      res.json(results);
+    } catch (error) {
+      console.error('Backtest error:', error);
+      res.status(500).json({
+        error: 'Failed to run backtest',
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
 }
