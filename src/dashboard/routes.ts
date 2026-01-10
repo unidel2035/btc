@@ -12,10 +12,7 @@ interface DashboardServerInterface {
   getSignalsProvider(): SignalsProvider | null;
 }
 
-export function setupRoutes(
-  router: Router,
-  dashboardServer?: DashboardServerInterface,
-): void {
+export function setupRoutes(router: Router, dashboardServer?: DashboardServerInterface): void {
   // Health check
   router.get('/health', (_req: Request, res: Response) => {
     res.json({
