@@ -14,6 +14,13 @@ class StrategyChart {
     this.currentTime = Math.floor(Date.now() / 1000);
     this.currentPrice = 50000;
     this.priceHistory = [];
+
+    // Real data mode settings
+    this.useRealData = true;
+    this.exchange = 'binance';
+    this.symbol = 'BTC/USDT';
+    this.timeframe = '1h';
+    this.ws = null;
   }
 
   initialize() {
@@ -76,6 +83,17 @@ class StrategyChart {
     document.getElementById('chartPause')?.addEventListener('click', () => this.pause());
     document.getElementById('chartReset')?.addEventListener('click', () => this.reset());
 
+    // Обработчики селекторов для реальных данных
+    document.getElementById('exchangeSelect')?.addEventListener('change', (e) => {
+      this.updateSettings(e.target.value, this.symbol, this.timeframe);
+    });
+    document.getElementById('symbolSelect')?.addEventListener('change', (e) => {
+      this.updateSettings(this.exchange, e.target.value, this.timeframe);
+    });
+    document.getElementById('timeframeSelect')?.addEventListener('change', (e) => {
+      this.updateSettings(this.exchange, this.symbol, e.target.value);
+    });
+
     // Обработчики чекбоксов стратегий
     this.setupStrategyCheckboxes();
 
@@ -133,6 +151,52 @@ class StrategyChart {
   }
 
   /**
+   * Загрузка реальных данных с биржи
+   */
+  async loadRealData() {
+    try {
+      const response = await fetch(`/api/chart/history?exchange=${this.exchange}&symbol=${this.symbol}&timeframe=${this.timeframe}&limit=100`);
+
+      if (!response.ok) {
+        console.warn('Failed to load real data, falling back to simulation');
+        this.useRealData = false;
+        return this.generateHistoricalData();
+      }
+
+      const result = await response.json();
+      const data = result.data;
+
+      if (!data || data.length === 0) {
+        console.warn('No data received, falling back to simulation');
+        this.useRealData = false;
+        return this.generateHistoricalData();
+      }
+
+      // Update price history
+      this.priceHistory = data.map(candle => ({
+        time: candle.time,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close
+      }));
+
+      // Обновляем историю цен в StrategyManager
+      data.forEach(candle => {
+        this.strategyManager.updatePriceHistory(candle);
+      });
+
+      this.currentPrice = data[data.length - 1].close;
+      this.currentTime = data[data.length - 1].time;
+
+      return data;
+    } catch (error) {
+      console.error('Error loading real data:', error);
+      this.useRealData = false;
+      return this.generateHistoricalData();
+    }
+  }
+
+  /**
    * Генерация исторических данных
    */
   generateHistoricalData() {
@@ -161,6 +225,108 @@ class StrategyChart {
     this.currentTime = data[data.length - 1].time + 3600;
 
     return data;
+  }
+
+  /**
+   * Настройка WebSocket для реальных данных
+   */
+  setupWebSocket() {
+    if (!this.useRealData) return;
+
+    // Connect to existing WebSocket
+    if (window.ws && window.ws.readyState === WebSocket.OPEN) {
+      this.ws = window.ws;
+      this.subscribeToChart();
+    } else {
+      console.warn('WebSocket not available, real-time updates disabled');
+    }
+  }
+
+  /**
+   * Подписка на обновления графика
+   */
+  subscribeToChart() {
+    if (!this.ws) return;
+
+    // Subscribe to chart updates
+    this.ws.send(JSON.stringify({
+      type: 'subscribe',
+      channel: 'chart',
+      exchange: this.exchange,
+      symbol: this.symbol,
+      timeframe: this.timeframe
+    }));
+
+    console.log(`Subscribed to chart: ${this.exchange} ${this.symbol} ${this.timeframe}`);
+  }
+
+  /**
+   * Отписка от обновлений графика
+   */
+  unsubscribeFromChart() {
+    if (!this.ws) return;
+
+    this.ws.send(JSON.stringify({
+      type: 'unsubscribe',
+      channel: 'chart',
+      exchange: this.exchange,
+      symbol: this.symbol,
+      timeframe: this.timeframe
+    }));
+
+    console.log(`Unsubscribed from chart: ${this.exchange} ${this.symbol} ${this.timeframe}`);
+  }
+
+  /**
+   * Обработка новой свечи с биржи
+   */
+  handleChartCandle(candle) {
+    if (!candle || candle.exchange !== this.exchange || candle.symbol !== this.symbol || candle.timeframe !== this.timeframe) {
+      return;
+    }
+
+    const chartCandle = {
+      time: Math.floor(candle.timestamp / 1000),
+      open: candle.open,
+      high: candle.high,
+      low: candle.low,
+      close: candle.close
+    };
+
+    // Update or add candle
+    this.candlestickSeries.update(chartCandle);
+
+    // Update price history
+    this.priceHistory.push({
+      time: chartCandle.time,
+      high: chartCandle.high,
+      low: chartCandle.low,
+      close: chartCandle.close
+    });
+
+    if (this.priceHistory.length > 200) {
+      this.priceHistory.shift();
+    }
+
+    this.currentPrice = chartCandle.close;
+    this.currentTime = chartCandle.time;
+
+    // Обновляем историю в StrategyManager
+    this.strategyManager.updatePriceHistory(chartCandle);
+
+    // Анализируем все активные стратегии
+    const signals = this.strategyManager.analyzeStrategies(chartCandle);
+
+    // Обновляем UI
+    this.updateUI(chartCandle, signals);
+
+    // Обновляем таблицу сравнения
+    this.updateComparisonTable();
+
+    // Обновляем последний сигнал
+    if (signals.length > 0) {
+      this.updateLastSignals(signals);
+    }
   }
 
   /**
@@ -320,8 +486,10 @@ class StrategyChart {
   /**
    * Сброс
    */
-  reset() {
+  async reset() {
     this.pause();
+    this.unsubscribeFromChart();
+    this.priceHistory = [];
     this.currentTime = Math.floor(Date.now() / 1000);
     this.currentPrice = 50000;
 
@@ -329,7 +497,7 @@ class StrategyChart {
     this.strategyManager.reset();
 
     // Генерируем исторические данные
-    const historicalData = this.generateHistoricalData();
+    const historicalData = this.useRealData ? await this.loadRealData() : this.generateHistoricalData();
     this.candlestickSeries.setData(historicalData);
 
     // Обновляем UI
@@ -338,6 +506,11 @@ class StrategyChart {
     this.updateComparisonTable();
 
     document.getElementById('chartLastSignals').innerHTML = '<p class="text-muted">Waiting for signals...</p>';
+
+    // Setup WebSocket for real-time updates
+    if (this.useRealData) {
+      this.setupWebSocket();
+    }
   }
 
   /**
@@ -345,10 +518,27 @@ class StrategyChart {
    */
   destroy() {
     this.pause();
+    this.unsubscribeFromChart();
     if (this.chart) {
       this.chart.remove();
     }
     this.strategyManager.destroy();
+  }
+
+  /**
+   * Обновление настроек (биржа, символ, таймфрейм)
+   */
+  async updateSettings(exchange, symbol, timeframe) {
+    // Unsubscribe from old settings
+    this.unsubscribeFromChart();
+
+    // Update settings
+    this.exchange = exchange;
+    this.symbol = symbol;
+    this.timeframe = timeframe;
+
+    // Reload data
+    await this.reset();
   }
 }
 

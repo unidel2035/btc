@@ -14,6 +14,7 @@ import { storage as memoryStorage } from './storage.js';
 import { RealDataProvider } from './providers/RealDataProvider.js';
 import { NewsProvider } from './providers/NewsProvider.js';
 import { SignalsProvider } from './providers/SignalsProvider.js';
+import { ChartDataProvider } from './providers/ChartDataProvider.js';
 import { ExchangeManager } from '../exchanges/ExchangeManager.js';
 import { MarketType } from '../exchanges/types.js';
 
@@ -34,6 +35,7 @@ class DashboardServer {
   private realDataProvider: RealDataProvider | null = null;
   private newsProvider: NewsProvider | null = null;
   private signalsProvider: SignalsProvider | null = null;
+  private chartDataProvider: ChartDataProvider | null = null;
   private exchangeManager: ExchangeManager | null = null;
   private port: number;
   private host: string;
@@ -82,6 +84,7 @@ class DashboardServer {
 
   private setupWebSocket(): void {
     this.ws = new DashboardWebSocket(this.server);
+    this.ws.setDashboardServer(this);
   }
 
   private async setupDataProvider(): Promise<void> {
@@ -137,6 +140,12 @@ class DashboardServer {
         // Запускаем провайдер сигналов (если не в демо-режиме)
         if (process.env.ENABLE_SIGNALS_PROVIDER !== 'false') {
           await this.setupSignalsProvider();
+        }
+
+        // Запускаем провайдер данных для графиков
+        if (this.ws) {
+          this.chartDataProvider = new ChartDataProvider(this.exchangeManager, this.ws);
+          console.log('✅ Chart data provider initialized');
         }
       } catch (error) {
         console.error('❌ Failed to initialize real data provider:', error);
@@ -279,6 +288,10 @@ class DashboardServer {
       this.signalsProvider.stop();
     }
 
+    if (this.chartDataProvider) {
+      this.chartDataProvider.stop();
+    }
+
     if (this.ws) {
       this.ws.stop();
     }
@@ -292,6 +305,16 @@ class DashboardServer {
   // Expose signals provider for routes
   public getSignalsProvider(): SignalsProvider | null {
     return this.signalsProvider;
+  }
+
+  // Expose exchange manager for routes
+  public getExchangeManager(): ExchangeManager | null {
+    return this.exchangeManager;
+  }
+
+  // Expose chart data provider
+  public getChartDataProvider(): ChartDataProvider | null {
+    return this.chartDataProvider;
   }
 }
 
