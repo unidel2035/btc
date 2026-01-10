@@ -9,3 +9,5 @@ export { ScreeningRepository } from './ScreeningRepository.js';
 export { ScreeningAnalytics } from './ScreeningAnalytics.js';
 export { ScreeningSync } from './ScreeningSync.js';
 export * from './screening-types.js';
+export { AnalyticsRepository } from './AnalyticsRepository.js';
+export * from './analytics-types.js';
