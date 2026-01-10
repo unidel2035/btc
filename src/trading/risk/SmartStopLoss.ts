@@ -151,7 +151,11 @@ export class SmartStopLoss {
   private static calculateTimeBasedStopLoss(params: StopLossParams): number {
     // Time-based SL использует фиксированный SL как начальное значение
     // Фактическая проверка времени происходит в checkTimeBasedStop
-    return this.calculateFixedStopLoss({ ...params, type: StopLossType.FIXED, percent: params.percent || 2 });
+    return this.calculateFixedStopLoss({
+      ...params,
+      type: StopLossType.FIXED,
+      percent: params.percent || 2,
+    });
   }
 
   /**

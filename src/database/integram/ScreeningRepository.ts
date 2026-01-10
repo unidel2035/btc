@@ -188,10 +188,7 @@ export class ScreeningRepository {
       cutoffDate.setDate(cutoffDate.getDate() - days);
 
       const projectMetrics = allMetrics
-        .filter(
-          (m) =>
-            m.requisites.project === ticker && new Date(m.requisites.date) >= cutoffDate,
-        )
+        .filter((m) => m.requisites.project === ticker && new Date(m.requisites.date) >= cutoffDate)
         .map((m) => ({
           date: new Date(m.requisites.date),
           marketCap: m.requisites.marketCap,
@@ -226,15 +223,10 @@ export class ScreeningRepository {
       );
 
       // Filter reports by date
-      const recentReports = reports.filter(
-        (r) => new Date(r.requisites.generatedAt) >= cutoffDate,
-      );
+      const recentReports = reports.filter((r) => new Date(r.requisites.generatedAt) >= cutoffDate);
 
       // Aggregate recommendations
-      const projectStats = new Map<
-        string,
-        { name: string; scores: number[]; dates: Date[] }
-      >();
+      const projectStats = new Map<string, { name: string; scores: number[]; dates: Date[] }>();
 
       for (const report of recentReports) {
         const recommendations = await this.getRecommendationsForReport(report.id);
@@ -289,12 +281,13 @@ export class ScreeningRepository {
         SCREENING_TYPES.SCREENING_REPORTS,
       );
 
-      const recentReports = reports.filter(
-        (r) => new Date(r.requisites.generatedAt) >= cutoffDate,
-      );
+      const recentReports = reports.filter((r) => new Date(r.requisites.generatedAt) >= cutoffDate);
 
       // Aggregate sector performance by report
-      const sectorData = new Map<string, Array<{ date: Date; performance: IntegramSectorPerformance }>>();
+      const sectorData = new Map<
+        string,
+        Array<{ date: Date; performance: IntegramSectorPerformance }>
+      >();
 
       for (const report of recentReports) {
         const sectors = await this.getSectorPerformanceForReport(report.id);
@@ -530,9 +523,7 @@ export class ScreeningRepository {
       CRYPTOCURRENCIES: parseInt(process.env.INTEGRAM_TYPE_CRYPTOCURRENCIES || '0'),
       SECTORS: parseInt(process.env.INTEGRAM_TYPE_SECTORS || '0'),
       SECTOR_PERFORMANCE: parseInt(process.env.INTEGRAM_TYPE_SECTOR_PERFORMANCE || '0'),
-      PROJECT_METRICS_HISTORY: parseInt(
-        process.env.INTEGRAM_TYPE_PROJECT_METRICS_HISTORY || '0',
-      ),
+      PROJECT_METRICS_HISTORY: parseInt(process.env.INTEGRAM_TYPE_PROJECT_METRICS_HISTORY || '0'),
       REPORT_STATUS: parseInt(process.env.INTEGRAM_TYPE_REPORT_STATUS || '0'),
       RISK_LEVELS: parseInt(process.env.INTEGRAM_TYPE_RISK_LEVELS || '0'),
     };
@@ -651,14 +642,10 @@ export class ScreeningRepository {
     }
 
     // Create new crypto entry
-    const newCryptoId = await this.client.createObject(
-      SCREENING_TYPES.CRYPTOCURRENCIES,
-      ticker,
-      {
-        [REQ_IDS.crypto.name]: ticker,
-        [REQ_IDS.crypto.lastUpdated]: new Date().toISOString(),
-      },
-    );
+    const newCryptoId = await this.client.createObject(SCREENING_TYPES.CRYPTOCURRENCIES, ticker, {
+      [REQ_IDS.crypto.name]: ticker,
+      [REQ_IDS.crypto.lastUpdated]: new Date().toISOString(),
+    });
 
     return newCryptoId.toString();
   }

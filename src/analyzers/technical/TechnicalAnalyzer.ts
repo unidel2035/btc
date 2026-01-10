@@ -36,10 +36,7 @@ export class TechnicalAnalyzer {
   /**
    * Analyze a trading pair with technical indicators
    */
-  async analyze(
-    pair: string,
-    options: TechnicalAnalysisOptions,
-  ): Promise<TechnicalAnalysisResult> {
+  async analyze(pair: string, options: TechnicalAnalysisOptions): Promise<TechnicalAnalysisResult> {
     console.info(`📊 Analyzing ${pair} with indicators: ${options.indicators.join(', ')}`);
 
     // TODO: Fetch real market data from exchange
@@ -157,7 +154,10 @@ export class TechnicalAnalyzer {
       signals.push({
         id: randomUUID(),
         type: 'technical' as SignalType,
-        sentiment: analysis.trend === 'bullish' ? ('bullish' as SignalSentiment) : ('bearish' as SignalSentiment),
+        sentiment:
+          analysis.trend === 'bullish'
+            ? ('bullish' as SignalSentiment)
+            : ('bearish' as SignalSentiment),
         impact: analysis.strength,
         source: `${analysis.trend} trend detected`,
         timestamp: new Date(),

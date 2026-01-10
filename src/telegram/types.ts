@@ -6,6 +6,7 @@ import type { Context } from 'telegraf';
 import type { PaperTradingEngine } from '../trading/paper/PaperTradingEngine.js';
 import type { ScreeningModule } from '../analyzers/screening/ScreeningModule.js';
 import type { NotificationManager } from '../notifications/NotificationManager.js';
+import type { User } from '../services/integram/index.js';
 
 /**
  * Extended context for Telegram bot with custom state
@@ -26,6 +27,11 @@ export interface UserSession {
   awaitingPin?: boolean;
   pendingAction?: PendingAction;
   notificationSettings?: NotificationSettings;
+  user?: User; // Full user data from Integram
+  awaitingProfileInput?: {
+    field: 'name' | 'email' | 'phone';
+    action: string;
+  };
 }
 
 /**

@@ -2,13 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="theme-color" content="#0a0e27" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>BTC Trading Bot Dashboard</title>
     <!-- Theme CSS (loaded before main styles to prevent FOUC) -->
     <link rel="stylesheet" href="/styles/themes/variables.css" />
     <link rel="stylesheet" href="/styles/themes/light.css" />
     <link rel="stylesheet" href="/styles/themes/dark.css" />
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles/responsive.css" />
     <!-- Theme initialization script (must run before body renders) -->
     <script src="/theme.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -992,6 +996,7 @@
     </div>
 
     <!-- Modern UI/UX Scripts -->
+    <script src="/breakpoint.js"></script>
     <script src="/theme.js"></script>
     <script src="/sidebar.js"></script>
     <script src="/notifications.js"></script>
