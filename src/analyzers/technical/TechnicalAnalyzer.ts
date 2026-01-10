@@ -176,7 +176,7 @@ export class TechnicalAnalyzer {
    * Fetch OHLCV candles (mock for now)
    */
   private async fetchCandles(
-    pair: string,
+    _pair: string,
     timeframe: string,
     lookback: number,
   ): Promise<OHLCVCandle[]> {
@@ -228,7 +228,7 @@ export class TechnicalAnalyzer {
     let losses = 0;
 
     for (let i = candles.length - period; i < candles.length; i++) {
-      const change = candles[i].close - candles[i - 1].close;
+      const change = candles[i]!.close - candles[i - 1]!.close;
       if (change > 0) {
         gains += change;
       } else {
@@ -316,14 +316,14 @@ export class TechnicalAnalyzer {
    */
   private calculateEMAValue(candles: OHLCVCandle[], period: number): number {
     if (candles.length < period) {
-      return candles[candles.length - 1].close;
+      return candles[candles.length - 1]!.close;
     }
 
     const multiplier = 2 / (period + 1);
     let ema = candles.slice(-period, -period + 1).reduce((sum, c) => sum + c.close, 0) / period;
 
     for (let i = candles.length - period + 1; i < candles.length; i++) {
-      ema = (candles[i].close - ema) * multiplier + ema;
+      ema = (candles[i]!.close - ema) * multiplier + ema;
     }
 
     return ema;
@@ -363,7 +363,7 @@ export class TechnicalAnalyzer {
 
     // EMA trend
     if (indicators.ema) {
-      const currentPrice = candles[candles.length - 1].close;
+      const currentPrice = candles[candles.length - 1]!.close;
       if (indicators.ema.ema20 && currentPrice > indicators.ema.ema20) bullishScore++;
       if (indicators.ema.ema20 && currentPrice < indicators.ema.ema20) bearishScore++;
 

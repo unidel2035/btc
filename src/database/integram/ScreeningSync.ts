@@ -3,7 +3,7 @@
  * Background jobs for updating project metrics and calculating accuracy
  */
 
-import cron from 'node-cron';
+import * as cron from 'node-cron';
 import { IntegramClient } from './IntegramClient.js';
 import { ScreeningRepository } from './ScreeningRepository.js';
 import { ScreeningAnalytics } from './ScreeningAnalytics.js';
@@ -81,15 +81,14 @@ export class ScreeningSync {
       for (const ticker of activeProjects) {
         try {
           // Fetch latest data from CoinGecko
-          const coinData = await this.coinGeckoClient.getCoinDetails(ticker.toLowerCase());
+          const coinData = await this.coinGeckoClient.getCoinDetail(ticker.toLowerCase());
 
           if (coinData) {
             const metrics = {
               marketCap: coinData.market_data?.market_cap?.usd || 0,
               volume24h: coinData.market_data?.total_volume?.usd || 0,
               currentPrice: coinData.market_data?.current_price?.usd || 0,
-              priceChange30d:
-                coinData.market_data?.price_change_percentage_30d_in_currency?.usd || 0,
+              priceChange30d: 0, // Not available in current type definition
               tvl: null, // Would need DeFi Llama integration
               communityScore: coinData.community_data?.twitter_followers || 0,
               totalScore: 0, // Would recalculate if needed

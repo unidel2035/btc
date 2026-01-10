@@ -4,8 +4,8 @@
  * Types for automated trading pipeline orchestration
  */
 
-import type { ScreeningReport, ProjectRecommendation, RiskLevel } from '../analyzers/screening/types.js';
-import type { Signal, TradeDecision, MarketData } from '../trading/strategies/types.js';
+import type { ScreeningReport, RiskLevel } from '../analyzers/screening/types.js';
+import type { Signal, TradeDecision } from '../trading/strategies/types.js';
 
 /**
  * Pipeline execution mode

@@ -18,7 +18,7 @@ export class PortfolioRotationManager {
     const toClose = currentPairs.filter((pair) => !newPairs.includes(pair));
     const toOpen = newPairs.filter((pair) => !currentPairs.includes(pair));
 
-    const closeActions = toClose.map((pair, index) => ({
+    const closeActions = toClose.map((pair) => ({
       pair,
       reason: 'No longer in screening recommendations',
       urgency: ('gradual' as const),
@@ -46,8 +46,10 @@ export class PortfolioRotationManager {
 
   /**
    * Determine if rotation should be gradual or immediate
+   * TODO: Use this method in future implementation
    */
-  private shouldCloseImmediately(pair: string, currentPnL?: number): boolean {
+  // @ts-expect-error - Reserved for future implementation
+  private _shouldCloseImmediately(_pair: string, currentPnL?: number): boolean {
     // Close immediately if losing money
     if (currentPnL !== undefined && currentPnL < -5) {
       return true;
@@ -59,8 +61,10 @@ export class PortfolioRotationManager {
 
   /**
    * Calculate optimal opening delay for new positions
+   * TODO: Use this method in future implementation
    */
-  private calculateOpeningDelay(pair: string, priority: number): number {
+  // @ts-expect-error - Reserved for future implementation
+  private _calculateOpeningDelay(_pair: string, priority: number): number {
     // Higher priority pairs open sooner
     const baseDelay = (priority - 1) * 2; // 2 hours per priority level
 

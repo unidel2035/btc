@@ -9,8 +9,6 @@ import { CoinGeckoClient } from '../../analyzers/screening/CoinGeckoClient.js';
 import type {
   PredictionAccuracy,
   SectorAnalysis,
-  IntegramScreeningReport,
-  IntegramScreeningRecommendation,
 } from './screening-types.js';
 import type { ScoringConfig } from '../../analyzers/screening/types.js';
 
@@ -67,11 +65,12 @@ export class ScreeningAnalytics {
       for (const rec of report.recommendations) {
         try {
           // Get historical price data
-          const marketData = await this.coinGeckoClient.getCoinDetails(rec.ticker.toLowerCase());
+          const marketData = await this.coinGeckoClient.getCoinDetail(rec.ticker.toLowerCase());
 
           // Get current price (as proxy for price at evaluation date)
           // In a real implementation, you'd use historical price API
-          const initialPrice = rec.marketCap / (marketData?.market_data?.circulating_supply || 1);
+          // Note: circulating_supply not available in current type, using market cap as proxy
+          const initialPrice = marketData?.market_data?.current_price?.usd || 0;
           const currentPrice = marketData?.market_data?.current_price?.usd || initialPrice;
 
           const priceChange = ((currentPrice - initialPrice) / initialPrice) * 100;

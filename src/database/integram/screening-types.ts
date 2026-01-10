@@ -6,8 +6,6 @@
 import type {
   CryptoSector,
   ProjectRecommendation,
-  SectorMetrics,
-  ScreeningReport,
 } from '../../analyzers/screening/types.js';
 
 /**

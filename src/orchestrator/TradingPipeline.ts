@@ -12,7 +12,7 @@
 import { randomUUID } from 'crypto';
 import { ScreeningModule } from '../analyzers/screening/ScreeningModule.js';
 import { TechnicalAnalyzer } from '../analyzers/technical/TechnicalAnalyzer.js';
-import { StrategyManager, CombinationMode } from '../trading/strategies/StrategyManager.js';
+import { StrategyManager } from '../trading/strategies/StrategyManager.js';
 import { RiskManager } from '../trading/risk/RiskManager.js';
 import { PipelineNotificationManager } from './PipelineNotificationManager.js';
 import { PortfolioRotationManager } from './PortfolioRotationManager.js';
@@ -29,8 +29,8 @@ import type {
   PipelineState,
   RiskEvaluationResult,
 } from './types.js';
-import type { ProjectRecommendation, RiskLevel } from '../analyzers/screening/types.js';
-import type { Signal, TradeDecision, MarketData } from '../trading/strategies/types.js';
+import type { RiskLevel } from '../analyzers/screening/types.js';
+import type { Signal, MarketData } from '../trading/strategies/types.js';
 
 /**
  * Trading Pipeline Orchestrator
@@ -41,7 +41,8 @@ export class TradingPipeline {
   private screeningModule: ScreeningModule;
   private technicalAnalyzer: TechnicalAnalyzer;
   private strategyManager: StrategyManager;
-  private riskManager: RiskManager;
+  // @ts-expect-error - TODO: Use in risk evaluation stage
+  private _riskManager: RiskManager;
   private notificationManager: PipelineNotificationManager;
   private rotationManager: PortfolioRotationManager;
 
@@ -56,7 +57,7 @@ export class TradingPipeline {
     this.screeningModule = screeningModule;
     this.technicalAnalyzer = technicalAnalyzer;
     this.strategyManager = strategyManager;
-    this.riskManager = riskManager;
+    this._riskManager = riskManager;
     this.notificationManager = new PipelineNotificationManager(config.notifications);
     this.rotationManager = new PortfolioRotationManager();
 
