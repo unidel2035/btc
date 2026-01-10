@@ -8,3 +8,4 @@ export * from './types.js';
 export { runMigrations } from './migrate.js';
 export { seedDatabase } from './seed.js';
 export { createBackup, restoreBackup, createRedisBackup } from './backup.js';
+export * from './integram/index.js';
