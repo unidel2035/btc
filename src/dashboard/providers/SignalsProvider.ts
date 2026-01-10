@@ -58,20 +58,30 @@ export class SignalsProvider {
       this.strategyManager.addStrategy(strategy);
 
       // Подписываемся на события сигналов от каждой стратегии
-      strategy.on('signal', (signalData) => {
-        console.log(`📡 Real-time signal from ${strategy.name}:`, signalData);
+      strategy.on('signal', (signalData: unknown) => {
+        const data = signalData as {
+          strategy: string;
+          symbol: string;
+          action: 'BUY' | 'SELL' | 'HOLD';
+          strength: number;
+          confidence: number;
+          price: number;
+          reason: string;
+          metadata?: unknown;
+        };
+
+        console.log(`📡 Real-time signal from ${strategy.name}:`, data);
 
         // Добавляем в storage
         const signal = storage.addSignal({
-          type: signalData.strategy,
-          source: signalData.strategy,
-          symbol: signalData.symbol,
-          action: signalData.action,
-          strength: signalData.strength,
-          confidence: signalData.confidence,
-          price: signalData.price,
-          reason: signalData.reason,
-          metadata: signalData.metadata,
+          type: data.strategy,
+          source: data.strategy,
+          symbol: data.symbol,
+          action: data.action,
+          strength: data.strength,
+          confidence: data.confidence,
+          price: data.price,
+          reason: data.reason,
         });
 
         // Отправляем через WebSocket в реальном времени

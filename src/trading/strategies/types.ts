@@ -129,6 +129,12 @@ export interface Strategy {
    * Сбросить статистику
    */
   resetStats(): void;
+
+  /**
+   * Event emitter methods for real-time signal broadcasting
+   */
+  on(event: string, listener: (...args: unknown[]) => void): this;
+  emit(event: string, ...args: unknown[]): boolean;
 }
 
 /**

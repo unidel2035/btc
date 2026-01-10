@@ -16,12 +16,6 @@ interface SignalFilter {
   minConfidence?: number;
 }
 
-interface WebSocketClient {
-  ws: WebSocket;
-  filters?: SignalFilter;
-  isSignalsOnly?: boolean;
-}
-
 export class DashboardWebSocket {
   private wss: WebSocketServer;
   private signalsWss: WebSocketServer;
@@ -258,7 +252,7 @@ export class DashboardWebSocket {
 
   // Публичные методы для отправки уведомлений
   public broadcastSignal(signal: unknown): void {
-    const message = {
+    const message: WebSocketMessage = {
       type: 'signal',
       data: signal,
       timestamp: new Date().toISOString(),
