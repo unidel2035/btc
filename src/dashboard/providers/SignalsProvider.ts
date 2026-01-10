@@ -381,4 +381,20 @@ export class SignalsProvider {
       console.log(`⚙️  Strategy params updated: ${name}`);
     }
   }
+
+  getStrategySchema(name: string): unknown {
+    const strategy = this.strategyManager.getStrategy(name);
+    if (strategy) {
+      return strategy.getParameterSchema();
+    }
+    return null;
+  }
+
+  validateStrategyParams(name: string, params: Record<string, unknown>): { valid: boolean; errors: string[] } {
+    const strategy = this.strategyManager.getStrategy(name);
+    if (strategy) {
+      return strategy.validateParameters(params);
+    }
+    return { valid: false, errors: ['Strategy not found'] };
+  }
 }
