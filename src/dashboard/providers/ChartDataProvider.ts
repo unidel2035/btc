@@ -37,16 +37,14 @@ export class ChartDataProvider {
     }
 
     try {
-      const exchangeInstance = this.exchangeManager.getExchange(exchange as 'binance' | 'bybit' | 'okx');
+      const exchangeInstance = this.exchangeManager.getExchange(
+        exchange as 'binance' | 'bybit' | 'okx',
+      );
 
       // Subscribe to candles from exchange
-      exchangeInstance.subscribeToCandles(
-        symbol,
-        timeframe as CandleInterval,
-        (candle: Candle) => {
-          this.handleCandle(exchange, symbol, timeframe, candle);
-        }
-      );
+      exchangeInstance.subscribeToCandles(symbol, timeframe as CandleInterval, (candle: Candle) => {
+        this.handleCandle(exchange, symbol, timeframe, candle);
+      });
 
       this.activeSubscriptions.set(key, {
         exchange,
@@ -72,7 +70,10 @@ export class ChartDataProvider {
     }
 
     try {
-      const exchangeInstance = this.exchangeManager.getExchange(exchange as 'binance' | 'bybit' | 'okx');
+      const exchangeInstance = this.exchangeManager.getExchange(
+        exchange as 'binance' | 'bybit' | 'okx',
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       exchangeInstance.unsubscribe(symbol, 'candle' as any);
 
       this.activeSubscriptions.delete(key);
@@ -85,7 +86,12 @@ export class ChartDataProvider {
   /**
    * Handle incoming candle from exchange
    */
-  private handleCandle(exchange: string, symbol: string, timeframe: string, candle: Candle): void {
+  private handleCandle(
+    exchange: string,
+    symbol: string,
+    timeframe: string,
+    candle: Candle,
+  ): void {
     // Broadcast to dashboard clients
     this.ws.broadcastChartCandle({
       exchange,
@@ -113,7 +119,10 @@ export class ChartDataProvider {
   stop(): void {
     this.activeSubscriptions.forEach((sub) => {
       try {
-        const exchangeInstance = this.exchangeManager.getExchange(sub.exchange as 'binance' | 'bybit' | 'okx');
+        const exchangeInstance = this.exchangeManager.getExchange(
+          sub.exchange as 'binance' | 'bybit' | 'okx',
+        );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         exchangeInstance.unsubscribe(sub.symbol, 'candle' as any);
       } catch (error) {
         console.error(`[ChartDataProvider] Failed to unsubscribe:`, error);
