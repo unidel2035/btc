@@ -680,7 +680,7 @@ export class PortfolioAnalytics {
     const n = assets.length;
     const matrix: number[][] = Array(n)
       .fill(0)
-      .map(() => Array(n).fill(0));
+      .map(() => Array(n).fill(0) as number[]);
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
@@ -769,7 +769,7 @@ export class PortfolioAnalytics {
   /**
    * Generate comprehensive analytics report
    */
-  async generateReport(
+  generateReport(
     trades: AnalyticsTrade[],
     equityCurve: EquityPoint[],
     period: {
@@ -778,7 +778,7 @@ export class PortfolioAnalytics {
       type: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
     },
     currentPositions: Array<{ asset: string; size: number }> = [],
-  ): Promise<AnalyticsReport> {
+  ): AnalyticsReport {
     const performance = this.calculatePerformanceMetrics(trades, equityCurve);
     const tradeStats = this.calculateTradeStatistics(trades);
     const strategyPerformance = this.getStrategyPerformance(trades);

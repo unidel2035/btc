@@ -166,15 +166,15 @@ export function setupWebhookRoutes(router: Router): void {
     webhookRateLimiter,
     authenticateWebhook,
     validatePayload,
-    async (req: Request, res: Response): Promise<void> => {
+    (req: Request, res: Response): void => {
       try {
         const payload = req.body as TradingViewWebhookPayload;
 
         // Process the webhook
-        const record = await webhookService.processWebhook(payload);
+        const record = webhookService.processWebhook(payload);
 
         // Validate the signal
-        const validation = await webhookService.validateSignal(record.signal);
+        const validation = webhookService.validateSignal(record.signal);
 
         if (!validation.valid) {
           // Update status to rejected

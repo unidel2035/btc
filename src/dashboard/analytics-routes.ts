@@ -39,7 +39,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    * GET /api/analytics/performance
    * Get performance metrics for a period
    */
-  router.get('/api/analytics/performance', async (req: Request, res: Response) => {
+  router.get('/api/analytics/performance', (req: Request, res: Response) => {
     try {
       const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
@@ -76,7 +76,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    * GET /api/analytics/returns
    * Get returns for a period
    */
-  router.get('/api/analytics/returns', async (req: Request, res: Response) => {
+  router.get('/api/analytics/returns', (req: Request, res: Response) => {
     try {
       const period = (req.query.period as AnalyticsPeriod) || 'all';
       const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
@@ -295,7 +295,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    * GET /api/analytics/report
    * Generate comprehensive analytics report
    */
-  router.get('/api/analytics/report', async (req: Request, res: Response) => {
+  router.get('/api/analytics/report', (req: Request, res: Response) => {
     try {
       const periodType =
         (req.query.periodType as 'daily' | 'weekly' | 'monthly' | 'yearly') || 'monthly';
@@ -322,7 +322,7 @@ export function setupAnalyticsRoutes(router: Router): void {
         { asset: 'ETH/USDT', size: 5000 },
       ];
 
-      const report = await analyticsService!.generateReport(
+      const report = analyticsService!.generateReport(
         filteredTrades,
         filteredEquity,
         {
@@ -380,7 +380,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.post('/api/analytics/trades', (req: Request, res: Response) => {
     try {
-      const trade: AnalyticsTrade = req.body;
+      const trade = req.body as AnalyticsTrade;
 
       // Validate trade data
       if (!trade.id || !trade.strategy || !trade.asset) {
@@ -407,7 +407,7 @@ export function setupAnalyticsRoutes(router: Router): void {
    */
   router.post('/api/analytics/equity', (req: Request, res: Response) => {
     try {
-      const point: EquityPoint = req.body;
+      const point = req.body as EquityPoint;
 
       // Convert date string to Date object
       point.timestamp = new Date(point.timestamp);

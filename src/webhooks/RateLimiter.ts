@@ -24,8 +24,8 @@ export class RateLimiter {
     this.options = {
       maxRequests: options.maxRequests,
       windowMs: options.windowMs,
-      keyGenerator: options.keyGenerator || this.defaultKeyGenerator,
-      handler: options.handler || this.defaultHandler,
+      keyGenerator: options.keyGenerator || this.defaultKeyGenerator.bind(this),
+      handler: options.handler || this.defaultHandler.bind(this),
     };
 
     // Cleanup expired entries every minute
