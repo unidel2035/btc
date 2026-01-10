@@ -22,7 +22,7 @@ import { SignalType as SignalTypeEnum, SignalSentiment } from '../trading/strate
 export class WebhookService {
   private config: WebhookConfig;
   private signalHistory: Map<string, WebhookSignalRecord> = new Map();
-  private recentSignals: Array<{ ticker: string; action: string; timestamp: Date }> = [];
+  private recentSignals: Array<{ ticker: string; action: WebhookAction; timestamp: Date }> = [];
 
   constructor(config: WebhookConfig) {
     this.config = config;
@@ -31,6 +31,7 @@ export class WebhookService {
   /**
    * Process incoming webhook payload
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async processWebhook(payload: TradingViewWebhookPayload): Promise<WebhookSignalRecord> {
     // 1. Parse the webhook payload
     const signal = this.parseSignal(payload);
@@ -148,6 +149,7 @@ export class WebhookService {
   /**
    * Validate webhook signal
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async validateSignal(
     signal: WebhookSignal,
     currentPrice?: number,
