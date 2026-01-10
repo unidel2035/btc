@@ -769,6 +769,7 @@ export class PortfolioAnalytics {
   /**
    * Generate comprehensive analytics report
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async generateReport(
     trades: AnalyticsTrade[],
     equityCurve: EquityPoint[],
