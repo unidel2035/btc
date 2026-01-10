@@ -29,18 +29,29 @@ async function main() {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const userId = process.env.TELEGRAM_USER_ID;
 
-  if (!botToken || !userId) {
+  if (!botToken) {
     console.error('❌ Missing required environment variables:');
     console.error('   - TELEGRAM_BOT_TOKEN');
-    console.error('   - TELEGRAM_USER_ID');
     console.error('\nPlease set them in your .env file or environment.');
     process.exit(1);
+  }
+
+  // Parse whitelist from environment variable
+  // If TELEGRAM_USER_ID is empty or "-1", allow all users
+  // If TELEGRAM_USER_ID contains comma-separated IDs, use them as whitelist
+  let whitelist: number[] = [];
+  if (!userId || userId === '-1') {
+    whitelist = [-1]; // Allow all users
+    console.log('🌍 Bot configured for PUBLIC ACCESS (all users allowed)');
+  } else {
+    whitelist = userId.split(',').map((id) => parseInt(id.trim(), 10));
+    console.log(`🔒 Bot configured for PRIVATE ACCESS (${whitelist.length} user(s) allowed)`);
   }
 
   // Bot configuration
   const config: TelegramBotConfig = {
     token: botToken,
-    whitelist: [parseInt(userId, 10)], // Only allow your user ID
+    whitelist, // Whitelist from environment variable or public access
     pinCode: process.env.TELEGRAM_PIN_CODE || '1234', // PIN for critical operations
     rateLimit: {
       maxCommands: 10, // Max 10 commands

@@ -50,7 +50,10 @@ export class TelegramBot {
         .map(([k]) => k)
         .join(', ')}`,
     );
-    console.log(`   Whitelist: ${config.whitelist.length} users`);
+    const accessMode = config.whitelist.includes(-1)
+      ? 'PUBLIC ACCESS (all users allowed)'
+      : `PRIVATE ACCESS (${config.whitelist.length} user(s) allowed)`;
+    console.log(`   Access: ${accessMode}`);
   }
 
   /**

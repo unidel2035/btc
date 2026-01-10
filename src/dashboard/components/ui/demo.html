@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Components Demo - Trading Bot Dashboard</title>
+
+  <!-- Load existing styles -->
+  <link rel="stylesheet" href="../../public/styles-modern.css">
+
+  <!-- Load component styles -->
+  <link rel="stylesheet" href="../../styles/animations.css">
+  <link rel="stylesheet" href="../../styles/components.css">
+
+  <style>
+    body {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .demo-section {
+      margin-bottom: 3rem;
+      padding: 2rem;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .demo-section h2 {
+      margin-bottom: 1.5rem;
+      color: var(--accent-primary);
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .demo-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .demo-item {
+      padding: 1rem;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .demo-item h4 {
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <header style="margin-bottom: 2rem;">
+    <h1 style="margin-bottom: 0.5rem;">UI Components Demo</h1>
+    <p style="color: var(--text-secondary);">Modern, reusable components for Trading Bot Dashboard</p>
+
+    <div style="margin-top: 1rem;">
+      <button id="themeToggle" class="ui-btn ui-btn-secondary ui-btn-sm">
+        Toggle Theme
+      </button>
+    </div>
+  </header>
+
+  <!-- Card Component -->
+  <section class="demo-section">
+    <h2>1. Card Component</h2>
+    <div class="demo-grid" id="cardDemo"></div>
+  </section>
+
+  <!-- Button Component -->
+  <section class="demo-section">
+    <h2>2. Button Component</h2>
+
+    <div class="demo-item">
+      <h4>Variants</h4>
+      <div class="demo-row" id="buttonVariants"></div>
+    </div>
+
+    <div class="demo-item">
+      <h4>Sizes</h4>
+      <div class="demo-row" id="buttonSizes"></div>
+    </div>
+
+    <div class="demo-item">
+      <h4>States</h4>
+      <div class="demo-row" id="buttonStates"></div>
+    </div>
+  </section>
+
+  <!-- Badge Component -->
+  <section class="demo-section">
+    <h2>3. Badge Component</h2>
+    <div class="demo-row" id="badgeDemo"></div>
+  </section>
+
+  <!-- Modal Component -->
+  <section class="demo-section">
+    <h2>4. Modal Component</h2>
+    <div class="demo-row" id="modalDemo"></div>
+  </section>
+
+  <!-- Tooltip Component -->
+  <section class="demo-section">
+    <h2>5. Tooltip Component</h2>
+    <div class="demo-row" id="tooltipDemo"></div>
+  </section>
+
+  <!-- Table Component -->
+  <section class="demo-section">
+    <h2>6. Table Component</h2>
+    <div id="tableDemo"></div>
+  </section>
+
+  <!-- Skeleton Component -->
+  <section class="demo-section">
+    <h2>7. Skeleton Loader Component</h2>
+    <div class="demo-grid" id="skeletonDemo"></div>
+  </section>
+
+  <!-- Progress Component -->
+  <section class="demo-section">
+    <h2>8. Progress Bar Component</h2>
+    <div class="demo-grid" id="progressDemo"></div>
+  </section>
+
+  <!-- Input Component -->
+  <section class="demo-section">
+    <h2>9. Input Component</h2>
+    <div class="demo-grid" id="inputDemo"></div>
+  </section>
+
+  <!-- Tabs Component -->
+  <section class="demo-section">
+    <h2>10. Tabs Component</h2>
+    <div id="tabsDemo"></div>
+  </section>
+
+  <script type="module">
+    import {
+      Card,
+      Button,
+      Badge,
+      Modal,
+      Tooltip,
+      Table,
+      Skeleton,
+      Progress,
+      Input,
+      Tabs,
+      createCard,
+      createButton,
+      createBadge,
+      createSkeleton
+    } from './index.js';
+
+    // Theme Toggle
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+    });
+
+    // 1. Card Demo
+    const cardDemo = document.getElementById('cardDemo');
+
+    const variants = ['default', 'gradient', 'glass', 'outlined'];
+    variants.forEach((variant, index) => {
+      const card = new Card({
+        variant,
+        hoverable: true,
+        title: `${variant.charAt(0).toUpperCase() + variant.slice(1)} Card`,
+        subtitle: 'This is a subtitle'
+      });
+
+      const cardEl = card.render();
+      card.setContent(`<p>This is a ${variant} card with hover effect.</p>`);
+
+      if (index === 0) {
+        card.setFooter('<button class="ui-btn ui-btn-primary ui-btn-sm">Action</button>');
+      }
+
+      cardDemo.appendChild(cardEl);
+    });
+
+    // 2. Button Demo
+    const buttonVariants = document.getElementById('buttonVariants');
+    ['primary', 'success', 'danger', 'secondary', 'ghost', 'link'].forEach(variant => {
+      const btn = new Button({
+        variant,
+        text: variant.charAt(0).toUpperCase() + variant.slice(1),
+        ripple: true,
+        onClick: () => alert(`${variant} clicked!`)
+      });
+      buttonVariants.appendChild(btn.render());
+    });
+
+    const buttonSizes = document.getElementById('buttonSizes');
+    ['sm', 'md', 'lg'].forEach(size => {
+      const btn = new Button({
+        variant: 'primary',
+        size,
+        text: size.toUpperCase(),
+        ripple: true
+      });
+      buttonSizes.appendChild(btn.render());
+    });
+
+    const buttonStates = document.getElementById('buttonStates');
+
+    const loadingBtn = new Button({
+      variant: 'primary',
+      text: 'Loading',
+      loading: true
+    });
+    buttonStates.appendChild(loadingBtn.render());
+
+    const disabledBtn = new Button({
+      variant: 'secondary',
+      text: 'Disabled',
+      disabled: true
+    });
+    buttonStates.appendChild(disabledBtn.render());
+
+    const iconBtn = new Button({
+      variant: 'success',
+      text: 'With Icon',
+      icon: '🚀',
+      iconPosition: 'left',
+      ripple: true
+    });
+    buttonStates.appendChild(iconBtn.render());
+
+    // 3. Badge Demo
+    const badgeDemo = document.getElementById('badgeDemo');
+    const badgeVariants = [
+      { variant: 'success', text: 'LONG' },
+      { variant: 'danger', text: 'SHORT' },
+      { variant: 'warning', text: 'PENDING' },
+      { variant: 'info', text: 'INFO' },
+      { variant: 'neutral', text: 'NEUTRAL' }
+    ];
+
+    badgeVariants.forEach(({ variant, text }) => {
+      const badge = new Badge({ variant, text, dot: true });
+      badgeDemo.appendChild(badge.render());
+    });
+
+    // 4. Modal Demo
+    const modalDemo = document.getElementById('modalDemo');
+
+    const modalBtn = createButton({
+      variant: 'primary',
+      text: 'Open Modal',
+      onClick: () => {
+        const modal = new Modal({
+          size: 'md',
+          title: 'Demo Modal',
+          closeOnBackdrop: true,
+          closeOnEscape: true
+        });
+
+        modal.render();
+        modal.setContent(`
+          <p>This is a modal dialog with backdrop blur and animations.</p>
+          <p>Press ESC or click outside to close.</p>
+          <br>
+          <div>
+            <strong>Features:</strong>
+            <ul>
+              <li>Backdrop blur effect</li>
+              <li>Smooth animations</li>
+              <li>Keyboard support (ESC)</li>
+              <li>Click outside to close</li>
+            </ul>
+          </div>
+        `);
+
+        const footer = document.createElement('div');
+        footer.style.display = 'flex';
+        footer.style.gap = '0.75rem';
+
+        footer.appendChild(createButton({
+          variant: 'secondary',
+          text: 'Cancel',
+          onClick: () => modal.close()
+        }));
+
+        footer.appendChild(createButton({
+          variant: 'success',
+          text: 'Confirm',
+          onClick: () => {
+            alert('Confirmed!');
+            modal.close();
+          }
+        }));
+
+        modal.setFooter(footer);
+        modal.open();
+      }
+    });
+    modalDemo.appendChild(modalBtn);
+
+    // 5. Tooltip Demo
+    const tooltipDemo = document.getElementById('tooltipDemo');
+    const positions = ['top', 'bottom', 'left', 'right'];
+
+    positions.forEach(position => {
+      const button = document.createElement('button');
+      button.className = 'ui-btn ui-btn-secondary ui-btn-sm';
+      button.textContent = `Tooltip ${position}`;
+
+      const tooltip = new Tooltip({
+        position,
+        text: `This is a ${position} tooltip`
+      });
+
+      const container = tooltip.attach(button);
+      tooltipDemo.appendChild(container);
+    });
+
+    // 6. Table Demo
+    const tableDemo = document.getElementById('tableDemo');
+
+    const table = new Table({
+      columns: [
+        { key: 'symbol', label: 'Symbol', sortable: true },
+        {
+          key: 'side',
+          label: 'Side',
+          sortable: false,
+          render: (value) => {
+            const variant = value === 'LONG' ? 'success' : 'danger';
+            return `<span class="ui-badge ui-badge-${variant}">${value}</span>`;
+          }
+        },
+        { key: 'size', label: 'Size', sortable: true },
+        { key: 'entryPrice', label: 'Entry', sortable: true },
+        {
+          key: 'pnl',
+          label: 'PnL',
+          sortable: true,
+          render: (value) => {
+            const color = value >= 0 ? 'var(--success)' : 'var(--danger)';
+            const sign = value >= 0 ? '+' : '';
+            return `<span style="color: ${color}; font-weight: 600;">${sign}$${value.toFixed(2)}</span>`;
+          }
+        }
+      ],
+      data: [
+        { symbol: 'BTC/USDT', side: 'LONG', size: 0.5, entryPrice: 50000, pnl: 250 },
+        { symbol: 'ETH/USDT', side: 'SHORT', size: 5, entryPrice: 3000, pnl: -150 },
+        { symbol: 'SOL/USDT', side: 'LONG', size: 10, entryPrice: 100, pnl: 50 },
+        { symbol: 'ADA/USDT', side: 'LONG', size: 1000, entryPrice: 0.5, pnl: 75 }
+      ],
+      striped: true,
+      hoverable: true,
+      onSort: (column, direction) => {
+        console.log(`Sorted by ${column} ${direction}`);
+      }
+    });
+
+    tableDemo.appendChild(table.render());
+
+    // 7. Skeleton Demo
+    const skeletonDemo = document.getElementById('skeletonDemo');
+
+    const skeletonTypes = [
+      { type: 'text', count: 3, label: 'Text Lines' },
+      { type: 'title', count: 1, label: 'Title' },
+      { type: 'circle', count: 1, label: 'Avatar' },
+      { type: 'rectangle', count: 1, label: 'Image' }
+    ];
+
+    skeletonTypes.forEach(({ type, count, label }) => {
+      const container = document.createElement('div');
+      container.className = 'demo-item';
+
+      const title = document.createElement('h4');
+      title.textContent = label;
+      container.appendChild(title);
+
+      const skeleton = createSkeleton({ type, count });
+      container.appendChild(skeleton);
+
+      skeletonDemo.appendChild(container);
+    });
+
+    // Table skeleton
+    const tableSkeleton = document.createElement('div');
+    tableSkeleton.className = 'demo-item';
+    const tableSkeletonTitle = document.createElement('h4');
+    tableSkeletonTitle.textContent = 'Table Skeleton';
+    tableSkeleton.appendChild(tableSkeletonTitle);
+    tableSkeleton.appendChild(createSkeleton({ type: 'table', count: 5 }));
+    skeletonDemo.appendChild(tableSkeleton);
+
+    // 8. Progress Demo
+    const progressDemo = document.getElementById('progressDemo');
+
+    const progressVariants = [
+      { variant: 'primary', value: 60, label: 'Primary' },
+      { variant: 'success', value: 80, label: 'Success' },
+      { variant: 'warning', value: 50, label: 'Warning' },
+      { variant: 'danger', value: 30, label: 'Danger' }
+    ];
+
+    progressVariants.forEach(({ variant, value, label }) => {
+      const container = document.createElement('div');
+      container.className = 'demo-item';
+
+      const title = document.createElement('h4');
+      title.textContent = label;
+      container.appendChild(title);
+
+      const progress = new Progress({
+        variant,
+        value,
+        showLabel: true,
+        animated: true
+      });
+
+      container.appendChild(progress.render());
+      progressDemo.appendChild(container);
+    });
+
+    // 9. Input Demo
+    const inputDemo = document.getElementById('inputDemo');
+
+    const inputs = [
+      {
+        label: 'Amount',
+        type: 'number',
+        prefix: '$',
+        suffix: 'USD',
+        placeholder: '0.00'
+      },
+      {
+        label: 'Symbol',
+        type: 'text',
+        placeholder: 'BTC/USDT'
+      },
+      {
+        label: 'Percentage',
+        type: 'number',
+        suffix: '%',
+        placeholder: '0'
+      },
+      {
+        label: 'With Error',
+        type: 'text',
+        error: 'This field is required',
+        value: 'Invalid value'
+      }
+    ];
+
+    inputs.forEach(inputOptions => {
+      const input = new Input({
+        ...inputOptions,
+        onChange: (value) => console.log('Input changed:', value)
+      });
+
+      inputDemo.appendChild(input.render());
+    });
+
+    // 10. Tabs Demo
+    const tabsDemo = document.getElementById('tabsDemo');
+
+    const tabs = new Tabs({
+      tabs: [
+        {
+          id: 'overview',
+          label: 'Overview',
+          content: `
+            <div style="padding: 1rem;">
+              <h3>Overview</h3>
+              <p>This tab shows an overview of all positions and metrics.</p>
+              <ul>
+                <li>Total Positions: 4</li>
+                <li>Total PnL: $225</li>
+                <li>Win Rate: 75%</li>
+              </ul>
+            </div>
+          `
+        },
+        {
+          id: 'positions',
+          label: 'Positions',
+          content: `
+            <div style="padding: 1rem;">
+              <h3>Open Positions</h3>
+              <p>List of all currently open positions.</p>
+            </div>
+          `
+        },
+        {
+          id: 'history',
+          label: 'History',
+          content: `
+            <div style="padding: 1rem;">
+              <h3>Trade History</h3>
+              <p>Historical data of all closed trades.</p>
+            </div>
+          `
+        },
+        {
+          id: 'settings',
+          label: 'Settings',
+          content: `
+            <div style="padding: 1rem;">
+              <h3>Settings</h3>
+              <p>Configure your trading preferences.</p>
+            </div>
+          `
+        }
+      ],
+      activeTab: 'overview',
+      onChange: (newTab, prevTab) => {
+        console.log(`Switched from ${prevTab} to ${newTab}`);
+      }
+    });
+
+    tabsDemo.appendChild(tabs.render());
+
+    console.log('UI Components Demo loaded successfully!');
+  </script>
+</body>
+</html>
