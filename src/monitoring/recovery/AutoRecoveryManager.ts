@@ -4,7 +4,6 @@
  */
 
 import { RecoveryActionResult } from '../types.js';
-import { CircuitBreaker } from '../utils/CircuitBreaker.js';
 
 export interface RecoveryConfig {
   enabled: boolean;

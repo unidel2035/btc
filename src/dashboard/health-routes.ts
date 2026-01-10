@@ -18,14 +18,14 @@ export function setupHealthRoutes(router: Router, config: HealthRoutesConfig): v
    * GET /api/health/dashboard
    * Get complete health dashboard
    */
-  router.get('/api/health/dashboard', async (_req: Request, res: Response) => {
+  router.get('/api/health/dashboard', (_req: Request, res: Response) => {
     try {
       if (!healthMonitoring) {
         res.status(503).json({ error: 'Health monitoring not configured' });
         return;
       }
 
-      const dashboard = await healthMonitoring.getHealthDashboard();
+      const dashboard = healthMonitoring.getHealthDashboard();
       res.json(dashboard);
     } catch (error) {
       console.error('Error fetching health dashboard:', error);
@@ -37,14 +37,14 @@ export function setupHealthRoutes(router: Router, config: HealthRoutesConfig): v
    * GET /api/health/exchanges
    * Get health status of all exchanges
    */
-  router.get('/api/health/exchanges', async (_req: Request, res: Response) => {
+  router.get('/api/health/exchanges', (_req: Request, res: Response) => {
     try {
       if (!healthMonitoring) {
         res.status(503).json({ error: 'Health monitoring not configured' });
         return;
       }
 
-      const dashboard = await healthMonitoring.getHealthDashboard();
+      const dashboard = healthMonitoring.getHealthDashboard();
       res.json({
         exchanges: dashboard.exchanges,
         timestamp: dashboard.lastUpdate,
@@ -59,14 +59,14 @@ export function setupHealthRoutes(router: Router, config: HealthRoutesConfig): v
    * GET /api/health/database
    * Get database health status
    */
-  router.get('/api/health/database', async (_req: Request, res: Response) => {
+  router.get('/api/health/database', (_req: Request, res: Response) => {
     try {
       if (!healthMonitoring) {
         res.status(503).json({ error: 'Health monitoring not configured' });
         return;
       }
 
-      const dashboard = await healthMonitoring.getHealthDashboard();
+      const dashboard = healthMonitoring.getHealthDashboard();
       res.json({
         database: dashboard.database,
         timestamp: dashboard.lastUpdate,
@@ -81,14 +81,14 @@ export function setupHealthRoutes(router: Router, config: HealthRoutesConfig): v
    * GET /api/health/trading
    * Get trading module health status
    */
-  router.get('/api/health/trading', async (_req: Request, res: Response) => {
+  router.get('/api/health/trading', (_req: Request, res: Response) => {
     try {
       if (!healthMonitoring) {
         res.status(503).json({ error: 'Health monitoring not configured' });
         return;
       }
 
-      const dashboard = await healthMonitoring.getHealthDashboard();
+      const dashboard = healthMonitoring.getHealthDashboard();
       res.json({
         trading: dashboard.trading,
         timestamp: dashboard.lastUpdate,
@@ -103,14 +103,14 @@ export function setupHealthRoutes(router: Router, config: HealthRoutesConfig): v
    * GET /api/health/system
    * Get system resources health status
    */
-  router.get('/api/health/system', async (_req: Request, res: Response) => {
+  router.get('/api/health/system', (_req: Request, res: Response) => {
     try {
       if (!healthMonitoring) {
         res.status(503).json({ error: 'Health monitoring not configured' });
         return;
       }
 
-      const dashboard = await healthMonitoring.getHealthDashboard();
+      const dashboard = healthMonitoring.getHealthDashboard();
       res.json({
         system: dashboard.system,
         timestamp: dashboard.lastUpdate,
@@ -267,7 +267,8 @@ export function setupHealthRoutes(router: Router, config: HealthRoutesConfig): v
         return;
       }
 
-      const reason = (req.body.reason as string) || 'Manual emergency stop';
+      const body = req.body as { reason?: string };
+      const reason: string = body?.reason ?? 'Manual emergency stop';
       const recoveryManager = healthMonitoring.getRecoveryManager();
       const result = await recoveryManager.emergencyStop(reason);
 

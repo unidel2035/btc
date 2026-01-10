@@ -47,6 +47,9 @@ export enum NotificationType {
   EXCHANGE_ERROR = 'exchange_error',
   SERVICE_FAILURE = 'service_failure',
   BOT_RESTART = 'bot_restart',
+  SYSTEM_ERROR = 'system_error',
+  SYSTEM_WARNING = 'system_warning',
+  SYSTEM_INFO = 'system_info',
 }
 
 /**

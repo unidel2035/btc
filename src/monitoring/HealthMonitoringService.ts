@@ -7,7 +7,6 @@ import {
   HealthStatus,
   HealthDashboard,
   HealthMonitoringConfig,
-  IHealthMonitor,
   ComponentType,
   AlertLevel,
 } from './types.js';
@@ -21,8 +20,8 @@ import { AutoRecoveryManager } from './recovery/AutoRecoveryManager.js';
 export class HealthMonitoringService {
   private readonly config: HealthMonitoringConfig;
   private readonly exchangeMonitors: Map<string, ExchangeHealthMonitor> = new Map();
-  private readonly databaseMonitor?: DatabaseHealthMonitor;
-  private readonly tradingMonitor?: TradingHealthMonitor;
+  private databaseMonitor?: DatabaseHealthMonitor;
+  private tradingMonitor?: TradingHealthMonitor;
   private readonly systemMonitor: SystemHealthMonitor;
   private readonly alertManager: AlertManager;
   private readonly recoveryManager: AutoRecoveryManager;
@@ -63,7 +62,7 @@ export class HealthMonitoringService {
    * Set database monitor
    */
   setDatabaseMonitor(monitor: DatabaseHealthMonitor): void {
-    (this as any).databaseMonitor = monitor;
+    this.databaseMonitor = monitor;
     console.log('✅ Database monitor set');
   }
 
@@ -71,14 +70,14 @@ export class HealthMonitoringService {
    * Set trading monitor
    */
   setTradingMonitor(monitor: TradingHealthMonitor): void {
-    (this as any).tradingMonitor = monitor;
+    this.tradingMonitor = monitor;
     console.log('✅ Trading monitor set');
   }
 
   /**
    * Start health monitoring
    */
-  async start(): Promise<void> {
+  start(): void {
     if (this.isRunning) {
       console.warn('⚠️  Health monitoring already running');
       return;
@@ -105,7 +104,7 @@ export class HealthMonitoringService {
   /**
    * Stop health monitoring
    */
-  async stop(): Promise<void> {
+  stop(): void {
     if (!this.isRunning) {
       console.warn('⚠️  Health monitoring not running');
       return;
@@ -167,10 +166,10 @@ export class HealthMonitoringService {
     };
 
     // Run immediately
-    checkExchanges();
+    void checkExchanges();
 
     // Then run on interval
-    const intervalId = setInterval(checkExchanges, interval);
+    const intervalId = setInterval(() => void checkExchanges(), interval);
     this.monitoringIntervals.set('exchanges', intervalId);
   }
 
@@ -216,10 +215,10 @@ export class HealthMonitoringService {
     };
 
     // Run immediately
-    checkDatabase();
+    void checkDatabase();
 
     // Then run on interval
-    const intervalId = setInterval(checkDatabase, interval);
+    const intervalId = setInterval(() => void checkDatabase(), interval);
     this.monitoringIntervals.set('database', intervalId);
   }
 
@@ -268,10 +267,10 @@ export class HealthMonitoringService {
     };
 
     // Run immediately
-    checkTrading();
+    void checkTrading();
 
     // Then run on interval
-    const intervalId = setInterval(checkTrading, interval);
+    const intervalId = setInterval(() => void checkTrading(), interval);
     this.monitoringIntervals.set('trading', intervalId);
   }
 
@@ -313,17 +312,17 @@ export class HealthMonitoringService {
     };
 
     // Run immediately
-    checkSystem();
+    void checkSystem();
 
     // Then run on interval
-    const intervalId = setInterval(checkSystem, interval);
+    const intervalId = setInterval(() => void checkSystem(), interval);
     this.monitoringIntervals.set('system', intervalId);
   }
 
   /**
    * Get overall health dashboard
    */
-  async getHealthDashboard(): Promise<HealthDashboard> {
+  getHealthDashboard(): HealthDashboard {
     // Collect all health statuses
     const exchanges = Array.from(this.exchangeMonitors.values())
       .map((monitor) => monitor.getHealth())
@@ -391,10 +390,10 @@ export class HealthMonitoringService {
       overallStatus,
       lastUpdate: new Date(),
       uptime,
-      exchanges: exchanges as any,
-      database: database as any,
-      trading: trading as any,
-      system: system as any,
+      exchanges,
+      database,
+      trading,
+      system,
       recentAlerts,
     };
   }

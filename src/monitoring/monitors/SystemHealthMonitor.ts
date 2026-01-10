@@ -4,7 +4,6 @@
  */
 
 import * as os from 'os';
-import * as fs from 'fs/promises';
 import {
   HealthStatus,
   HealthCheckResult,
@@ -298,7 +297,9 @@ export class SystemHealthMonitor implements IHealthMonitor {
     // Check if memory is consistently increasing
     let increasingCount = 0;
     for (let i = 1; i < this.memorySamples.length; i++) {
-      if (this.memorySamples[i - 1] > this.memorySamples[i]) {
+      const prev = this.memorySamples[i - 1];
+      const current = this.memorySamples[i];
+      if (prev !== undefined && current !== undefined && prev < current) {
         increasingCount++;
       }
     }

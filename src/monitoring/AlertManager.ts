@@ -59,9 +59,7 @@ export class AlertManager {
       this.recordNotificationSent(alert);
     }
 
-    console.log(
-      `${this.getAlertEmoji(level)} [${componentType}/${component}] ${message}`,
-    );
+    console.log(`${this.getAlertEmoji(level)} [${componentType}/${component}] ${message}`);
 
     return alert;
   }
@@ -248,8 +246,7 @@ export class AlertManager {
   getAlertsByComponent(componentType: ComponentType, component?: string): Alert[] {
     return this.alertHistory.filter(
       (alert) =>
-        alert.componentType === componentType &&
-        (!component || alert.component === component),
+        alert.componentType === componentType && (!component || alert.component === component),
     );
   }
 
