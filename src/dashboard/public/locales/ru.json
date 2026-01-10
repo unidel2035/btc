@@ -12,7 +12,25 @@
   "status": {
     "connecting": "Подключение...",
     "connected": "Подключено",
-    "disconnected": "Отключено"
+    "disconnected": "Отключено",
+    "live": "✅ Живая торговля",
+    "paper": "⏸️ Бумажная торговля",
+    "warning": "⚠️ Предупреждение",
+    "error": "❌ Ошибка",
+    "stopped": "⏹️ Остановлено"
+  },
+  "header": {
+    "balance": "Баланс",
+    "pnl": "P&L сегодня",
+    "newPosition": "Новая позиция",
+    "closeAll": "Закрыть все",
+    "pauseTrading": "Пауза торговли",
+    "notifications": "Уведомления",
+    "noNotifications": "Нет новых уведомлений",
+    "markAllRead": "Отметить все прочитанными",
+    "settings": "Настройки",
+    "profile": "Профиль",
+    "logout": "Выход"
   },
   "dashboard": {
     "title": "Панель управления",

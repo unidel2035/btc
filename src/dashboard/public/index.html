@@ -10,9 +10,100 @@
     <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
   </head>
   <body>
+    <!-- Modern Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button id="sidebarToggle" class="sidebar-toggle" title="Toggle Sidebar">☰</button>
+        <div class="logo-brand">
+          <span class="logo-icon">₿</span>
+          <span class="logo-text">BTC Trading Bot</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="system-status" id="systemStatus">
+          <span class="status-indicator" id="statusIndicator"></span>
+          <span class="status-text" id="statusText" data-i18n="status.connecting">Connecting...</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="balance-display" id="balanceDisplay">
+          <span class="balance-label" data-i18n="header.balance">Balance</span>
+          <span class="balance-value" id="headerBalance">$0.00</span>
+        </div>
+
+        <div class="pnl-display" id="pnlDisplay">
+          <span class="pnl-label" data-i18n="header.pnl">P&L Today</span>
+          <span class="pnl-value" id="headerPnL">$0.00</span>
+          <span class="pnl-percent" id="headerPnLPercent">(0.00%)</span>
+        </div>
+
+        <div class="quick-actions">
+          <button class="action-btn" id="newPositionBtn" title="New Position" data-i18n-title="header.newPosition">
+            <span class="action-icon">+</span>
+          </button>
+          <button class="action-btn" id="closeAllBtn" title="Close All" data-i18n-title="header.closeAll">
+            <span class="action-icon">✕</span>
+          </button>
+          <button class="action-btn" id="pauseTradingBtn" title="Pause Trading" data-i18n-title="header.pauseTrading">
+            <span class="action-icon">⏸</span>
+          </button>
+        </div>
+
+        <div class="notification-bell">
+          <button class="notification-btn" id="notificationBtn" title="Notifications">
+            <span class="bell-icon">🔔</span>
+            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+          </button>
+          <div class="notification-dropdown" id="notificationDropdown" style="display: none;">
+            <div class="notification-header">
+              <h4 data-i18n="header.notifications">Notifications</h4>
+              <button class="mark-read-btn" id="markAllReadBtn" data-i18n="header.markAllRead">Mark all read</button>
+            </div>
+            <div class="notification-list" id="notificationList">
+              <p class="no-notifications" data-i18n="header.noNotifications">No new notifications</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-switcher">
+          <button class="theme-btn" id="themeToggle" title="Toggle Theme">
+            <span class="theme-icon" id="themeIcon">🌙</span>
+          </button>
+        </div>
+
+        <div class="user-menu">
+          <button class="user-btn" id="userMenuBtn">
+            <span class="user-avatar">👤</span>
+          </button>
+          <div class="user-dropdown" id="userDropdown" style="display: none;">
+            <div class="user-info">
+              <div class="user-name">Trading Bot</div>
+              <div class="user-email">bot@btc-trading.com</div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="#settings" class="dropdown-item" data-page="settings">
+              <span class="item-icon">⚙️</span>
+              <span data-i18n="header.settings">Settings</span>
+            </a>
+            <a href="#" class="dropdown-item" id="profileLink">
+              <span class="item-icon">👤</span>
+              <span data-i18n="header.profile">Profile</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item" id="logoutLink">
+              <span class="item-icon">🚪</span>
+              <span data-i18n="header.logout">Logout</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
     <div class="app">
       <!-- Sidebar Navigation -->
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <div class="logo">
           <h2>📊 Trading Bot</h2>
           <div class="language-switcher">
@@ -857,6 +948,7 @@
     <script src="/strategy-settings.js"></script>
     <script src="/backtest.js"></script>
     <script src="/screening.js"></script>
+    <script src="/header.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>
