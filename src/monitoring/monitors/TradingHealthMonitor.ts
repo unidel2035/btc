@@ -3,12 +3,7 @@
  * Monitors trading module health and performance
  */
 
-import {
-  HealthStatus,
-  HealthCheckResult,
-  TradingHealthStatus,
-  IHealthMonitor,
-} from '../types.js';
+import { HealthStatus, HealthCheckResult, TradingHealthStatus, IHealthMonitor } from '../types.js';
 import { CircuitBreaker } from '../utils/CircuitBreaker.js';
 
 export interface Position {
@@ -130,9 +125,7 @@ export class TradingHealthMonitor implements IHealthMonitor {
       }
 
       // Get daily PnL
-      const dailyPnL = await this.circuitBreaker.execute(() =>
-        this.dataProvider.getDailyPnL(),
-      );
+      const dailyPnL = await this.circuitBreaker.execute(() => this.dataProvider.getDailyPnL());
 
       // Check signal generation
       const lastSignalTime = await this.circuitBreaker.execute(() =>

@@ -72,11 +72,7 @@ export class AutoRecoveryManager {
           break;
 
         default:
-          result = this.logRecoveryAction(
-            'unknown',
-            false,
-            `Unknown component: ${component}`,
-          );
+          result = this.logRecoveryAction('unknown', false, `Unknown component: ${component}`);
       }
 
       this.addToHistory(result);
@@ -84,11 +80,7 @@ export class AutoRecoveryManager {
     } catch (recoveryError) {
       const errorMessage =
         recoveryError instanceof Error ? recoveryError.message : 'Unknown recovery error';
-      return this.logRecoveryAction(
-        'recovery-failed',
-        false,
-        `Recovery failed: ${errorMessage}`,
-      );
+      return this.logRecoveryAction('recovery-failed', false, `Recovery failed: ${errorMessage}`);
     }
   }
 
@@ -135,11 +127,7 @@ export class AutoRecoveryManager {
     // Implementation would disable WebSocket and enable REST polling
     // This is a simplified version
 
-    return this.logRecoveryAction(
-      'rest-fallback',
-      true,
-      'Switched to REST API fallback mode',
-    );
+    return this.logRecoveryAction('rest-fallback', true, 'Switched to REST API fallback mode');
   }
 
   /**
@@ -151,11 +139,7 @@ export class AutoRecoveryManager {
     // Implementation would switch exchange endpoint
     // This is a simplified version
 
-    return this.logRecoveryAction(
-      'backup-endpoint',
-      true,
-      'Switched to backup API endpoint',
-    );
+    return this.logRecoveryAction('backup-endpoint', true, 'Switched to backup API endpoint');
   }
 
   /**
@@ -198,11 +182,7 @@ export class AutoRecoveryManager {
     // Implementation would retry the failed order
     // This is a simplified version
 
-    return this.logRecoveryAction(
-      'order-retry',
-      true,
-      'Order retry initiated',
-    );
+    return this.logRecoveryAction('order-retry', true, 'Order retry initiated');
   }
 
   /**
@@ -220,18 +200,10 @@ export class AutoRecoveryManager {
         global.gc();
       }
 
-      return this.logRecoveryAction(
-        'memory-clear',
-        true,
-        'Memory cleared and GC triggered',
-      );
+      return this.logRecoveryAction('memory-clear', true, 'Memory cleared and GC triggered');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      return this.logRecoveryAction(
-        'memory-clear',
-        false,
-        `Memory clear failed: ${errorMessage}`,
-      );
+      return this.logRecoveryAction('memory-clear', false, `Memory clear failed: ${errorMessage}`);
     }
   }
 
@@ -240,11 +212,7 @@ export class AutoRecoveryManager {
    */
   async emergencyStop(reason: string): Promise<RecoveryActionResult> {
     if (!this.config.emergencyStop.enabled) {
-      return this.logRecoveryAction(
-        'emergency-stop',
-        false,
-        'Emergency stop disabled in config',
-      );
+      return this.logRecoveryAction('emergency-stop', false, 'Emergency stop disabled in config');
     }
 
     console.log(`🚨 EMERGENCY STOP TRIGGERED: ${reason}`);
@@ -265,10 +233,7 @@ export class AutoRecoveryManager {
       }
 
       // 3. Close positions (if configured)
-      if (
-        this.config.emergencyStop.closePositions &&
-        this.context.trading?.closeAllPositions
-      ) {
+      if (this.config.emergencyStop.closePositions && this.context.trading?.closeAllPositions) {
         await this.context.trading.closeAllPositions();
         actions.push('All positions closed');
       }

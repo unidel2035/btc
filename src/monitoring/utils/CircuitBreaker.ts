@@ -14,10 +14,7 @@ export class CircuitBreaker {
   private readonly config: CircuitBreakerConfig;
   private readonly name: string;
 
-  constructor(
-    name: string,
-    config: Partial<CircuitBreakerConfig> = {},
-  ) {
+  constructor(name: string, config: Partial<CircuitBreakerConfig> = {}) {
     this.name = name;
     this.config = {
       failureThreshold: config.failureThreshold ?? 5,

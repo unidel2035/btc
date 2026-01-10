@@ -3,12 +3,7 @@
  * Monitors Integram database health and performance
  */
 
-import {
-  HealthStatus,
-  HealthCheckResult,
-  DatabaseHealthStatus,
-  IHealthMonitor,
-} from '../types.js';
+import { HealthStatus, HealthCheckResult, DatabaseHealthStatus, IHealthMonitor } from '../types.js';
 import { CircuitBreaker } from '../utils/CircuitBreaker.js';
 import { IntegramClient } from '../../database/integram/IntegramClient.js';
 
