@@ -71,7 +71,9 @@ export class ScreeningAnalytics {
 
           // Get current price (as proxy for price at evaluation date)
           // In a real implementation, you'd use historical price API
-          const initialPrice = rec.marketCap / (marketData?.market_data?.circulating_supply || 1);
+          const marketDataAny = marketData as any;
+          const initialPrice =
+            rec.marketCap / (marketDataAny?.market_data?.circulating_supply || 1);
           const currentPrice = marketData?.market_data?.current_price?.usd || initialPrice;
 
           const priceChange = ((currentPrice - initialPrice) / initialPrice) * 100;
