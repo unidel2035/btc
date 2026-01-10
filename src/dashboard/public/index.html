@@ -47,6 +47,10 @@
             <span class="icon">📈</span>
             <span data-i18n="nav.chart">Strategy Chart</span>
           </a>
+          <a href="#screening" class="nav-item" data-page="screening">
+            <span class="icon">🔍</span>
+            <span data-i18n="nav.screening">Screening</span>
+          </a>
           <a href="#backtest" class="nav-item" data-page="backtest">
             <span class="icon">🧪</span>
             <span data-i18n="nav.backtest">Backtesting</span>
@@ -708,6 +712,134 @@
             </div>
           </div>
         </div>
+
+        <!-- Screening Page -->
+        <div class="page" id="screening-page">
+          <div class="page-header">
+            <h1 data-i18n="screening.title">Cryptocurrency Screening</h1>
+            <p data-i18n="screening.subtitle">AI-powered market analysis and project selection</p>
+          </div>
+
+          <!-- Control Panel -->
+          <div class="card">
+            <h3 data-i18n="screening.controlPanel">Screening Control Panel</h3>
+            <div class="screening-controls">
+              <button id="runScreening" class="btn btn-primary">
+                <span data-i18n="screening.runScreening">🚀 Run Screening</span>
+              </button>
+              <button id="exportScreeningJSON" class="btn btn-secondary" disabled>
+                <span data-i18n="screening.exportJSON">📥 Export JSON</span>
+              </button>
+              <button id="exportScreeningMarkdown" class="btn btn-secondary" disabled>
+                <span data-i18n="screening.exportMarkdown">📝 Export Markdown</span>
+              </button>
+              <button id="copyTradingPairs" class="btn btn-secondary" disabled>
+                <span data-i18n="screening.copyPairs">📋 Copy Trading Pairs</span>
+              </button>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div id="screeningProgress" class="screening-progress" style="display: none;">
+              <div class="progress-bar">
+                <div class="progress-fill" id="screeningProgressBar"></div>
+              </div>
+              <div class="progress-stages">
+                <div class="stage" id="stage0"><span>Stage 0:</span> Macro Filter</div>
+                <div class="stage" id="stage1"><span>Stage 1:</span> Quantitative</div>
+                <div class="stage" id="stage2"><span>Stage 2:</span> Scoring</div>
+                <div class="stage" id="stage3"><span>Stage 3:</span> Portfolio</div>
+              </div>
+              <div class="progress-text" id="screeningProgressText">Initializing...</div>
+            </div>
+
+            <!-- Status Info -->
+            <div class="screening-status">
+              <div class="stat-row">
+                <span class="stat-label" data-i18n="screening.lastRun">Last Run:</span>
+                <span class="stat-value" id="lastScreeningTime">Never</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label" data-i18n="screening.duration">Duration:</span>
+                <span class="stat-value" id="screeningDuration">-</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label" data-i18n="screening.projectsFound">Projects Found:</span>
+                <span class="stat-value" id="projectsFound">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Section -->
+          <div id="screeningResults" style="display: none;">
+            <!-- Project Cards -->
+            <div class="card">
+              <h3 data-i18n="screening.recommendations">📊 Recommended Projects</h3>
+              <div id="projectCards" class="projects-grid"></div>
+            </div>
+
+            <!-- Detailed Statistics -->
+            <div class="card">
+              <h3 data-i18n="screening.detailedStats">📈 Detailed Statistics</h3>
+              <div class="screening-stats">
+                <div class="stat-card">
+                  <div class="stat-label">Sectors Analyzed</div>
+                  <div class="stat-value" id="sectorsAnalyzed">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Projects Screened</div>
+                  <div class="stat-value" id="projectsScreened">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Selected Sectors</div>
+                  <div class="stat-value" id="selectedSectorsCount">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Report Date</div>
+                  <div class="stat-value" id="reportDate">-</div>
+                </div>
+              </div>
+
+              <!-- Candidates Table -->
+              <h4 style="margin-top: 2rem;">All Candidates</h4>
+              <div class="table-container">
+                <table id="candidatesTable" class="trades-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Ticker</th>
+                      <th>Name</th>
+                      <th>Sector</th>
+                      <th>Score</th>
+                      <th>Risk</th>
+                      <th>Market Cap</th>
+                      <th>Volume 24h</th>
+                    </tr>
+                  </thead>
+                  <tbody id="candidatesTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Macro Analysis -->
+            <div class="card">
+              <h3 data-i18n="screening.macroAnalysis">🌐 Macro Analysis</h3>
+
+              <!-- Selected Sectors -->
+              <h4>Selected Sectors</h4>
+              <div id="selectedSectors" class="sectors-grid"></div>
+
+              <!-- Macro Risks -->
+              <h4 style="margin-top: 2rem;">Macro Risks</h4>
+              <div id="macroRisks" class="risks-list"></div>
+            </div>
+
+            <!-- Next Actions -->
+            <div class="card">
+              <h3 data-i18n="screening.nextActions">✅ Next Actions</h3>
+              <div id="nextActions" class="actions-list"></div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -724,6 +856,7 @@
     <script src="/preset-manager.js"></script>
     <script src="/strategy-settings.js"></script>
     <script src="/backtest.js"></script>
+    <script src="/screening.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>
