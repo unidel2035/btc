@@ -177,7 +177,11 @@ export function setupRoutes(router: Router): void {
       // Фильтрация по sentiment
       if (sentiment) {
         const upperSentiment = sentiment.toUpperCase();
-        if (upperSentiment === 'POSITIVE' || upperSentiment === 'NEGATIVE' || upperSentiment === 'NEUTRAL') {
+        if (
+          upperSentiment === 'POSITIVE' ||
+          upperSentiment === 'NEGATIVE' ||
+          upperSentiment === 'NEUTRAL'
+        ) {
           news = news.filter((n) => n.sentiment === upperSentiment);
         }
       }
