@@ -9,15 +9,32 @@ import type { Server } from 'http';
 import type { WebSocketMessage } from './types.js';
 import { storage } from './storage.js';
 
+interface SignalFilter {
+  strategy?: string[];
+  action?: string[];
+  symbol?: string[];
+  minConfidence?: number;
+}
+
+interface WebSocketClient {
+  ws: WebSocket;
+  filters?: SignalFilter;
+  isSignalsOnly?: boolean;
+}
+
 export class DashboardWebSocket {
   private wss: WebSocketServer;
+  private signalsWss: WebSocketServer;
   private clients: Set<WebSocket> = new Set();
+  private signalsClients: Map<WebSocket, SignalFilter> = new Map();
   private updateInterval: NodeJS.Timeout | null = null;
   private priceSimulationInterval: NodeJS.Timeout | null = null;
 
   constructor(server: Server) {
     this.wss = new WebSocketServer({ server, path: '/ws' });
+    this.signalsWss = new WebSocketServer({ server, path: '/ws/signals' });
     this.setupWebSocket();
+    this.setupSignalsWebSocket();
     this.startUpdateLoop();
     this.startPriceSimulation();
   }
@@ -49,6 +66,78 @@ export class DashboardWebSocket {
         this.clients.delete(ws);
       });
     });
+  }
+
+  private setupSignalsWebSocket(): void {
+    this.signalsWss.on('connection', (ws: WebSocket) => {
+      console.log('🔌 Signals WebSocket client connected');
+
+      // Инициализируем с пустыми фильтрами
+      this.signalsClients.set(ws, {});
+
+      // Отправляем последние сигналы
+      this.sendToClient(ws, {
+        type: 'signal',
+        data: { signals: storage.getSignals(20) },
+        timestamp: new Date().toISOString(),
+      });
+
+      ws.on('message', (data: Buffer) => {
+        try {
+          const message = JSON.parse(data.toString()) as {
+            type?: string;
+            filters?: SignalFilter;
+          };
+          this.handleSignalsMessage(ws, message);
+        } catch (error) {
+          console.error('Failed to parse WebSocket message:', error);
+        }
+      });
+
+      ws.on('close', () => {
+        console.log('🔌 Signals WebSocket client disconnected');
+        this.signalsClients.delete(ws);
+      });
+
+      ws.on('error', (error) => {
+        console.error('Signals WebSocket error:', error);
+        this.signalsClients.delete(ws);
+      });
+    });
+  }
+
+  private handleSignalsMessage(
+    ws: WebSocket,
+    message: { type?: string; filters?: SignalFilter },
+  ): void {
+    console.log('📨 Received signals message:', message);
+
+    switch (message.type) {
+      case 'setFilters':
+        if (message.filters) {
+          this.signalsClients.set(ws, message.filters);
+          console.log('🔧 Updated filters for client:', message.filters);
+
+          // Отправляем подтверждение
+          this.sendToClient(ws, {
+            type: 'filtersUpdated',
+            data: { filters: message.filters },
+            timestamp: new Date().toISOString(),
+          });
+        }
+        break;
+
+      case 'ping':
+        this.sendToClient(ws, {
+          type: 'pong',
+          data: {},
+          timestamp: new Date().toISOString(),
+        });
+        break;
+
+      default:
+        console.log('Unknown message type:', message.type);
+    }
   }
 
   private sendInitialData(ws: WebSocket): void {
@@ -169,11 +258,79 @@ export class DashboardWebSocket {
 
   // Публичные методы для отправки уведомлений
   public broadcastSignal(signal: unknown): void {
-    this.broadcast({
+    const message = {
       type: 'signal',
       data: signal,
       timestamp: new Date().toISOString(),
+    };
+
+    // Broadcast to main WebSocket clients
+    this.broadcast(message);
+
+    // Broadcast to signals WebSocket clients with filtering
+    this.broadcastToSignalsClients(message);
+  }
+
+  private broadcastToSignalsClients(message: WebSocketMessage): void {
+    const signalData = (message.data as { type?: string; data?: unknown }).data || message.data;
+
+    this.signalsClients.forEach((filter, client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        // Применяем фильтры
+        if (this.matchesFilter(signalData, filter)) {
+          client.send(JSON.stringify(message));
+        }
+      }
     });
+  }
+
+  private matchesFilter(signal: unknown, filter: SignalFilter): boolean {
+    const signalData = signal as {
+      type?: string;
+      action?: string;
+      symbol?: string;
+      confidence?: number;
+      strength?: number;
+    };
+
+    // Если фильтры пусты, пропускаем все
+    const hasFilters =
+      (filter.strategy && filter.strategy.length > 0) ||
+      (filter.action && filter.action.length > 0) ||
+      (filter.symbol && filter.symbol.length > 0) ||
+      filter.minConfidence !== undefined;
+
+    if (!hasFilters) {
+      return true;
+    }
+
+    // Проверяем каждый фильтр
+    if (filter.strategy && filter.strategy.length > 0) {
+      if (!signalData.type || !filter.strategy.includes(signalData.type)) {
+        return false;
+      }
+    }
+
+    if (filter.action && filter.action.length > 0) {
+      if (!signalData.action || !filter.action.includes(signalData.action)) {
+        return false;
+      }
+    }
+
+    if (filter.symbol && filter.symbol.length > 0) {
+      if (!signalData.symbol || !filter.symbol.includes(signalData.symbol)) {
+        return false;
+      }
+    }
+
+    if (filter.minConfidence !== undefined) {
+      const confidence = signalData.confidence ?? signalData.strength ?? 0;
+      if (confidence < filter.minConfidence) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   public broadcastPosition(position: unknown): void {
@@ -208,5 +365,6 @@ export class DashboardWebSocket {
       clearInterval(this.priceSimulationInterval);
     }
     this.wss.close();
+    this.signalsWss.close();
   }
 }

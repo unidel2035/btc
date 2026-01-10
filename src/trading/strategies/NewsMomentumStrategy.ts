@@ -132,6 +132,10 @@ export class NewsMomentumStrategy extends BaseStrategy {
     };
 
     this.updateStats(newsSignals, decision);
+
+    // Emit signal event for real-time broadcasting
+    this.emitSignal(decision, data);
+
     return decision;
   }
 

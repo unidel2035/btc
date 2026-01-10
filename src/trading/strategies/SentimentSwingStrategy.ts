@@ -92,6 +92,12 @@ export class SentimentSwingStrategy extends BaseStrategy {
     const decision = this.generateDecision(data, aggregate, trend, significantSignals);
 
     this.updateStats(signals, decision);
+
+    // Emit signal event for real-time broadcasting
+    if (decision) {
+      this.emitSignal(decision, data);
+    }
+
     return decision;
   }
 
