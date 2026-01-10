@@ -620,9 +620,6 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
     },
   );
 
-  // POST /api/backtest/run - Run backtest
-  router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
-    try {
   // GET /api/chart/history - Chart historical data
   router.get('/api/chart/history', async (req: Request, res: Response): Promise<void> => {
     try {
@@ -783,28 +780,34 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
 
       // Run screening asynchronously
       screening.runScreening().then((report) => {
-        storage.screeningTasks.set(taskId, {
-          id: taskId,
-          status: 'completed',
-          stage: 3,
-          progress: 'Screening completed',
-          startedAt: storage.screeningTasks.get(taskId)?.startedAt || new Date().toISOString(),
-          completedAt: new Date().toISOString(),
-          report,
-        });
+        if (storage.screeningTasks) {
+          const existingTask = storage.screeningTasks.get(taskId) as { startedAt?: string } | undefined;
+          storage.screeningTasks.set(taskId, {
+            id: taskId,
+            status: 'completed',
+            stage: 3,
+            progress: 'Screening completed',
+            startedAt: existingTask?.startedAt || new Date().toISOString(),
+            completedAt: new Date().toISOString(),
+            report,
+          });
+        }
 
         // Store latest report
         storage.latestScreeningReport = report;
       }).catch((error) => {
-        storage.screeningTasks.set(taskId, {
-          id: taskId,
-          status: 'failed',
-          stage: -1,
-          progress: 'Screening failed',
-          startedAt: storage.screeningTasks.get(taskId)?.startedAt || new Date().toISOString(),
-          completedAt: new Date().toISOString(),
-          error: error instanceof Error ? error.message : String(error),
-        });
+        if (storage.screeningTasks) {
+          const existingTask = storage.screeningTasks.get(taskId) as { startedAt?: string } | undefined;
+          storage.screeningTasks.set(taskId, {
+            id: taskId,
+            status: 'failed',
+            stage: -1,
+            progress: 'Screening failed',
+            startedAt: existingTask?.startedAt || new Date().toISOString(),
+            completedAt: new Date().toISOString(),
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
       });
 
       res.json({ status: 'running', taskId });
