@@ -4,12 +4,13 @@
 
 import { Telegraf, session } from 'telegraf';
 import type { TelegramBotContext, TelegramBotConfig, TelegramBotService } from './types.js';
-import { createWhitelistMiddleware, createLoggingMiddleware } from './middleware/auth.js';
+import { createWhitelistMiddleware, createLoggingMiddleware, createUserMiddleware } from './middleware/auth.js';
 import { createRateLimitMiddleware, cleanupRateLimitStore } from './middleware/rateLimit.js';
 import * as basicCommands from './handlers/basicCommands.js';
 import * as infoCommands from './handlers/infoCommands.js';
 import * as tradingCommands from './handlers/tradingCommands.js';
 import * as settingsCommands from './handlers/settingsCommands.js';
+import * as profileCommands from './handlers/profileCommands.js';
 import type { PaperTradingEngine } from '../trading/paper/PaperTradingEngine.js';
 import type { ScreeningModule } from '../analyzers/screening/ScreeningModule.js';
 import type { NotificationManager } from '../notifications/NotificationManager.js';
@@ -69,6 +70,9 @@ export class TelegramBot {
     // Authentication & authorization
     this.bot.use(createWhitelistMiddleware(this.service.config));
 
+    // User management - load or create user from Integram
+    this.bot.use(createUserMiddleware(this.service.config));
+
     // Rate limiting
     this.bot.use(createRateLimitMiddleware(this.service.config));
 
@@ -114,8 +118,17 @@ export class TelegramBot {
     // Settings commands
     this.bot.command('settings', (ctx) => settingsCommands.handleSettings(ctx, this.service));
 
+    // Profile commands
+    this.bot.command('profile', (ctx) => profileCommands.handleProfile(ctx, this.service));
+
     // Unknown command
     this.bot.on('text', async (ctx) => {
+      // Check if awaiting profile input
+      if (ctx.session?.awaitingProfileInput) {
+        const handled = await profileCommands.handleProfileInput(ctx, this.service);
+        if (handled) return;
+      }
+
       // Check if awaiting PIN
       if (ctx.session?.awaitingPin) {
         await tradingCommands.handlePinConfirmation(ctx, this.service);
@@ -170,6 +183,12 @@ export class TelegramBot {
     this.bot.action('settings_trade_alerts', settingsCommands.handleTradeAlertsSettings);
     this.bot.action('settings_system_alerts', settingsCommands.handleSystemAlertsSettings);
     this.bot.action('settings_reports', settingsCommands.handleReportsSettings);
+
+    // Profile menu
+    this.bot.action('menu_profile', (ctx) => profileCommands.handleProfile(ctx, this.service));
+    this.bot.action('profile_edit_name', profileCommands.handleProfileEditName);
+    this.bot.action('profile_edit_email', profileCommands.handleProfileEditEmail);
+    this.bot.action('profile_edit_phone', profileCommands.handleProfileEditPhone);
 
     // Toggle settings
     this.bot.action(/^toggle_(.+)$/, (ctx) => {
