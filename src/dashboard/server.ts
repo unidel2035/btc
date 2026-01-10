@@ -12,6 +12,7 @@ import { IntegramClient } from '../database/integram/IntegramClient.js';
 import { IntegramStorage } from './storage/IntegramStorage.js';
 import { storage as memoryStorage } from './storage.js';
 import { RealDataProvider } from './providers/RealDataProvider.js';
+import { NewsProvider } from './providers/NewsProvider.js';
 import { SignalsProvider } from './providers/SignalsProvider.js';
 import { ExchangeManager } from '../exchanges/ExchangeManager.js';
 import { MarketType } from '../exchanges/types.js';
@@ -31,6 +32,7 @@ class DashboardServer {
   private ws: DashboardWebSocket | null = null;
   private demoGenerator: DemoDataGenerator | null = null;
   private realDataProvider: RealDataProvider | null = null;
+  private newsProvider: NewsProvider | null = null;
   private signalsProvider: SignalsProvider | null = null;
   private exchangeManager: ExchangeManager | null = null;
   private port: number;
@@ -145,6 +147,21 @@ class DashboardServer {
         this.demoGenerator.start();
       }
     }
+
+    // Запускаем провайдер новостей независимо от режима (demo/real)
+    await this.setupNewsProvider();
+  }
+
+  private async setupNewsProvider(): Promise<void> {
+    try {
+      console.log('📰 Initializing news provider...');
+      this.newsProvider = new NewsProvider(this.ws || undefined);
+      await this.newsProvider.start();
+      console.log('✅ News provider initialized');
+    } catch (error) {
+      console.error('❌ Failed to initialize news provider:', error);
+      console.log('⚠️  Continuing without real news - demo news will still work');
+    }
   }
 
   private async setupSignalsProvider(): Promise<void> {
@@ -252,6 +269,10 @@ class DashboardServer {
 
     if (this.realDataProvider) {
       this.realDataProvider.stop();
+    }
+
+    if (this.newsProvider) {
+      this.newsProvider.stop();
     }
 
     if (this.signalsProvider) {
