@@ -5,7 +5,14 @@
 import type { TelegramBotContext, TelegramBotService } from '../types.js';
 import { Markup } from 'telegraf';
 import * as templates from '../templates/index.js';
-import { UserService, validateEmail, validatePhone, formatPhone, sanitizeInput, validateFullName } from '../../services/integram/index.js';
+import {
+  UserService,
+  validateEmail,
+  validatePhone,
+  formatPhone,
+  sanitizeInput,
+  validateFullName,
+} from '../../services/integram/index.js';
 import { IntegramClient } from '../../database/integram/IntegramClient.js';
 
 // Global UserService instance
@@ -97,10 +104,9 @@ export async function handleProfileEditName(ctx: TelegramBotContext): Promise<vo
     };
   }
 
-  await ctx.editMessageText(
-    '📝 *Редактирование имени*\n\nВведите ваше полное имя:',
-    { parse_mode: 'Markdown' }
-  );
+  await ctx.editMessageText('📝 *Редактирование имени*\n\nВведите ваше полное имя:', {
+    parse_mode: 'Markdown',
+  });
 
   await ctx.answerCbQuery();
 }
@@ -120,7 +126,7 @@ export async function handleProfileEditEmail(ctx: TelegramBotContext): Promise<v
 
   await ctx.editMessageText(
     '📧 *Изменение email*\n\nВведите ваш email адрес:\n\nПример: user@example.com',
-    { parse_mode: 'Markdown' }
+    { parse_mode: 'Markdown' },
   );
 
   await ctx.answerCbQuery();
@@ -141,7 +147,7 @@ export async function handleProfileEditPhone(ctx: TelegramBotContext): Promise<v
 
   await ctx.editMessageText(
     '📞 *Изменение телефона*\n\nВведите номер телефона в международном формате:\n\nПример: +79001234567',
-    { parse_mode: 'Markdown' }
+    { parse_mode: 'Markdown' },
   );
 
   await ctx.answerCbQuery();

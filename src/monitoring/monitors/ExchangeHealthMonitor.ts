@@ -75,7 +75,7 @@ export class ExchangeHealthMonitor implements IHealthMonitor {
 
       // Check rate limits
       const rateLimit = await this.checkRateLimits();
-      if (rateLimit.utilization > (100 - this.thresholds.minRateLimitRemaining)) {
+      if (rateLimit.utilization > 100 - this.thresholds.minRateLimitRemaining) {
         errors.push(`Rate limit utilization: ${rateLimit.utilization.toFixed(1)}%`);
         if (status === HealthStatus.HEALTHY) {
           status = HealthStatus.WARNING;

@@ -4,7 +4,11 @@
 
 import { Telegraf, session } from 'telegraf';
 import type { TelegramBotContext, TelegramBotConfig, TelegramBotService } from './types.js';
-import { createWhitelistMiddleware, createLoggingMiddleware, createUserMiddleware } from './middleware/auth.js';
+import {
+  createWhitelistMiddleware,
+  createLoggingMiddleware,
+  createUserMiddleware,
+} from './middleware/auth.js';
 import { createRateLimitMiddleware, cleanupRateLimitStore } from './middleware/rateLimit.js';
 import * as basicCommands from './handlers/basicCommands.js';
 import * as infoCommands from './handlers/infoCommands.js';

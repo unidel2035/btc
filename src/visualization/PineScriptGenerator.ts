@@ -11,8 +11,8 @@ import type {
   SMCStructure,
   EntryZone,
   TakeProfitLevel,
-  SMCStructureType,
 } from './types.js';
+import { SMCStructureType, TradingDirection } from './types.js';
 
 /**
  * Pine Script Generator class
@@ -97,8 +97,12 @@ indicator("${name}", overlay=${overlay})`;
 
     // Entry zones
     setup.entryZones.forEach((zone, index) => {
-      inputs.push(`entry_high_${index + 1} = input(${zone.priceHigh}, "Entry Zone ${index + 1} High")`);
-      inputs.push(`entry_low_${index + 1} = input(${zone.priceLow}, "Entry Zone ${index + 1} Low")`);
+      inputs.push(
+        `entry_high_${index + 1} = input(${zone.priceHigh}, "Entry Zone ${index + 1} High")`,
+      );
+      inputs.push(
+        `entry_low_${index + 1} = input(${zone.priceLow}, "Entry Zone ${index + 1} Low")`,
+      );
     });
 
     // Stop loss
@@ -112,8 +116,12 @@ indicator("${name}", overlay=${overlay})`;
     // SMC structures
     setup.smcStructures.forEach((structure, index) => {
       const label = this.getSMCLabel(structure.type);
-      inputs.push(`${structure.type}_high_${index} = input(${structure.priceHigh}, "${label} ${index + 1} High")`);
-      inputs.push(`${structure.type}_low_${index} = input(${structure.priceLow}, "${label} ${index + 1} Low")`);
+      inputs.push(
+        `${structure.type}_high_${index} = input(${structure.priceHigh}, "${label} ${index + 1} High")`,
+      );
+      inputs.push(
+        `${structure.type}_low_${index} = input(${structure.priceLow}, "${label} ${index + 1} Low")`,
+      );
     });
 
     return inputs.join('\n');
@@ -154,7 +162,7 @@ if not na(entry_zone_${index + 1})
   /**
    * Generate stop loss line
    */
-  private generateStopLoss(stopLoss: number): string {
+  private generateStopLoss(_stopLoss: number): string {
     return `// === STOP LOSS ===
 hline(stop_loss, "Stop Loss", color=color.new(color.red, 0), linestyle=hline.style_dashed, linewidth=2)`;
   }
@@ -166,7 +174,9 @@ hline(stop_loss, "Stop Loss", color=color.new(color.red, 0), linestyle=hline.sty
     const lines: string[] = ['// === TAKE PROFIT LEVELS ==='];
 
     takeProfits.forEach((tp, index) => {
-      lines.push(`hline(take_profit_${index + 1}, "TP ${index + 1} (${tp.positionPercent}%)", color=color.new(color.green, 30), linestyle=hline.style_dotted, linewidth=1)`);
+      lines.push(
+        `hline(take_profit_${index + 1}, "TP ${index + 1} (${tp.positionPercent}%)", color=color.new(color.green, 30), linestyle=hline.style_dotted, linewidth=1)`,
+      );
     });
 
     return lines.join('\n');
@@ -224,7 +234,7 @@ var table riskTable = table.new(position.top_right, 2, 5, bgcolor=color.new(colo
 
 if barstate.islast
     table.cell(riskTable, 0, 0, "Direction", text_color=color.white, bgcolor=color.new(color.gray, 50))
-    table.cell(riskTable, 1, 0, "${setup.direction.toUpperCase()}", text_color=${setup.direction === 'long' ? 'color.lime' : 'color.red'}, bgcolor=color.new(color.gray, 70))
+    table.cell(riskTable, 1, 0, "${setup.direction.toUpperCase()}", text_color=${setup.direction === TradingDirection.LONG ? 'color.lime' : 'color.red'}, bgcolor=color.new(color.gray, 70))
 
     table.cell(riskTable, 0, 1, "Risk/Reward", text_color=color.white, bgcolor=color.new(color.gray, 50))
     table.cell(riskTable, 1, 1, "1:${setup.riskRewardRatio.toFixed(1)}", text_color=color.lime, bgcolor=color.new(color.gray, 70))
@@ -243,14 +253,15 @@ if barstate.islast
    * Generate entry/exit markers
    */
   private generateMarkers(setup: TradingSetup): string {
-    const entryColor = setup.direction === 'long' ? 'color.green' : 'color.red';
-    const entryShape = setup.direction === 'long' ? 'shape.labelup' : 'shape.labeldown';
+    const entryColor = setup.direction === TradingDirection.LONG ? 'color.green' : 'color.red';
+    const entryShape =
+      setup.direction === TradingDirection.LONG ? 'shape.labelup' : 'shape.labeldown';
 
     return `// === MARKERS ===
 // Entry markers
 ${setup.entryZones
   .map(
-    (zone, index) => `
+    (_zone, index) => `
 // Entry zone ${index + 1} marker
 entry_hit_${index + 1} = ta.crossover(close, entry_low_${index + 1}) or ta.crossunder(close, entry_high_${index + 1})
 plotshape(entry_hit_${index + 1}, style=${entryShape}, location=location.belowbar, color=${entryColor}, text="E${index + 1}", textcolor=color.white, size=size.small)`,
@@ -288,7 +299,7 @@ plotshape(tp_hit_${index + 1}, style=shape.diamond, location=location.abovebar, 
   /**
    * Generate TradingView URL with chart (basic implementation)
    */
-  private generateTradingViewUrl(symbol: string, code: string): string {
+  private generateTradingViewUrl(symbol: string, _code: string): string {
     // Note: TradingView doesn't support direct URL encoding of Pine Script
     // This is a placeholder - in production, you'd need to save the script
     // to TradingView and get a sharing link
@@ -353,10 +364,12 @@ plotshape(tp_hit_${index + 1}, style=shape.diamond, location=location.abovebar, 
     });
 
     // Validate logic: for LONG, entries should be below current price, TP above, SL below
-    if (setup.direction === 'long') {
+    if (setup.direction === TradingDirection.LONG) {
       setup.takeProfits.forEach((tp, index) => {
         if (tp.price <= setup.currentPrice) {
-          errors.push(`Take profit ${index + 1}: for LONG position, TP should be above current price`);
+          errors.push(
+            `Take profit ${index + 1}: for LONG position, TP should be above current price`,
+          );
         }
       });
       if (setup.stopLoss >= setup.currentPrice) {
@@ -366,7 +379,9 @@ plotshape(tp_hit_${index + 1}, style=shape.diamond, location=location.abovebar, 
       // SHORT
       setup.takeProfits.forEach((tp, index) => {
         if (tp.price >= setup.currentPrice) {
-          errors.push(`Take profit ${index + 1}: for SHORT position, TP should be below current price`);
+          errors.push(
+            `Take profit ${index + 1}: for SHORT position, TP should be below current price`,
+          );
         }
       });
       if (setup.stopLoss <= setup.currentPrice) {

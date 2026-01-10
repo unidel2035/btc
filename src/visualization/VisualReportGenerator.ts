@@ -4,7 +4,8 @@
  * Generates comprehensive visual reports for trading setups
  */
 
-import type { TradingSetup, VisualReport, VisualizationMethod, VisualizationConfig } from './types.js';
+import type { TradingSetup, VisualReport, VisualizationConfig, Timeframe } from './types.js';
+import { VisualizationMethod, TradingDirection } from './types.js';
 import { PineScriptGenerator } from './PineScriptGenerator.js';
 import { ChartingLibraryGenerator } from './ChartingLibraryGenerator.js';
 
@@ -23,7 +24,7 @@ export class VisualReportGenerator {
   /**
    * Generate comprehensive visual report
    */
-  public async generate(setup: TradingSetup, config: VisualizationConfig): Promise<VisualReport> {
+  public generate(setup: TradingSetup, config: VisualizationConfig): VisualReport {
     const report: VisualReport = {
       setup,
       timestamp: new Date(),
@@ -40,7 +41,7 @@ export class VisualReportGenerator {
     // Generate Charting Library config
     if (config.method === VisualizationMethod.TRADINGVIEW_EMBEDDED) {
       report.chartConfig = this.chartingLibraryGenerator.generate(setup, {
-        timeframe: config.defaultTimeframe as any,
+        timeframe: config.defaultTimeframe as Timeframe,
         theme: 'dark',
       });
     }
@@ -367,7 +368,7 @@ export class VisualReportGenerator {
         <div class="smc-structures">
             ${setup.smcStructures
               .map(
-                (structure, index) => `
+                (structure) => `
             <div class="structure-item">
                 <div>
                     <span class="zone-label">${this.getSMCLabel(structure.type)}</span>
@@ -394,7 +395,7 @@ export class VisualReportGenerator {
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${config.colors.longEntry}; opacity: 0.2;"></div>
-                <div class="legend-text">Entry Zones (${setup.direction === 'long' ? 'Long' : 'Short'})</div>
+                <div class="legend-text">Entry Zones (${setup.direction === TradingDirection.LONG ? 'Long' : 'Short'})</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: ${config.colors.stopLoss};"></div>
@@ -447,7 +448,7 @@ export class VisualReportGenerator {
       setup.entryZones.reduce((sum, zone) => sum + (zone.priceHigh + zone.priceLow) / 2, 0) /
       setup.entryZones.length;
 
-    if (setup.direction === 'long') {
+    if (setup.direction === TradingDirection.LONG) {
       if (setup.currentPrice > avgEntryPrice) {
         return '<span class="status status-waiting">Waiting for Entry</span>';
       } else {
@@ -488,7 +489,7 @@ export class VisualReportGenerator {
   /**
    * Generate markdown report
    */
-  public generateMarkdownReport(setup: TradingSetup, config: VisualizationConfig): string {
+  public generateMarkdownReport(setup: TradingSetup, _config: VisualizationConfig): string {
     return `# 📊 VISUALIZATION SETUP: ${setup.symbol}
 
 ## Trade Details
@@ -511,7 +512,10 @@ ${setup.entryZones
 
 ## Take Profit Levels
 ${setup.takeProfits
-  .map((tp, index) => `${index + 1}. **TP ${index + 1}:** $${tp.price.toFixed(2)} (${tp.positionPercent}% of position)`)
+  .map(
+    (tp, index) =>
+      `${index + 1}. **TP ${index + 1}:** $${tp.price.toFixed(2)} (${tp.positionPercent}% of position)`,
+  )
   .join('\n')}
 
 ${
@@ -532,9 +536,9 @@ ${setup.smcStructures
 ${setup.analysis}
 
 ## Legend
-- 🟩 **Green zones** — Entry zones for ${setup.direction === 'long' ? 'long' : 'short'} positions
+- 🟩 **Green zones** — Entry zones for ${setup.direction === TradingDirection.LONG ? 'long' : 'short'} positions
 - 🟥 **Red dashed line** — Stop loss
-- 🟦 **Blue rectangles** — ${setup.direction === 'long' ? 'Bullish' : 'Bearish'} Order Blocks
+- 🟦 **Blue rectangles** — ${setup.direction === TradingDirection.LONG ? 'Bullish' : 'Bearish'} Order Blocks
 - ⚪ **Gray zones** — Fair Value Gaps (FVG)
 - 🔶 **Orange clouds** — Liquidity Pools
 - 📊 **Table** — Risk and reward parameters

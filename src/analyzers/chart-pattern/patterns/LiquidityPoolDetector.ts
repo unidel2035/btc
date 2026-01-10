@@ -6,12 +6,7 @@
  */
 
 import { Candle } from '../../../exchanges/types.js';
-import {
-  LiquidityPool,
-  LiquidityPoolType,
-  SwingPoint,
-  PatternDetectionConfig,
-} from '../types.js';
+import { LiquidityPool, LiquidityPoolType, SwingPoint, PatternDetectionConfig } from '../types.js';
 
 export class LiquidityPoolDetector {
   constructor(private config: PatternDetectionConfig) {}
@@ -71,7 +66,7 @@ export class LiquidityPoolDetector {
     const volumeScore = Math.min(volumeRatio / 2, 1); // Normalize to 0-1
     const testScore = Math.min(testCount / 5, 1); // Normalize to 0-1
 
-    const strength = (wickScore * 0.4 + volumeScore * 0.3 + testScore * 0.3);
+    const strength = wickScore * 0.4 + volumeScore * 0.3 + testScore * 0.3;
 
     // Check if liquidity was swept (price went through level significantly)
     const swept = this.checkIfSwept(candles, swing, swingCandleIndex);

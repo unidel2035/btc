@@ -28,7 +28,9 @@ export class ReportGenerator {
           `${zone.zoneNumber}. **Зона ${zone.zoneNumber} (${this.translateConfidence(zone.confidence)} доверие):** $${zone.priceRangeLow.toFixed(2)} - $${zone.priceRangeHigh.toFixed(2)}`,
         );
         lines.push(`   * **Обоснование:** ${zone.reasoning}`);
-        lines.push(`   * **Рекомендуемый объем:** ${zone.suggestedAllocation}% от планируемой позиции.`);
+        lines.push(
+          `   * **Рекомендуемый объем:** ${zone.suggestedAllocation}% от планируемой позиции.`,
+        );
         lines.push(`   * **Цель (Take-Profit) 1:** $${zone.targetPrices[0]?.toFixed(2)}`);
         if (zone.targetPrices[1]) {
           lines.push(`   * **Цель (Take-Profit) 2:** $${zone.targetPrices[1].toFixed(2)}`);
@@ -43,7 +45,9 @@ export class ReportGenerator {
     if (map.criticalLevels.length > 0) {
       lines.push(`#### ⚠️ КРИТИЧЕСКИЕ УРОВНИ И РИСКИ:`);
       for (const level of map.criticalLevels) {
-        lines.push(`* **${this.translateLevelType(level.type)}:** $${level.price.toFixed(2)} - ${level.description}`);
+        lines.push(
+          `* **${this.translateLevelType(level.type)}:** $${level.price.toFixed(2)} - ${level.description}`,
+        );
       }
       lines.push('');
     }
@@ -52,7 +56,9 @@ export class ReportGenerator {
     if (map.volumeAnalysis) {
       lines.push(`#### 📊 АНАЛИЗ ОБЪЕМА:`);
       lines.push(`* Средний объем: ${this.formatVolume(map.volumeAnalysis.avgVolume)}`);
-      lines.push(`* Текущий объем: ${this.formatVolume(map.volumeAnalysis.currentVolume)} (${(map.volumeAnalysis.volumeRatio * 100).toFixed(0)}% от среднего)`);
+      lines.push(
+        `* Текущий объем: ${this.formatVolume(map.volumeAnalysis.currentVolume)} (${(map.volumeAnalysis.volumeRatio * 100).toFixed(0)}% от среднего)`,
+      );
 
       if (map.volumeAnalysis.accumulationDetected) {
         lines.push(`* ✅ **Аккумуляция обнаружена** - низкая волатильность + высокий объем`);
@@ -102,7 +108,9 @@ export class ReportGenerator {
     // Summary
     lines.push(`## 🎯 РЕЗЮМЕ`);
     lines.push('');
-    lines.push(`**Рекомендованные пары для торговли:** ${report.summary.recommendedPairs.length > 0 ? report.summary.recommendedPairs.join(', ') : 'Нет'}`);
+    lines.push(
+      `**Рекомендованные пары для торговли:** ${report.summary.recommendedPairs.length > 0 ? report.summary.recommendedPairs.join(', ') : 'Нет'}`,
+    );
     lines.push('');
 
     // Top Opportunities

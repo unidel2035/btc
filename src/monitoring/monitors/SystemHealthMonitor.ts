@@ -4,12 +4,7 @@
  */
 
 import * as os from 'os';
-import {
-  HealthStatus,
-  HealthCheckResult,
-  SystemHealthStatus,
-  IHealthMonitor,
-} from '../types.js';
+import { HealthStatus, HealthCheckResult, SystemHealthStatus, IHealthMonitor } from '../types.js';
 import { CircuitBreaker } from '../utils/CircuitBreaker.js';
 
 export interface SystemHealthMonitorConfig {

@@ -8,13 +8,12 @@ import type {
   TradingSetup,
   ChartingLibraryConfig,
   ChartDrawing,
-  ChartPoint,
   SMCStructure,
   EntryZone,
   TakeProfitLevel,
-  SMCStructureType,
   Timeframe,
 } from './types.js';
+import { SMCStructureType, TradingDirection } from './types.js';
 
 /**
  * Charting Library Generator options
@@ -68,7 +67,6 @@ export class ChartingLibraryGenerator {
    */
   public generateWidgetCode(setup: TradingSetup, options?: ChartingLibraryOptions): string {
     const opts = { ...this.defaultOptions, ...options };
-    const config = this.generate(setup, options);
     const drawings = this.generateDrawings(setup);
 
     return `// TradingView Charting Library Widget Configuration
@@ -156,7 +154,9 @@ setTimeout(() => {
 
     // Entry zones as rectangles
     setup.entryZones.forEach((zone, index) => {
-      drawings.push(this.createEntryZoneDrawing(zone, index, setup.direction, currentTime, futureTime));
+      drawings.push(
+        this.createEntryZoneDrawing(zone, index, setup.direction, currentTime, futureTime),
+      );
     });
 
     // Stop loss line
@@ -184,11 +184,11 @@ setTimeout(() => {
   private createEntryZoneDrawing(
     zone: EntryZone,
     index: number,
-    direction: string,
+    direction: TradingDirection,
     startTime: number,
     endTime: number,
   ): ChartDrawing {
-    const color = direction === 'long' ? '#00ff00' : '#ff0000';
+    const color = direction === TradingDirection.LONG ? '#00ff00' : '#ff0000';
 
     return {
       type: 'rectangle',
@@ -207,7 +207,11 @@ setTimeout(() => {
   /**
    * Create stop loss drawing
    */
-  private createStopLossDrawing(stopLoss: number, startTime: number, endTime: number): ChartDrawing {
+  private createStopLossDrawing(
+    stopLoss: number,
+    startTime: number,
+    endTime: number,
+  ): ChartDrawing {
     return {
       type: 'horizontal_line',
       points: [
@@ -248,7 +252,7 @@ setTimeout(() => {
    */
   private createSMCStructureDrawing(
     structure: SMCStructure,
-    index: number,
+    _index: number,
     startTime: number,
     endTime: number,
   ): ChartDrawing {
@@ -272,7 +276,11 @@ setTimeout(() => {
   /**
    * Create current price drawing
    */
-  private createCurrentPriceDrawing(currentPrice: number, startTime: number, endTime: number): ChartDrawing {
+  private createCurrentPriceDrawing(
+    currentPrice: number,
+    startTime: number,
+    endTime: number,
+  ): ChartDrawing {
     return {
       type: 'horizontal_line',
       points: [
@@ -292,8 +300,8 @@ setTimeout(() => {
   private generateDrawingCommands(drawings: ChartDrawing[]): string {
     const commands: string[] = [];
 
-    drawings.forEach((drawing, index) => {
-      if (drawing.type === 'horizontal_line') {
+    drawings.forEach((drawing) => {
+      if (drawing.type === 'horizontal_line' && drawing.points && drawing.points[0]) {
         commands.push(`
         // ${drawing.text}
         chart.createShape(
@@ -302,14 +310,19 @@ setTimeout(() => {
                 shape: "horizontal_line",
                 overrides: {
                     linecolor: "${drawing.color}",
-                    linewidth: ${drawing.lineWidth},
+                    linewidth: ${drawing.lineWidth || 1},
                     linestyle: ${this.getLineStyleValue(drawing.lineStyle || 'solid')},
                     showLabel: true,
                     text: "${drawing.text}"
                 }
             }
         );`);
-      } else if (drawing.type === 'rectangle') {
+      } else if (
+        drawing.type === 'rectangle' &&
+        drawing.points &&
+        drawing.points[0] &&
+        drawing.points[1]
+      ) {
         commands.push(`
         // ${drawing.text}
         chart.createMultipointShape([
@@ -320,7 +333,7 @@ setTimeout(() => {
             overrides: {
                 color: "${drawing.color}",
                 backgroundColor: "${drawing.backgroundColor}",
-                linewidth: ${drawing.lineWidth},
+                linewidth: ${drawing.lineWidth || 1},
                 transparency: 85,
                 text: "${drawing.text}"
             }
@@ -508,7 +521,7 @@ setTimeout(() => {
         <div class="legend-title">Legend</div>
         <div class="legend-items">
             <div class="legend-item">
-                <div class="legend-color" style="background-color: ${setup.direction === 'long' ? '#00ff00' : '#ff0000'}; opacity: 0.2;"></div>
+                <div class="legend-color" style="background-color: ${setup.direction === TradingDirection.LONG ? '#00ff00' : '#ff0000'}; opacity: 0.2;"></div>
                 <span>Entry Zones</span>
             </div>
             <div class="legend-item">

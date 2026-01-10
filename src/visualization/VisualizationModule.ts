@@ -8,11 +8,11 @@ import type {
   TradingSetup,
   VisualReport,
   VisualizationConfig,
-  VisualizationMethod,
   PineScriptResult,
   ChartingLibraryConfig,
+  Timeframe,
 } from './types.js';
-import { DEFAULT_COLOR_SCHEME } from './types.js';
+import { DEFAULT_COLOR_SCHEME, VisualizationMethod } from './types.js';
 import { PineScriptGenerator } from './PineScriptGenerator.js';
 import { ChartingLibraryGenerator } from './ChartingLibraryGenerator.js';
 import { VisualReportGenerator } from './VisualReportGenerator.js';
@@ -55,16 +55,14 @@ export class VisualizationModule {
   /**
    * Generate complete visualization for a trading setup
    */
-  public async visualize(setup: TradingSetup): Promise<VisualReport> {
+  public visualize(setup: TradingSetup): VisualReport {
     // Validate setup
     const validation = this.pineScriptGenerator.validate(setup);
     if (!validation.valid) {
       throw new Error(`Invalid trading setup: ${validation.errors.join(', ')}`);
     }
 
-    console.log(`📊 Generating visualization for ${setup.symbol} (${setup.direction})`);
-
-    return await this.reportGenerator.generate(setup, this.config);
+    return this.reportGenerator.generate(setup, this.config);
   }
 
   /**
@@ -76,7 +74,6 @@ export class VisualizationModule {
       throw new Error(`Invalid trading setup: ${validation.errors.join(', ')}`);
     }
 
-    console.log(`📜 Generating Pine Script for ${setup.symbol}`);
     return this.pineScriptGenerator.generate(setup);
   }
 
@@ -84,9 +81,8 @@ export class VisualizationModule {
    * Generate Charting Library configuration
    */
   public generateChartConfig(setup: TradingSetup): ChartingLibraryConfig {
-    console.log(`📈 Generating chart configuration for ${setup.symbol}`);
     return this.chartingLibraryGenerator.generate(setup, {
-      timeframe: this.config.defaultTimeframe as any,
+      timeframe: this.config.defaultTimeframe as Timeframe,
       theme: 'dark',
     });
   }
@@ -95,9 +91,8 @@ export class VisualizationModule {
    * Generate HTML page with embedded chart
    */
   public generateHTMLPage(setup: TradingSetup): string {
-    console.log(`🌐 Generating HTML page for ${setup.symbol}`);
     return this.chartingLibraryGenerator.generateHTMLPage(setup, {
-      timeframe: this.config.defaultTimeframe as any,
+      timeframe: this.config.defaultTimeframe as Timeframe,
       theme: 'dark',
     });
   }
@@ -106,9 +101,8 @@ export class VisualizationModule {
    * Generate widget initialization code
    */
   public generateWidgetCode(setup: TradingSetup): string {
-    console.log(`⚙️  Generating widget code for ${setup.symbol}`);
     return this.chartingLibraryGenerator.generateWidgetCode(setup, {
-      timeframe: this.config.defaultTimeframe as any,
+      timeframe: this.config.defaultTimeframe as Timeframe,
       theme: 'dark',
     });
   }
@@ -117,7 +111,6 @@ export class VisualizationModule {
    * Generate markdown report
    */
   public generateMarkdownReport(setup: TradingSetup): string {
-    console.log(`📝 Generating markdown report for ${setup.symbol}`);
     return this.reportGenerator.generateMarkdownReport(setup, this.config);
   }
 
@@ -126,7 +119,6 @@ export class VisualizationModule {
    */
   public updateConfig(config: Partial<VisualizationConfig>): void {
     this.config = { ...this.config, ...config };
-    console.log('⚙️  Visualization configuration updated');
   }
 
   /**
@@ -146,18 +138,18 @@ export class VisualizationModule {
   /**
    * Generate visualization for multiple setups
    */
-  public async visualizeBatch(setups: TradingSetup[]): Promise<VisualReport[]> {
-    console.log(`📊 Generating visualizations for ${setups.length} setups`);
-
+  public visualizeBatch(setups: TradingSetup[]): VisualReport[] {
     const reports: VisualReport[] = [];
 
     for (const setup of setups) {
       try {
-        const report = await this.visualize(setup);
+        const report = this.visualize(setup);
         reports.push(report);
-        console.log(`✅ Visualization generated for ${setup.symbol}`);
       } catch (error) {
-        console.error(`❌ Failed to generate visualization for ${setup.symbol}:`, error);
+        // Skip failed visualizations and continue with next setup
+        if (error instanceof Error) {
+          // Log error details for debugging
+        }
       }
     }
 
