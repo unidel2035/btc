@@ -4,6 +4,8 @@
 
 import type { TelegramBotContext, TelegramBotConfig } from '../types.js';
 import type { MiddlewareFn } from 'telegraf';
+import { UserService } from '../../services/integram/index.js';
+import { IntegramClient } from '../../database/integram/IntegramClient.js';
 
 /**
  * Whitelist middleware - only allow authorized users
@@ -132,6 +134,89 @@ export function createLoggingMiddleware(): MiddlewareFn<TelegramBotContext> {
     const command = ctx.message && 'text' in ctx.message ? ctx.message.text : 'unknown';
 
     console.log(`[Telegram] User ${userId} (@${username}) executed: ${command}`);
+
+    await next();
+  };
+}
+
+/**
+ * User middleware - load or create user from Integram database
+ * This middleware automatically registers new users and loads existing users
+ */
+export function createUserMiddleware(config: TelegramBotConfig): MiddlewareFn<TelegramBotContext> {
+  let userService: UserService | null = null;
+
+  // Initialize UserService with Integram credentials
+  const initUserService = async () => {
+    if (userService) return userService;
+
+    try {
+      const integramConfig = {
+        serverURL: process.env.INTEGRAM_URL || 'https://интеграм.рф',
+        database: process.env.INTEGRAM_DATABASE || 'bts',
+        login: process.env.INTEGRAM_LOGIN || '',
+        password: process.env.INTEGRAM_PASSWORD || '',
+      };
+
+      const client = new IntegramClient(integramConfig);
+      await client.authenticate();
+
+      userService = new UserService(client);
+      console.log('✅ UserService initialized');
+      return userService;
+    } catch (error) {
+      console.error('❌ Failed to initialize UserService:', error);
+      throw error;
+    }
+  };
+
+  return async (ctx, next) => {
+    const telegramId = ctx.from?.id;
+    if (!telegramId) {
+      await next();
+      return;
+    }
+
+    try {
+      // Initialize service if needed
+      const service = await initUserService();
+
+      // Find or create user
+      let user = await service.findByTelegramId(telegramId);
+
+      if (!user) {
+        // Create new user
+        console.log(`📝 Creating new user for Telegram ID ${telegramId}`);
+        user = await service.createUser({
+          id: telegramId,
+          username: ctx.from.username,
+          first_name: ctx.from.first_name,
+          last_name: ctx.from.last_name,
+        });
+
+        // Send welcome message
+        await ctx.reply(
+          `🎉 *Добро пожаловать в торговый бот BTC!*\n\n` +
+          `Вы успешно зарегистрированы.\n\n` +
+          `👤 Имя: ${user.fullName || user.username}\n` +
+          `🆔 ID: ${user.id}\n\n` +
+          `Рекомендуем заполнить дополнительную информацию:\n` +
+          `/profile - Перейти в профиль`,
+          { parse_mode: 'Markdown' }
+        );
+      } else {
+        // Update activity for existing user
+        await service.updateActivity(user.id);
+      }
+
+      // Store user in session
+      if (ctx.session) {
+        ctx.session.user = user;
+      }
+    } catch (error) {
+      console.error('Error in user middleware:', error);
+      // Continue even if user loading fails (graceful degradation)
+    }
 
     await next();
   };
