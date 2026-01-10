@@ -488,28 +488,6 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
     }
   });
 
-      const signalsProvider = dashboardServer?.getSignalsProvider();
-      if (!signalsProvider) {
-        res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
-        return;
-      }
-
-      const name = (
-        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
-      ) as string;
-
-      const schema = signalsProvider.getStrategySchema(name || '');
-      if (!schema) {
-        res.status(404).json({ error: 'Strategy not found' });
-        return;
-      }
-
-      res.json(schema);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch strategy schema' });
-    }
-  });
-
   // POST /api/strategies/:name/validate - Validate strategy parameters
   router.post('/api/strategies/:name/validate', (req: Request, res: Response): void => {
     try {
