@@ -48,6 +48,7 @@
     "example:exchanges": "tsx examples/exchanges-example.ts",
     "example:integram": "tsx examples/integram-example.ts",
     "example:screening": "tsx examples/screening-example.ts",
+    "screening": "tsx examples/screening-example.ts",
     "db:migrate": "tsx src/database/migrate.ts",
     "db:seed": "tsx src/database/seed.ts",
     "db:backup": "tsx src/database/backup.ts",
