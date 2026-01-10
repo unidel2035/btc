@@ -27,7 +27,7 @@ class StrategyManager {
 
     // Добавляем линейные серии для индикаторов стратегии
     if (this.chart && strategyInstance.indicators) {
-      strategyInstance.indicators.forEach(indicator => {
+      strategyInstance.indicators.forEach((indicator) => {
         const series = this.chart.addLineSeries({
           color: indicator.color,
           lineWidth: indicator.lineWidth || 2,
@@ -54,7 +54,7 @@ class StrategyManager {
 
     // Показываем индикаторы стратегии
     if (strategy.indicators) {
-      strategy.indicators.forEach(indicator => {
+      strategy.indicators.forEach((indicator) => {
         if (indicator.series) {
           indicator.series.applyOptions({ visible: true });
         }
@@ -74,7 +74,7 @@ class StrategyManager {
 
     // Скрываем индикаторы стратегии
     if (strategy && strategy.indicators) {
-      strategy.indicators.forEach(indicator => {
+      strategy.indicators.forEach((indicator) => {
         if (indicator.series) {
           indicator.series.applyOptions({ visible: false });
         }
@@ -142,7 +142,7 @@ class StrategyManager {
 
       // Обновляем индикаторы стратегии
       if (strategy.indicators) {
-        strategy.indicators.forEach(indicator => {
+        strategy.indicators.forEach((indicator) => {
           const value = strategy.getIndicatorValue(indicator.id);
           if (value !== null && value !== undefined && indicator.series) {
             indicator.series.update({ time: candle.time, value });
@@ -216,7 +216,7 @@ class StrategyManager {
    * Получение списка всех зарегистрированных стратегий
    */
   getAllStrategies() {
-    return Array.from(this.strategies.values()).map(strategy => ({
+    return Array.from(this.strategies.values()).map((strategy) => ({
       id: strategy.id,
       name: strategy.name,
       description: strategy.description,

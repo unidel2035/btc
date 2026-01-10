@@ -84,7 +84,7 @@ class EMACrossoverStrategy extends BaseStrategy {
       return null;
     }
 
-    const closePrices = priceHistory.map(p => p.close);
+    const closePrices = priceHistory.map((p) => p.close);
 
     // Сохраняем предыдущие значения
     this.previousEmaFast = this.emaFast;
@@ -103,12 +103,10 @@ class EMACrossoverStrategy extends BaseStrategy {
 
     if (signal) {
       const distance = Math.abs(this.emaFast - this.emaSlow);
-      const stopLoss = signal === 'LONG'
-        ? currentCandle.close - distance * 2
-        : currentCandle.close + distance * 2;
-      const takeProfit = signal === 'LONG'
-        ? currentCandle.close + distance * 3
-        : currentCandle.close - distance * 3;
+      const stopLoss =
+        signal === 'LONG' ? currentCandle.close - distance * 2 : currentCandle.close + distance * 2;
+      const takeProfit =
+        signal === 'LONG' ? currentCandle.close + distance * 3 : currentCandle.close - distance * 3;
 
       const trade = {
         direction: signal,

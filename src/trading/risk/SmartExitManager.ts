@@ -61,10 +61,7 @@ export class SmartExitManager {
     if (position.side === 'long') {
       position.highestPrice = Math.max(position.highestPrice || position.entryPrice, currentPrice);
     } else {
-      position.lowestPrice = Math.min(
-        position.lowestPrice || position.entryPrice,
-        currentPrice,
-      );
+      position.lowestPrice = Math.min(position.lowestPrice || position.entryPrice, currentPrice);
     }
 
     // Расчет unrealized PnL
@@ -87,10 +84,7 @@ export class SmartExitManager {
     }
 
     // Rule 2: Breakeven Protection
-    if (
-      this.config.breakevenEnabled &&
-      pnlPercent >= this.config.breakevenActivationPercent
-    ) {
+    if (this.config.breakevenEnabled && pnlPercent >= this.config.breakevenActivationPercent) {
       const breakevenUpdate = SmartStopLoss.moveToBreakeven(position);
       if (breakevenUpdate.updated) {
         position.stopLoss = breakevenUpdate.newStopLoss;
@@ -146,10 +140,7 @@ export class SmartExitManager {
     }
 
     // Rule 5: Time-Based Exit
-    if (
-      this.config.timeBasedExitEnabled &&
-      this.config.maxHoldingTime !== undefined
-    ) {
+    if (this.config.timeBasedExitEnabled && this.config.maxHoldingTime !== undefined) {
       const timeBasedTriggered = SmartStopLoss.checkTimeBasedStop(
         position,
         this.config.maxHoldingTime,
@@ -281,9 +272,7 @@ export class SmartExitManager {
 
     const hoursHeld = (Date.now() - position.openedAt.getTime()) / (1000 * 60 * 60);
     if (hoursHeld > 48 && pnlPercent < 2) {
-      recommendations.push(
-        'Consider closing position - low profit after 48+ hours holding time',
-      );
+      recommendations.push('Consider closing position - low profit after 48+ hours holding time');
     }
 
     return recommendations;

@@ -4,7 +4,10 @@ let currentLocale = localStorage.getItem('language') || 'en';
 // Initialize i18next
 async function initI18next() {
   try {
-    const [enData, ruData] = await Promise.all([fetch('/locales/en.json').then((r) => r.json()), fetch('/locales/ru.json').then((r) => r.json())]);
+    const [enData, ruData] = await Promise.all([
+      fetch('/locales/en.json').then((r) => r.json()),
+      fetch('/locales/ru.json').then((r) => r.json()),
+    ]);
 
     await i18next.init({
       lng: currentLocale,
@@ -275,13 +278,13 @@ function loadPageData(page) {
 // Setup panel tabs for chart page
 function setupPanelTabs() {
   const tabs = document.querySelectorAll('.panel-tab');
-  tabs.forEach(tab => {
+  tabs.forEach((tab) => {
     tab.addEventListener('click', (e) => {
       const targetTab = e.target.dataset.tab;
 
       // Remove active class from all tabs and panels
-      document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.panel-tab').forEach((t) => t.classList.remove('active'));
+      document.querySelectorAll('.panel-content').forEach((p) => p.classList.remove('active'));
 
       // Add active class to clicked tab and corresponding panel
       e.target.classList.add('active');
@@ -460,14 +463,16 @@ async function loadInitialData() {
 
 // Metrics
 function updateMetrics() {
-  const { balance, equity, pnl, pnlPercent, winRate, totalTrades, dailyPnl, dailyPnlPercent } = state.metrics;
+  const { balance, equity, pnl, pnlPercent, winRate, totalTrades, dailyPnl, dailyPnlPercent } =
+    state.metrics;
 
   document.getElementById('balance').textContent = formatCurrency(balance);
   document.getElementById('equity').textContent = formatCurrency(equity);
   document.getElementById('pnl').textContent = formatCurrency(pnl);
   document.getElementById('pnlPercent').textContent = formatPercent(pnlPercent);
   document.getElementById('winRate').textContent = formatPercent(winRate);
-  document.getElementById('totalTrades').innerHTML = `${totalTrades} <span data-i18n="metrics.totalTrades">${t('metrics.totalTrades')}</span>`;
+  document.getElementById('totalTrades').innerHTML =
+    `${totalTrades} <span data-i18n="metrics.totalTrades">${t('metrics.totalTrades')}</span>`;
 
   // Update change indicators
   updateChangeIndicator('balanceChange', dailyPnlPercent);
@@ -720,7 +725,10 @@ function updatePositionPrice(data) {
   const position = state.positions.find((p) => p.id === data.positionId);
   if (position) {
     position.currentPrice = data.price;
-    const pnl = position.side === 'LONG' ? (data.price - position.entryPrice) * position.size : (position.entryPrice - data.price) * position.size;
+    const pnl =
+      position.side === 'LONG'
+        ? (data.price - position.entryPrice) * position.size
+        : (position.entryPrice - data.price) * position.size;
     position.pnl = pnl;
     position.pnlPercent = (pnl / (position.entryPrice * position.size)) * 100;
     renderPositions();
@@ -810,7 +818,10 @@ function filterNews() {
 
 // Analytics Page
 async function loadAnalytics() {
-  const [performance, history] = await Promise.all([fetchAPI('/api/performance'), fetchAPI('/api/history?limit=100')]);
+  const [performance, history] = await Promise.all([
+    fetchAPI('/api/performance'),
+    fetchAPI('/api/history?limit=100'),
+  ]);
 
   if (performance) state.performance = performance;
   if (history) state.history = history;
@@ -819,7 +830,17 @@ async function loadAnalytics() {
 }
 
 function renderAnalytics() {
-  const { totalTrades, winningTrades, losingTrades, winRate, averageWin, averageLoss, profitFactor, sharpeRatio, maxDrawdown } = state.performance;
+  const {
+    totalTrades,
+    winningTrades,
+    losingTrades,
+    winRate,
+    averageWin,
+    averageLoss,
+    profitFactor,
+    sharpeRatio,
+    maxDrawdown,
+  } = state.performance;
 
   document.getElementById('statTotalTrades').textContent = totalTrades || 0;
   document.getElementById('statWinningTrades').textContent = winningTrades || 0;
@@ -883,7 +904,10 @@ function renderTradeHistory() {
 
 // Settings Page
 async function loadSettings() {
-  const [riskConfig, strategies] = await Promise.all([fetchAPI('/api/settings/risk'), fetchAPI('/api/strategies')]);
+  const [riskConfig, strategies] = await Promise.all([
+    fetchAPI('/api/settings/risk'),
+    fetchAPI('/api/strategies'),
+  ]);
 
   if (riskConfig) state.riskConfig = riskConfig;
   if (strategies) state.strategies = strategies;
@@ -904,7 +928,9 @@ function renderSettings() {
   // Populate notification settings
   document.getElementById('desktopNotifications').checked = notificationSettings.desktop;
   document.getElementById('audioNotifications').checked = notificationSettings.audio;
-  document.getElementById('minConfidenceNotifications').value = Math.round(notificationSettings.minConfidence * 100);
+  document.getElementById('minConfidenceNotifications').value = Math.round(
+    notificationSettings.minConfidence * 100,
+  );
 
   renderStrategies();
 }
@@ -985,13 +1011,16 @@ function setupEventListeners() {
 
     const desktopEnabled = document.getElementById('desktopNotifications').checked;
     const audioEnabled = document.getElementById('audioNotifications').checked;
-    const minConfidence = parseFloat(document.getElementById('minConfidenceNotifications').value) / 100;
+    const minConfidence =
+      parseFloat(document.getElementById('minConfidenceNotifications').value) / 100;
 
     // Request desktop notification permission if enabling
     if (desktopEnabled && 'Notification' in window && Notification.permission === 'default') {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        alert('Desktop notifications permission denied. Please enable it in your browser settings.');
+        alert(
+          'Desktop notifications permission denied. Please enable it in your browser settings.',
+        );
         return;
       }
     }
@@ -1058,7 +1087,11 @@ function showNotification(data) {
 // Notifications initialization
 function initializeNotifications() {
   // Request desktop notification permission
-  if (notificationSettings.desktop && 'Notification' in window && Notification.permission === 'default') {
+  if (
+    notificationSettings.desktop &&
+    'Notification' in window &&
+    Notification.permission === 'default'
+  ) {
     Notification.requestPermission();
   }
 
@@ -1095,7 +1128,11 @@ function playNotificationSound() {
 
 // Show desktop notification
 function showDesktopNotification(signal) {
-  if (!notificationSettings.desktop || !('Notification' in window) || Notification.permission !== 'granted') {
+  if (
+    !notificationSettings.desktop ||
+    !('Notification' in window) ||
+    Notification.permission !== 'granted'
+  ) {
     return;
   }
 

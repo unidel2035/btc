@@ -50,7 +50,7 @@ class StrategySettingsManager {
     if (!selector) return;
 
     selector.innerHTML = '';
-    strategies.forEach(strategy => {
+    strategies.forEach((strategy) => {
       const option = document.createElement('option');
       option.value = strategy.name;
       option.textContent = strategy.name + (strategy.enabled ? '' : ' (disabled)');
@@ -71,7 +71,9 @@ class StrategySettingsManager {
 
     try {
       // Загружаем схему параметров
-      const schemaResponse = await fetch(`/api/strategies/${encodeURIComponent(strategyName)}/schema`);
+      const schemaResponse = await fetch(
+        `/api/strategies/${encodeURIComponent(strategyName)}/schema`,
+      );
       if (!schemaResponse.ok) {
         throw new Error('Failed to load strategy schema');
       }
@@ -122,7 +124,7 @@ class StrategySettingsManager {
       const formDiv = document.createElement('form');
       formDiv.className = 'strategy-params-form';
 
-      params.forEach(param => {
+      params.forEach((param) => {
         const paramDiv = this.renderParameter(param);
         formDiv.appendChild(paramDiv);
       });
@@ -144,7 +146,7 @@ class StrategySettingsManager {
       other: [],
     };
 
-    this.paramSchema.forEach(param => {
+    this.paramSchema.forEach((param) => {
       const group = param.group || 'other';
       if (groups[group]) {
         groups[group].push(param);
@@ -154,7 +156,7 @@ class StrategySettingsManager {
     });
 
     // Удаляем пустые группы
-    Object.keys(groups).forEach(key => {
+    Object.keys(groups).forEach((key) => {
       if (groups[key].length === 0) {
         delete groups[key];
       }
@@ -196,16 +198,17 @@ class StrategySettingsManager {
     const inputGroup = document.createElement('div');
     inputGroup.className = 'param-input-group';
 
-    const currentValue = this.currentParams[param.name] !== undefined
-      ? this.currentParams[param.name]
-      : param.default;
+    const currentValue =
+      this.currentParams[param.name] !== undefined ? this.currentParams[param.name] : param.default;
 
     if (param.type === 'boolean') {
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.id = `param_${param.name}`;
       checkbox.checked = currentValue;
-      checkbox.addEventListener('change', () => this.onParameterChange(param.name, checkbox.checked));
+      checkbox.addEventListener('change', () =>
+        this.onParameterChange(param.name, checkbox.checked),
+      );
       inputGroup.appendChild(checkbox);
     } else if (param.type === 'number') {
       // Range slider
@@ -245,7 +248,7 @@ class StrategySettingsManager {
       select.id = `param_${param.name}`;
       select.className = 'param-select';
 
-      param.options.forEach(opt => {
+      param.options.forEach((opt) => {
         const option = document.createElement('option');
         option.value = opt.value;
         option.textContent = opt.label;
@@ -321,13 +324,16 @@ class StrategySettingsManager {
    */
   async validateParameter(paramName, value) {
     try {
-      const response = await fetch(`/api/strategies/${encodeURIComponent(this.currentStrategy)}/validate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/strategies/${encodeURIComponent(this.currentStrategy)}/validate`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ [paramName]: value }),
         },
-        body: JSON.stringify({ [paramName]: value }),
-      });
+      );
 
       const result = await response.json();
 
@@ -381,7 +387,7 @@ class StrategySettingsManager {
    * Подсветка измененных параметров
    */
   highlightChangedParams() {
-    Object.keys(this.currentParams).forEach(paramName => {
+    Object.keys(this.currentParams).forEach((paramName) => {
       const paramDiv = document.querySelector(`[data-param-name="${paramName}"]`);
       if (!paramDiv) return;
 
@@ -404,13 +410,16 @@ class StrategySettingsManager {
     }
 
     try {
-      const response = await fetch(`/api/strategies/${encodeURIComponent(this.currentStrategy)}/params`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/strategies/${encodeURIComponent(this.currentStrategy)}/params`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(this.currentParams),
         },
-        body: JSON.stringify(this.currentParams),
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to apply settings');
@@ -433,7 +442,7 @@ class StrategySettingsManager {
       return;
     }
 
-    this.paramSchema.forEach(param => {
+    this.paramSchema.forEach((param) => {
       this.currentParams[param.name] = param.default;
     });
 
@@ -466,7 +475,7 @@ class StrategySettingsManager {
 
     container.innerHTML = '';
 
-    presets.forEach(preset => {
+    presets.forEach((preset) => {
       const presetDiv = document.createElement('div');
       presetDiv.className = 'preset-item';
 
@@ -536,7 +545,12 @@ class StrategySettingsManager {
     const description = prompt('Введите описание (необязательно):');
 
     try {
-      await window.presetManager.createPreset(name, this.currentStrategy, this.currentParams, description);
+      await window.presetManager.createPreset(
+        name,
+        this.currentStrategy,
+        this.currentParams,
+        description,
+      );
       this.renderPresetsList();
       this.showSuccess('Пресет успешно сохранен');
     } catch (error) {

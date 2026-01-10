@@ -101,7 +101,7 @@ class StrategyChart {
     window.addEventListener('resize', () => {
       if (this.chart) {
         this.chart.applyOptions({
-          width: chartElement.clientWidth
+          width: chartElement.clientWidth,
         });
       }
     });
@@ -135,7 +135,7 @@ class StrategyChart {
    */
   setupStrategyCheckboxes() {
     const checkboxes = document.querySelectorAll('.strategy-checkbox');
-    checkboxes.forEach(checkbox => {
+    checkboxes.forEach((checkbox) => {
       checkbox.addEventListener('change', (e) => {
         const strategyId = e.target.dataset.strategy;
         if (e.target.checked) {
@@ -155,7 +155,9 @@ class StrategyChart {
    */
   async loadRealData() {
     try {
-      const response = await fetch(`/api/chart/history?exchange=${this.exchange}&symbol=${this.symbol}&timeframe=${this.timeframe}&limit=100`);
+      const response = await fetch(
+        `/api/chart/history?exchange=${this.exchange}&symbol=${this.symbol}&timeframe=${this.timeframe}&limit=100`,
+      );
 
       if (!response.ok) {
         console.warn('Failed to load real data, falling back to simulation');
@@ -173,15 +175,15 @@ class StrategyChart {
       }
 
       // Update price history
-      this.priceHistory = data.map(candle => ({
+      this.priceHistory = data.map((candle) => ({
         time: candle.time,
         high: candle.high,
         low: candle.low,
-        close: candle.close
+        close: candle.close,
       }));
 
       // Обновляем историю цен в StrategyManager
-      data.forEach(candle => {
+      data.forEach((candle) => {
         this.strategyManager.updatePriceHistory(candle);
       });
 
@@ -202,10 +204,10 @@ class StrategyChart {
   generateHistoricalData() {
     const data = [];
     let price = 49900;
-    const startTime = this.currentTime - (100 * 3600);
+    const startTime = this.currentTime - 100 * 3600;
 
     for (let i = 0; i < 100; i++) {
-      const time = startTime + (i * 3600);
+      const time = startTime + i * 3600;
       const change = (Math.random() - 0.5) * 200;
       price += change;
 
@@ -249,13 +251,15 @@ class StrategyChart {
     if (!this.ws) return;
 
     // Subscribe to chart updates
-    this.ws.send(JSON.stringify({
-      type: 'subscribe',
-      channel: 'chart',
-      exchange: this.exchange,
-      symbol: this.symbol,
-      timeframe: this.timeframe
-    }));
+    this.ws.send(
+      JSON.stringify({
+        type: 'subscribe',
+        channel: 'chart',
+        exchange: this.exchange,
+        symbol: this.symbol,
+        timeframe: this.timeframe,
+      }),
+    );
 
     console.log(`Subscribed to chart: ${this.exchange} ${this.symbol} ${this.timeframe}`);
   }
@@ -266,13 +270,15 @@ class StrategyChart {
   unsubscribeFromChart() {
     if (!this.ws) return;
 
-    this.ws.send(JSON.stringify({
-      type: 'unsubscribe',
-      channel: 'chart',
-      exchange: this.exchange,
-      symbol: this.symbol,
-      timeframe: this.timeframe
-    }));
+    this.ws.send(
+      JSON.stringify({
+        type: 'unsubscribe',
+        channel: 'chart',
+        exchange: this.exchange,
+        symbol: this.symbol,
+        timeframe: this.timeframe,
+      }),
+    );
 
     console.log(`Unsubscribed from chart: ${this.exchange} ${this.symbol} ${this.timeframe}`);
   }
@@ -281,7 +287,12 @@ class StrategyChart {
    * Обработка новой свечи с биржи
    */
   handleChartCandle(candle) {
-    if (!candle || candle.exchange !== this.exchange || candle.symbol !== this.symbol || candle.timeframe !== this.timeframe) {
+    if (
+      !candle ||
+      candle.exchange !== this.exchange ||
+      candle.symbol !== this.symbol ||
+      candle.timeframe !== this.timeframe
+    ) {
       return;
     }
 
@@ -290,7 +301,7 @@ class StrategyChart {
       open: candle.open,
       high: candle.high,
       low: candle.low,
-      close: candle.close
+      close: candle.close,
     };
 
     // Update or add candle
@@ -301,7 +312,7 @@ class StrategyChart {
       time: chartCandle.time,
       high: chartCandle.high,
       low: chartCandle.low,
-      close: chartCandle.close
+      close: chartCandle.close,
     });
 
     if (this.priceHistory.length > 200) {
@@ -384,11 +395,12 @@ class StrategyChart {
    * Обновление UI
    */
   updateUI(candle, signals) {
-    document.getElementById('chartPrice').textContent = `$${candle.close.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+    document.getElementById('chartPrice').textContent =
+      `$${candle.close.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
 
     // Показываем количество активных сигналов
     if (signals.length > 0) {
-      const signalText = signals.map(s => `${s.strategy}: ${s.direction}`).join(', ');
+      const signalText = signals.map((s) => `${s.strategy}: ${s.direction}`).join(', ');
       document.getElementById('chartSignalStatus').innerHTML =
         `<span class="badge badge-active">${signals.length} Signal(s)</span>`;
     } else {
@@ -404,19 +416,23 @@ class StrategyChart {
     const container = document.getElementById('chartLastSignals');
     if (!container) return;
 
-    const signalsHtml = signals.map(signal => `
+    const signalsHtml = signals
+      .map(
+        (signal) => `
       <div class="signal-item">
         <div class="signal-header">
           <span class="strategy-badge" style="background: ${this.getStrategyColor(signal.strategyId)}">${signal.strategy}</span>
           <span class="badge ${signal.direction === 'LONG' ? 'badge-long' : 'badge-short'}">${signal.direction}</span>
         </div>
         <div class="signal-details">
-          <div>Entry: $${signal.entryPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
-          <div>SL: $${signal.stopLoss.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
-          <div>TP: $${signal.takeProfit.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+          <div>Entry: $${signal.entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+          <div>SL: $${signal.stopLoss.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+          <div>TP: $${signal.takeProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
         </div>
       </div>
-    `).join('');
+    `,
+      )
+      .join('');
 
     container.innerHTML = signalsHtml || '<p class="text-muted">No recent signals</p>';
   }
@@ -428,7 +444,7 @@ class StrategyChart {
     const colorMap = {
       'price-channel': '#10b981',
       'ema-crossover': '#3b82f6',
-      'rsi': '#f59e0b',
+      rsi: '#f59e0b',
     };
     return colorMap[strategyId] || '#667eea';
   }
@@ -447,7 +463,9 @@ class StrategyChart {
       return;
     }
 
-    tbody.innerHTML = metrics.map(metric => `
+    tbody.innerHTML = metrics
+      .map(
+        (metric) => `
       <tr>
         <td>
           <span class="strategy-badge" style="background: ${metric.color}">${metric.name}</span>
@@ -459,7 +477,9 @@ class StrategyChart {
         </td>
         <td>${metric.sharpeRatio.toFixed(2)}</td>
       </tr>
-    `).join('');
+    `,
+      )
+      .join('');
   }
 
   /**
@@ -497,7 +517,9 @@ class StrategyChart {
     this.strategyManager.reset();
 
     // Генерируем исторические данные
-    const historicalData = this.useRealData ? await this.loadRealData() : this.generateHistoricalData();
+    const historicalData = this.useRealData
+      ? await this.loadRealData()
+      : this.generateHistoricalData();
     this.candlestickSeries.setData(historicalData);
 
     // Обновляем UI
@@ -505,7 +527,8 @@ class StrategyChart {
     this.updateUI(lastCandle, []);
     this.updateComparisonTable();
 
-    document.getElementById('chartLastSignals').innerHTML = '<p class="text-muted">Waiting for signals...</p>';
+    document.getElementById('chartLastSignals').innerHTML =
+      '<p class="text-muted">Waiting for signals...</p>';
 
     // Setup WebSocket for real-time updates
     if (this.useRealData) {

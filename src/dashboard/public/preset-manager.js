@@ -88,7 +88,7 @@ class PresetManager {
         throw new Error('Failed to delete preset');
       }
 
-      this.presets = this.presets.filter(p => p.id !== presetId);
+      this.presets = this.presets.filter((p) => p.id !== presetId);
       return true;
     } catch (error) {
       console.error('Failed to delete preset:', error);
@@ -101,9 +101,12 @@ class PresetManager {
    */
   async applyPreset(strategyName, presetId) {
     try {
-      const response = await fetch(`/api/strategies/${encodeURIComponent(strategyName)}/apply-preset/${presetId}`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `/api/strategies/${encodeURIComponent(strategyName)}/apply-preset/${presetId}`,
+        {
+          method: 'POST',
+        },
+      );
 
       if (!response.ok) {
         throw new Error('Failed to apply preset');
@@ -120,7 +123,7 @@ class PresetManager {
    * Получить пресет по ID
    */
   getPreset(presetId) {
-    return this.presets.find(p => p.id === presetId);
+    return this.presets.find((p) => p.id === presetId);
   }
 
   /**
@@ -164,7 +167,7 @@ class PresetManager {
             preset.name + ' (imported)',
             preset.strategy,
             preset.params,
-            preset.description || ''
+            preset.description || '',
           );
 
           resolve(newPreset);
@@ -212,8 +215,8 @@ class PresetManager {
     // Объединяем с текущими пресетами, избегая дубликатов
     const mergedPresets = [...this.presets];
 
-    localPresets.forEach(localPreset => {
-      if (!mergedPresets.find(p => p.id === localPreset.id)) {
+    localPresets.forEach((localPreset) => {
+      if (!mergedPresets.find((p) => p.id === localPreset.id)) {
         mergedPresets.push(localPreset);
       }
     });

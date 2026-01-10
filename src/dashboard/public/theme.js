@@ -3,7 +3,7 @@
  * Handles dark/light theme switching with localStorage persistence
  */
 
-(function() {
+(function () {
   'use strict';
 
   // Theme state
@@ -78,8 +78,9 @@
     }
 
     // Update aria-label for accessibility
-    btn.setAttribute('aria-label',
-      currentTheme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'
+    btn.setAttribute(
+      'aria-label',
+      currentTheme === 'light' ? 'Switch to dark theme' : 'Switch to light theme',
     );
   }
 
@@ -129,7 +130,7 @@
     if (!chart || !chart.data || !chart.data.datasets) return;
 
     // Update dataset colors
-    chart.data.datasets.forEach(dataset => {
+    chart.data.datasets.forEach((dataset) => {
       dataset.borderColor = colors.primary;
       dataset.backgroundColor = colors.primary.replace(')', ', 0.1)').replace('rgb', 'rgba');
     });
@@ -156,18 +157,24 @@
     if (!chart || !chart.data || !chart.data.datasets) return;
 
     // Update dataset colors
-    if (chart.data.datasets[0]) { // Bids
+    if (chart.data.datasets[0]) {
+      // Bids
       chart.data.datasets[0].borderColor = colors.success;
-      chart.data.datasets[0].backgroundColor = colors.success.replace(')', ', 0.2)').replace('rgb', 'rgba');
+      chart.data.datasets[0].backgroundColor = colors.success
+        .replace(')', ', 0.2)')
+        .replace('rgb', 'rgba');
     }
-    if (chart.data.datasets[1]) { // Asks
+    if (chart.data.datasets[1]) {
+      // Asks
       chart.data.datasets[1].borderColor = colors.danger;
-      chart.data.datasets[1].backgroundColor = colors.danger.replace(')', ', 0.2)').replace('rgb', 'rgba');
+      chart.data.datasets[1].backgroundColor = colors.danger
+        .replace(')', ', 0.2)')
+        .replace('rgb', 'rgba');
     }
 
     // Update scale colors
     if (chart.options.scales) {
-      ['x', 'y'].forEach(axis => {
+      ['x', 'y'].forEach((axis) => {
         if (chart.options.scales[axis]) {
           chart.options.scales[axis].ticks.color = colors.textSecondary;
           chart.options.scales[axis].grid.color = colors.border;

@@ -268,7 +268,13 @@ class NotificationCenter {
       const dropdown = document.getElementById('notificationDropdown');
       const toggle = document.getElementById('notificationToggle');
 
-      if (this.isOpen && dropdown && !dropdown.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
+      if (
+        this.isOpen &&
+        dropdown &&
+        !dropdown.contains(e.target) &&
+        e.target !== toggle &&
+        !toggle.contains(e.target)
+      ) {
         this.isOpen = false;
         dropdown.style.display = 'none';
       }

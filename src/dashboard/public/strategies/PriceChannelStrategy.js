@@ -43,8 +43,8 @@ class PriceChannelStrategy extends BaseStrategy {
     }
 
     const recent = priceHistory.slice(-this.CHANNEL_PERIOD);
-    const high = Math.max(...recent.map(p => p.high));
-    const low = Math.min(...recent.map(p => p.low));
+    const high = Math.max(...recent.map((p) => p.high));
+    const low = Math.min(...recent.map((p) => p.low));
     const width = high - low;
     const widthPercent = (width / low) * 100;
 
@@ -88,9 +88,10 @@ class PriceChannelStrategy extends BaseStrategy {
     if (signal) {
       const stopLoss = signal === 'LONG' ? channel.low : channel.high;
       const takeProfitDistance = channel.width * 1.5;
-      const takeProfit = signal === 'LONG'
-        ? currentCandle.close + takeProfitDistance
-        : currentCandle.close - takeProfitDistance;
+      const takeProfit =
+        signal === 'LONG'
+          ? currentCandle.close + takeProfitDistance
+          : currentCandle.close - takeProfitDistance;
 
       const trade = {
         direction: signal,

@@ -46,8 +46,8 @@ class MarketDepthChart {
             fill: true,
             stepped: 'after',
             tension: 0,
-          }
-        ]
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -63,9 +63,9 @@ class MarketDepthChart {
             labels: {
               color: '#a0aec0',
               font: {
-                size: 11
-              }
-            }
+                size: 11,
+              },
+            },
           },
           tooltip: {
             callbacks: {
@@ -74,9 +74,9 @@ class MarketDepthChart {
               },
               label: (context) => {
                 return `${context.dataset.label}: ${context.parsed.y.toFixed(4)} BTC`;
-              }
-            }
-          }
+              },
+            },
+          },
         },
         scales: {
           x: {
@@ -84,40 +84,40 @@ class MarketDepthChart {
             title: {
               display: true,
               text: 'Price (USDT)',
-              color: '#a0aec0'
+              color: '#a0aec0',
             },
             ticks: {
               color: '#a0aec0',
               maxTicksLimit: 8,
-              callback: function(value, index, ticks) {
+              callback: function (value, index, ticks) {
                 return '$' + this.getLabelForValue(value);
-              }
+              },
             },
             grid: {
               color: '#2d3748',
-              drawBorder: false
-            }
+              drawBorder: false,
+            },
           },
           y: {
             display: true,
             title: {
               display: true,
               text: 'Cumulative Amount (BTC)',
-              color: '#a0aec0'
+              color: '#a0aec0',
             },
             ticks: {
               color: '#a0aec0',
-              callback: function(value) {
+              callback: function (value) {
                 return value.toFixed(2);
-              }
+              },
             },
             grid: {
               color: '#2d3748',
-              drawBorder: false
-            }
-          }
-        }
-      }
+              drawBorder: false,
+            },
+          },
+        },
+      },
     });
   }
 
@@ -129,7 +129,7 @@ class MarketDepthChart {
     const bids = [];
     let cumulativeBidAmount = 0;
     for (let i = 0; i < depth; i++) {
-      const price = currentPrice - (i * (Math.random() * 10 + 10));
+      const price = currentPrice - i * (Math.random() * 10 + 10);
       const amount = Math.random() * 0.5 + 0.1;
       cumulativeBidAmount += amount;
       bids.push({ price: price.toFixed(2), amount: cumulativeBidAmount });
@@ -140,7 +140,7 @@ class MarketDepthChart {
     const asks = [];
     let cumulativeAskAmount = 0;
     for (let i = 0; i < depth; i++) {
-      const price = currentPrice + (i * (Math.random() * 10 + 10));
+      const price = currentPrice + i * (Math.random() * 10 + 10);
       const amount = Math.random() * 0.5 + 0.1;
       cumulativeAskAmount += amount;
       asks.push({ price: price.toFixed(2), amount: cumulativeAskAmount });
@@ -155,11 +155,11 @@ class MarketDepthChart {
     const { bids, asks } = this.generateDepthData();
 
     // Combine bid and ask data for x-axis
-    const allPrices = [...bids.map(b => b.price), ...asks.map(a => a.price)];
+    const allPrices = [...bids.map((b) => b.price), ...asks.map((a) => a.price)];
 
     // Create data points
-    const bidData = bids.map(b => ({ x: b.price, y: b.amount }));
-    const askData = asks.map(a => ({ x: a.price, y: a.amount }));
+    const bidData = bids.map((b) => ({ x: b.price, y: b.amount }));
+    const askData = asks.map((a) => ({ x: a.price, y: a.amount }));
 
     this.chart.data.labels = allPrices;
     this.chart.data.datasets[0].data = bidData;

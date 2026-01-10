@@ -48,13 +48,14 @@ class OrderBook {
   }
 
   render() {
-    const maxBidTotal = Math.max(...this.bids.map(b => b.total));
-    const maxAskTotal = Math.max(...this.asks.map(a => a.total));
+    const maxBidTotal = Math.max(...this.bids.map((b) => b.total));
+    const maxAskTotal = Math.max(...this.asks.map((a) => a.total));
     const maxTotal = Math.max(maxBidTotal, maxAskTotal);
 
-    const asksHtml = this.asks.map(ask => {
-      const percentage = (ask.total / maxTotal) * 100;
-      return `
+    const asksHtml = this.asks
+      .map((ask) => {
+        const percentage = (ask.total / maxTotal) * 100;
+        return `
         <div class="orderbook-row ask-row">
           <div class="orderbook-depth" style="width: ${percentage}%"></div>
           <span class="orderbook-price ask-price">${ask.price.toFixed(2)}</span>
@@ -62,7 +63,8 @@ class OrderBook {
           <span class="orderbook-total">${ask.total.toFixed(2)}</span>
         </div>
       `;
-    }).join('');
+      })
+      .join('');
 
     const currentPriceHtml = `
       <div class="orderbook-spread">
@@ -71,9 +73,10 @@ class OrderBook {
       </div>
     `;
 
-    const bidsHtml = this.bids.map(bid => {
-      const percentage = (bid.total / maxTotal) * 100;
-      return `
+    const bidsHtml = this.bids
+      .map((bid) => {
+        const percentage = (bid.total / maxTotal) * 100;
+        return `
         <div class="orderbook-row bid-row">
           <div class="orderbook-depth bid-depth" style="width: ${percentage}%"></div>
           <span class="orderbook-price bid-price">${bid.price.toFixed(2)}</span>
@@ -81,7 +84,8 @@ class OrderBook {
           <span class="orderbook-total">${bid.total.toFixed(2)}</span>
         </div>
       `;
-    }).join('');
+      })
+      .join('');
 
     this.container.innerHTML = `
       <div class="orderbook-header">
@@ -103,21 +107,21 @@ class OrderBook {
     // Simulate price movements
     const change = (Math.random() - 0.5) * 100;
 
-    this.bids = this.bids.map(bid => ({
+    this.bids = this.bids.map((bid) => ({
       ...bid,
       price: bid.price + change,
       amount: bid.amount * (0.95 + Math.random() * 0.1),
     }));
 
-    this.asks = this.asks.map(ask => ({
+    this.asks = this.asks.map((ask) => ({
       ...ask,
       price: ask.price + change,
       amount: ask.amount * (0.95 + Math.random() * 0.1),
     }));
 
     // Recalculate totals
-    this.bids.forEach(bid => bid.total = bid.price * bid.amount);
-    this.asks.forEach(ask => ask.total = ask.price * ask.amount);
+    this.bids.forEach((bid) => (bid.total = bid.price * bid.amount));
+    this.asks.forEach((ask) => (ask.total = ask.price * ask.amount));
 
     this.render();
   }

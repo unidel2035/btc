@@ -49,7 +49,7 @@ class ScreeningManager {
       // Start screening
       const response = await fetch('/api/screening/run', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       const data = await response.json();
@@ -144,8 +144,11 @@ class ScreeningManager {
       document.getElementById('copyTradingPairs').disabled = false;
 
       // Update status
-      document.getElementById('lastScreeningTime').textContent = new Date(this.latestReport.generatedAt).toLocaleString();
-      document.getElementById('projectsFound').textContent = this.latestReport.recommendations.length;
+      document.getElementById('lastScreeningTime').textContent = new Date(
+        this.latestReport.generatedAt,
+      ).toLocaleString();
+      document.getElementById('projectsFound').textContent =
+        this.latestReport.recommendations.length;
     } catch (error) {
       console.error('Failed to load latest report:', error);
     }
@@ -159,7 +162,9 @@ class ScreeningManager {
     document.getElementById('sectorsAnalyzed').textContent = report.analyzedSectors.length;
     document.getElementById('projectsScreened').textContent = report.totalProjectsAnalyzed;
     document.getElementById('selectedSectorsCount').textContent = report.selectedSectors.length;
-    document.getElementById('reportDate').textContent = new Date(report.generatedAt).toLocaleDateString();
+    document.getElementById('reportDate').textContent = new Date(
+      report.generatedAt,
+    ).toLocaleDateString();
 
     // Display project cards
     this.displayProjectCards(report.recommendations);
@@ -185,8 +190,12 @@ class ScreeningManager {
       const card = document.createElement('div');
       card.className = 'project-card';
 
-      const riskClass = project.riskLevel === 'low' ? 'positive' :
-                       project.riskLevel === 'medium' ? 'neutral' : 'negative';
+      const riskClass =
+        project.riskLevel === 'low'
+          ? 'positive'
+          : project.riskLevel === 'medium'
+            ? 'neutral'
+            : 'negative';
 
       card.innerHTML = `
         <div class="project-card-header">
@@ -217,7 +226,7 @@ class ScreeningManager {
         <div class="project-pairs">
           <h5>💱 Trading Pairs:</h5>
           <ul>
-            ${project.tradingPairs.map(pair => `<li>${pair}</li>`).join('')}
+            ${project.tradingPairs.map((pair) => `<li>${pair}</li>`).join('')}
           </ul>
         </div>
         <div class="project-stats">
@@ -246,8 +255,12 @@ class ScreeningManager {
 
     recommendations.forEach((project) => {
       const row = document.createElement('tr');
-      const riskClass = project.riskLevel === 'low' ? 'positive' :
-                       project.riskLevel === 'medium' ? 'neutral' : 'negative';
+      const riskClass =
+        project.riskLevel === 'low'
+          ? 'positive'
+          : project.riskLevel === 'medium'
+            ? 'neutral'
+            : 'negative';
 
       row.innerHTML = `
         <td>${project.rank}</td>
@@ -384,7 +397,7 @@ class ScreeningManager {
       md += `**Rationale:** ${project.rationale}\n\n`;
       md += `**Key Risk:** ${project.keyRisk}\n\n`;
       md += `**Trading Pairs:**\n`;
-      project.tradingPairs.forEach(pair => {
+      project.tradingPairs.forEach((pair) => {
         md += `- ${pair}\n`;
       });
       md += `\n`;

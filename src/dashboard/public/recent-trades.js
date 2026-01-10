@@ -32,7 +32,7 @@ class RecentTrades {
       price: currentPrice,
       amount,
       isBuy,
-      total: currentPrice * amount
+      total: currentPrice * amount,
     };
   }
 
@@ -46,22 +46,24 @@ class RecentTrades {
 
   render() {
     if (this.trades.length === 0) {
-      this.container.innerHTML = '<p class="text-muted" style="text-align: center; padding: 1rem;">No trades yet</p>';
+      this.container.innerHTML =
+        '<p class="text-muted" style="text-align: center; padding: 1rem;">No trades yet</p>';
       return;
     }
 
-    const tradesHtml = this.trades.map((trade, index) => {
-      const timeStr = trade.time.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
+    const tradesHtml = this.trades
+      .map((trade, index) => {
+        const timeStr = trade.time.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        });
 
-      const isRecent = index === 0;
-      const animationClass = isRecent ? 'trade-flash' : '';
+        const isRecent = index === 0;
+        const animationClass = isRecent ? 'trade-flash' : '';
 
-      return `
+        return `
         <div class="trade-row ${animationClass}">
           <span class="trade-time">${timeStr}</span>
           <span class="trade-price ${trade.isBuy ? 'trade-buy' : 'trade-sell'}">
@@ -70,7 +72,8 @@ class RecentTrades {
           <span class="trade-amount">${trade.amount.toFixed(4)}</span>
         </div>
       `;
-    }).join('');
+      })
+      .join('');
 
     this.container.innerHTML = `
       <div class="trades-header">
@@ -91,9 +94,12 @@ class RecentTrades {
     }
 
     // Add new trades periodically
-    this.updateInterval = setInterval(() => {
-      this.addTrade(this.generateMockTrade());
-    }, 2000 + Math.random() * 3000);
+    this.updateInterval = setInterval(
+      () => {
+        this.addTrade(this.generateMockTrade());
+      },
+      2000 + Math.random() * 3000,
+    );
   }
 
   stopUpdates() {

@@ -368,7 +368,8 @@
     const message = document.createElement('div');
     message.className = 'chart-placeholder';
     message.style.cssText = 'padding: 40px; text-align: center; color: #a0aec0;';
-    message.textContent = `Price chart with ${results.totalTrades} trades will be displayed here. ` +
+    message.textContent =
+      `Price chart with ${results.totalTrades} trades will be displayed here. ` +
       'Full implementation requires candlestick data from the backtest.';
     container.appendChild(message);
 
@@ -403,14 +404,13 @@
 
       // Exit Time
       const exitCell = row.insertCell();
-      exitCell.textContent = trade.exitTime
-        ? new Date(trade.exitTime).toLocaleString()
-        : '-';
+      exitCell.textContent = trade.exitTime ? new Date(trade.exitTime).toLocaleString() : '-';
 
       // Direction
       const directionCell = row.insertCell();
       directionCell.textContent = trade.direction.toUpperCase();
-      directionCell.className = trade.direction === 'long' ? 'badge badge-success' : 'badge badge-danger';
+      directionCell.className =
+        trade.direction === 'long' ? 'badge badge-success' : 'badge badge-danger';
 
       // Entry Price
       const entryPriceCell = row.insertCell();
@@ -444,9 +444,7 @@
 
       // Exit Reason
       const reasonCell = row.insertCell();
-      reasonCell.textContent = trade.exitReason
-        ? trade.exitReason.replace(/-/g, ' ')
-        : '-';
+      reasonCell.textContent = trade.exitReason ? trade.exitReason.replace(/-/g, ' ') : '-';
       reasonCell.style.textTransform = 'capitalize';
     });
   }
@@ -502,10 +500,7 @@
       trade.exitReason || '',
     ]);
 
-    const csvContent =
-      headers.join(',') +
-      '\n' +
-      rows.map((row) => row.join(',')).join('\n');
+    const csvContent = headers.join(',') + '\n' + rows.map((row) => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);

@@ -34,7 +34,7 @@ class EnhancedTradingChart {
       { value: '15m', label: '15m', seconds: 900 },
       { value: '1h', label: '1H', seconds: 3600 },
       { value: '4h', label: '4H', seconds: 14400 },
-      { value: '1D', label: '1D', seconds: 86400 }
+      { value: '1D', label: '1D', seconds: 86400 },
     ];
   }
 
@@ -132,7 +132,7 @@ class EnhancedTradingChart {
       if (this.chart && chartContainer) {
         this.chart.applyOptions({
           width: chartContainer.clientWidth,
-          height: chartContainer.clientHeight
+          height: chartContainer.clientHeight,
         });
       }
     });
@@ -148,21 +148,21 @@ class EnhancedTradingChart {
     document.getElementById('chartReset')?.addEventListener('click', () => this.reset());
 
     // Timeframe selector
-    document.querySelectorAll('.timeframe-btn').forEach(btn => {
+    document.querySelectorAll('.timeframe-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         this.switchTimeframe(e.target.dataset.timeframe);
       });
     });
 
     // Chart type selector
-    document.querySelectorAll('.chart-type-btn').forEach(btn => {
+    document.querySelectorAll('.chart-type-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         this.switchChartType(e.target.dataset.chartType);
       });
     });
 
     // Indicator toggles
-    document.querySelectorAll('.indicator-toggle').forEach(toggle => {
+    document.querySelectorAll('.indicator-toggle').forEach((toggle) => {
       toggle.addEventListener('click', (e) => {
         const indicator = e.target.dataset.indicator;
         this.toggleIndicator(indicator);
@@ -177,29 +177,38 @@ class EnhancedTradingChart {
 
   setupIndicators() {
     // Initialize indicator storage
-    this.indicators.set('ma20', this.chart.addLineSeries({
-      color: '#2962FF',
-      lineWidth: 2,
-      title: 'MA(20)',
-      priceLineVisible: false,
-      lastValueVisible: false,
-    }));
+    this.indicators.set(
+      'ma20',
+      this.chart.addLineSeries({
+        color: '#2962FF',
+        lineWidth: 2,
+        title: 'MA(20)',
+        priceLineVisible: false,
+        lastValueVisible: false,
+      }),
+    );
 
-    this.indicators.set('ma50', this.chart.addLineSeries({
-      color: '#FF6D00',
-      lineWidth: 2,
-      title: 'MA(50)',
-      priceLineVisible: false,
-      lastValueVisible: false,
-    }));
+    this.indicators.set(
+      'ma50',
+      this.chart.addLineSeries({
+        color: '#FF6D00',
+        lineWidth: 2,
+        title: 'MA(50)',
+        priceLineVisible: false,
+        lastValueVisible: false,
+      }),
+    );
 
-    this.indicators.set('ema20', this.chart.addLineSeries({
-      color: '#00E676',
-      lineWidth: 2,
-      title: 'EMA(20)',
-      priceLineVisible: false,
-      lastValueVisible: false,
-    }));
+    this.indicators.set(
+      'ema20',
+      this.chart.addLineSeries({
+        color: '#00E676',
+        lineWidth: 2,
+        title: 'EMA(20)',
+        priceLineVisible: false,
+        lastValueVisible: false,
+      }),
+    );
 
     // Hide all indicators by default
     this.indicators.forEach((series) => {
@@ -211,7 +220,7 @@ class EnhancedTradingChart {
     this.currentTimeframe = timeframe;
 
     // Update active button
-    document.querySelectorAll('.timeframe-btn').forEach(btn => {
+    document.querySelectorAll('.timeframe-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.timeframe === timeframe);
     });
 
@@ -229,7 +238,7 @@ class EnhancedTradingChart {
     this.chartType = chartType;
 
     // Update active button
-    document.querySelectorAll('.chart-type-btn').forEach(btn => {
+    document.querySelectorAll('.chart-type-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.chartType === chartType);
     });
 
@@ -317,7 +326,7 @@ class EnhancedTradingChart {
   toggleFullscreen() {
     const chartPage = document.getElementById('chart-page');
     if (!document.fullscreenElement) {
-      chartPage.requestFullscreen().catch(err => {
+      chartPage.requestFullscreen().catch((err) => {
         console.error('Error attempting to enable fullscreen:', err);
       });
     } else {
@@ -329,12 +338,12 @@ class EnhancedTradingChart {
     const data = [];
     const volumeData = [];
     let price = 49900;
-    const timeframeData = this.timeframes.find(tf => tf.value === this.currentTimeframe);
+    const timeframeData = this.timeframes.find((tf) => tf.value === this.currentTimeframe);
     const interval = timeframeData ? timeframeData.seconds : 3600;
-    const startTime = this.currentTime - (100 * interval);
+    const startTime = this.currentTime - 100 * interval;
 
     for (let i = 0; i < 100; i++) {
-      const time = startTime + (i * interval);
+      const time = startTime + i * interval;
       const change = (Math.random() - 0.5) * 200;
       price += change;
 
@@ -348,7 +357,7 @@ class EnhancedTradingChart {
       volumeData.push({
         time,
         value: volume,
-        color: close >= open ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.5)'
+        color: close >= open ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.5)',
       });
 
       this.priceHistory.push({ time, high, low, close });
@@ -363,10 +372,10 @@ class EnhancedTradingChart {
 
   setChartData(data) {
     if (this.chartType === 'line') {
-      const lineData = data.price.map(d => ({ time: d.time, value: d.close }));
+      const lineData = data.price.map((d) => ({ time: d.time, value: d.close }));
       this.candlestickSeries.setData(lineData);
     } else if (this.chartType === 'area') {
-      const areaData = data.price.map(d => ({ time: d.time, value: d.close }));
+      const areaData = data.price.map((d) => ({ time: d.time, value: d.close }));
       this.candlestickSeries.setData(areaData);
     } else {
       this.candlestickSeries.setData(data.price);
@@ -377,15 +386,15 @@ class EnhancedTradingChart {
     // Update channel data
     const channel = this.calculateChannel();
     if (channel) {
-      const channelData = data.price.map(d => ({ time: d.time, value: channel.high }));
+      const channelData = data.price.map((d) => ({ time: d.time, value: channel.high }));
       this.channelHighSeries.setData(channelData);
-      this.channelLowSeries.setData(channelData.map(d => ({ ...d, value: channel.low })));
+      this.channelLowSeries.setData(channelData.map((d) => ({ ...d, value: channel.low })));
 
       this.updateUI(data.price[data.price.length - 1], channel, null);
     }
 
     // Update indicators if active
-    this.activeIndicators.forEach(indicator => {
+    this.activeIndicators.forEach((indicator) => {
       this.updateIndicatorData(indicator);
     });
   }
@@ -394,8 +403,8 @@ class EnhancedTradingChart {
     if (this.priceHistory.length < this.CHANNEL_PERIOD) return null;
 
     const recent = this.priceHistory.slice(-this.CHANNEL_PERIOD);
-    const high = Math.max(...recent.map(p => p.high));
-    const low = Math.min(...recent.map(p => p.low));
+    const high = Math.max(...recent.map((p) => p.high));
+    const low = Math.min(...recent.map((p) => p.low));
     const width = high - low;
     const widthPercent = (width / low) * 100;
 
@@ -473,9 +482,8 @@ class EnhancedTradingChart {
   addTrade(direction, entryPrice, channel) {
     const stopLoss = direction === 'LONG' ? channel.low : channel.high;
     const takeProfitDistance = channel.width * 1.5;
-    const takeProfit = direction === 'LONG'
-      ? entryPrice + takeProfitDistance
-      : entryPrice - takeProfitDistance;
+    const takeProfit =
+      direction === 'LONG' ? entryPrice + takeProfitDistance : entryPrice - takeProfitDistance;
 
     const trade = {
       direction,
@@ -491,32 +499,40 @@ class EnhancedTradingChart {
     this.updateTradeHistory(trade);
 
     // Add marker to chart
-    const markers = [{
-      time: this.currentTime,
-      position: direction === 'LONG' ? 'belowBar' : 'aboveBar',
-      color: direction === 'LONG' ? '#10b981' : '#ef4444',
-      shape: direction === 'LONG' ? 'arrowUp' : 'arrowDown',
-      text: direction,
-    }];
+    const markers = [
+      {
+        time: this.currentTime,
+        position: direction === 'LONG' ? 'belowBar' : 'aboveBar',
+        color: direction === 'LONG' ? '#10b981' : '#ef4444',
+        shape: direction === 'LONG' ? 'arrowUp' : 'arrowDown',
+        text: direction,
+      },
+    ];
 
     this.candlestickSeries.setMarkers(markers);
   }
 
   updateUI(candle, channel, signal) {
     const price = typeof candle === 'number' ? candle : candle.close;
-    document.getElementById('chartPrice').textContent = `$${price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+    document.getElementById('chartPrice').textContent =
+      `$${price.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
 
     if (channel) {
-      document.getElementById('chartChannelHigh').textContent = `$${channel.high.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-      document.getElementById('chartChannelLow').textContent = `$${channel.low.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-      document.getElementById('chartChannelWidth').textContent = `$${channel.width.toFixed(2)} (${channel.widthPercent.toFixed(2)}%)`;
+      document.getElementById('chartChannelHigh').textContent =
+        `$${channel.high.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      document.getElementById('chartChannelLow').textContent =
+        `$${channel.low.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      document.getElementById('chartChannelWidth').textContent =
+        `$${channel.width.toFixed(2)} (${channel.widthPercent.toFixed(2)}%)`;
     }
 
     if (signal) {
       const badgeClass = signal === 'LONG' ? 'badge-long' : 'badge-short';
-      document.getElementById('chartSignalStatus').innerHTML = `<span class="badge ${badgeClass}">${signal}</span>`;
+      document.getElementById('chartSignalStatus').innerHTML =
+        `<span class="badge ${badgeClass}">${signal}</span>`;
     } else {
-      document.getElementById('chartSignalStatus').innerHTML = '<span class="badge badge-neutral">No Signal</span>';
+      document.getElementById('chartSignalStatus').innerHTML =
+        '<span class="badge badge-neutral">No Signal</span>';
     }
   }
 
@@ -528,15 +544,15 @@ class EnhancedTradingChart {
       </div>
       <div class="stat-row">
         <span class="stat-label">Entry Price</span>
-        <span class="stat-value">$${trade.entryPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+        <span class="stat-value">$${trade.entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
       </div>
       <div class="stat-row">
         <span class="stat-label">Stop Loss</span>
-        <span class="stat-value negative">$${trade.stopLoss.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+        <span class="stat-value negative">$${trade.stopLoss.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
       </div>
       <div class="stat-row">
         <span class="stat-label">Take Profit</span>
-        <span class="stat-value positive">$${trade.takeProfit.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+        <span class="stat-value positive">$${trade.takeProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
       </div>
       <div class="stat-row">
         <span class="stat-label">Confidence</span>
@@ -551,9 +567,9 @@ class EnhancedTradingChart {
       <div class="trade-item">
         <div class="trade-item-header">
           <span class="badge ${trade.direction === 'LONG' ? 'badge-long' : 'badge-short'}">${trade.direction}</span>
-          <span>$${trade.entryPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+          <span>$${trade.entryPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
         </div>
-        <div>SL: $${trade.stopLoss.toLocaleString(undefined, {minimumFractionDigits: 2})} | TP: $${trade.takeProfit.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+        <div>SL: $${trade.stopLoss.toLocaleString(undefined, { minimumFractionDigits: 2 })} | TP: $${trade.takeProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
       </div>
     `;
 
@@ -565,7 +581,7 @@ class EnhancedTradingChart {
   }
 
   generateNextCandle() {
-    const timeframeData = this.timeframes.find(tf => tf.value === this.currentTimeframe);
+    const timeframeData = this.timeframes.find((tf) => tf.value === this.currentTimeframe);
     const interval = timeframeData ? timeframeData.seconds : 3600;
 
     const change = (Math.random() - 0.5) * 300;
@@ -588,7 +604,7 @@ class EnhancedTradingChart {
     const volumeBar = {
       time: this.currentTime,
       value: volume,
-      color: close >= open ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.5)'
+      color: close >= open ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.5)',
     };
 
     this.currentPrice = close;
@@ -636,7 +652,7 @@ class EnhancedTradingChart {
     }
 
     // Update active indicators
-    this.activeIndicators.forEach(indicator => {
+    this.activeIndicators.forEach((indicator) => {
       this.updateIndicatorData(indicator);
     });
   }
@@ -667,8 +683,10 @@ class EnhancedTradingChart {
     const historicalData = this.generateHistoricalData();
     this.setChartData(historicalData);
 
-    document.getElementById('chartLastSignal').innerHTML = '<p class="text-muted">Waiting for channel breakout...</p>';
-    document.getElementById('chartTradeHistory').innerHTML = '<p class="text-muted">No trades yet</p>';
+    document.getElementById('chartLastSignal').innerHTML =
+      '<p class="text-muted">Waiting for channel breakout...</p>';
+    document.getElementById('chartTradeHistory').innerHTML =
+      '<p class="text-muted">No trades yet</p>';
   }
 
   destroy() {

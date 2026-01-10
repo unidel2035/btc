@@ -36,19 +36,21 @@ class RSIStrategy extends BaseStrategy {
     }
 
     // Разделяем на прибыли и убытки
-    const gains = changes.map(change => change > 0 ? change : 0);
-    const losses = changes.map(change => change < 0 ? -change : 0);
+    const gains = changes.map((change) => (change > 0 ? change : 0));
+    const losses = changes.map((change) => (change < 0 ? -change : 0));
 
     // Рассчитываем средние прибыли и убытки за период
-    const avgGain = gains.slice(-this.RSI_PERIOD).reduce((sum, gain) => sum + gain, 0) / this.RSI_PERIOD;
-    const avgLoss = losses.slice(-this.RSI_PERIOD).reduce((sum, loss) => sum + loss, 0) / this.RSI_PERIOD;
+    const avgGain =
+      gains.slice(-this.RSI_PERIOD).reduce((sum, gain) => sum + gain, 0) / this.RSI_PERIOD;
+    const avgLoss =
+      losses.slice(-this.RSI_PERIOD).reduce((sum, loss) => sum + loss, 0) / this.RSI_PERIOD;
 
     if (avgLoss === 0) {
       return 100;
     }
 
     const rs = avgGain / avgLoss;
-    const rsi = 100 - (100 / (1 + rs));
+    const rsi = 100 - 100 / (1 + rs);
 
     return rsi;
   }
@@ -82,7 +84,7 @@ class RSIStrategy extends BaseStrategy {
       return null;
     }
 
-    const closePrices = priceHistory.map(p => p.close);
+    const closePrices = priceHistory.map((p) => p.close);
 
     // Сохраняем предыдущее значение
     this.previousRsi = this.rsi;
@@ -100,14 +102,17 @@ class RSIStrategy extends BaseStrategy {
     if (signal) {
       // Расчет уровней на основе волатильности
       const recentPrices = priceHistory.slice(-20);
-      const volatility = Math.max(...recentPrices.map(p => p.high)) - Math.min(...recentPrices.map(p => p.low));
+      const volatility =
+        Math.max(...recentPrices.map((p) => p.high)) - Math.min(...recentPrices.map((p) => p.low));
 
-      const stopLoss = signal === 'LONG'
-        ? currentCandle.close - volatility * 0.5
-        : currentCandle.close + volatility * 0.5;
-      const takeProfit = signal === 'LONG'
-        ? currentCandle.close + volatility * 1.0
-        : currentCandle.close - volatility * 1.0;
+      const stopLoss =
+        signal === 'LONG'
+          ? currentCandle.close - volatility * 0.5
+          : currentCandle.close + volatility * 0.5;
+      const takeProfit =
+        signal === 'LONG'
+          ? currentCandle.close + volatility * 1.0
+          : currentCandle.close - volatility * 1.0;
 
       const trade = {
         direction: signal,
