@@ -1,0 +1,892 @@
+/* ============================================================================
+   UI Components Stylesheet
+   Modern, reusable components for Trading Bot Dashboard
+   ============================================================================ */
+
+/* ============================================================================
+   1. Card Component
+   ============================================================================ */
+
+.ui-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+/* Card Variants */
+.ui-card-default {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.ui-card-gradient {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  border: none;
+  color: white;
+}
+
+.ui-card-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ui-card-outlined {
+  background: transparent;
+  border: 2px solid var(--accent-primary);
+}
+
+/* Card Hover Effects */
+.ui-card-hoverable:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-primary);
+}
+
+/* Card Header */
+.ui-card-header {
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ui-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary);
+}
+
+.ui-card-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Card Body */
+.ui-card-body {
+  flex: 1;
+}
+
+/* Card Footer */
+.ui-card-footer {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================================================
+   2. Button Component
+   ============================================================================ */
+
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ui-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ui-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Button Variants */
+.ui-btn-primary {
+  background: var(--accent-primary);
+  color: white;
+}
+
+.ui-btn-primary:hover:not(:disabled) {
+  background: var(--accent-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+.ui-btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.ui-btn-success:hover:not(:disabled) {
+  background: #0ea472;
+  box-shadow: var(--shadow-md);
+}
+
+.ui-btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.ui-btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+  box-shadow: var(--shadow-md);
+}
+
+.ui-btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.ui-btn-secondary:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--accent-primary);
+}
+
+.ui-btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid transparent;
+}
+
+.ui-btn-ghost:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--border);
+}
+
+.ui-btn-link {
+  background: transparent;
+  color: var(--accent-primary);
+  border: none;
+  padding: 0.5rem 0.75rem;
+}
+
+.ui-btn-link:hover:not(:disabled) {
+  color: var(--accent-secondary);
+  text-decoration: underline;
+}
+
+/* Button Sizes */
+.ui-btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+}
+
+.ui-btn-md {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  border-radius: 8px;
+}
+
+.ui-btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 1.0625rem;
+  border-radius: 10px;
+}
+
+/* Button Loading State */
+.ui-btn-loading {
+  pointer-events: none;
+}
+
+.ui-btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* ============================================================================
+   3. Badge Component
+   ============================================================================ */
+
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Badge Variants */
+.ui-badge-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.ui-badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.ui-badge-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.ui-badge-info {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--info);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.ui-badge-neutral {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+/* Badge with Dot */
+.ui-badge-dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 0.375rem;
+}
+
+/* ============================================================================
+   4. Modal Component
+   ============================================================================ */
+
+.ui-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.ui-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: scale-enter 0.2s ease;
+}
+
+/* Modal Sizes */
+.ui-modal-sm {
+  width: 100%;
+  max-width: 400px;
+}
+
+.ui-modal-md {
+  width: 100%;
+  max-width: 600px;
+}
+
+.ui-modal-lg {
+  width: 100%;
+  max-width: 800px;
+}
+
+.ui-modal-xl {
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Modal Header */
+.ui-modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ui-modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.ui-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.ui-modal-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+/* Modal Body */
+.ui-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Modal Footer */
+.ui-modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@keyframes scale-enter {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================================================
+   5. Tooltip Component
+   ============================================================================ */
+
+.ui-tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.ui-tooltip {
+  position: absolute;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  z-index: 1001;
+  pointer-events: none;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+/* Tooltip Positions */
+.ui-tooltip-top {
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ui-tooltip-bottom {
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ui-tooltip-left {
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ui-tooltip-right {
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Tooltip Arrow */
+.ui-tooltip::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 4px solid transparent;
+}
+
+.ui-tooltip-top::after {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top-color: var(--bg-tertiary);
+}
+
+.ui-tooltip-bottom::after {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-bottom-color: var(--bg-tertiary);
+}
+
+.ui-tooltip-left::after {
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left-color: var(--bg-tertiary);
+}
+
+.ui-tooltip-right::after {
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-right-color: var(--bg-tertiary);
+}
+
+/* ============================================================================
+   6. Table Component
+   ============================================================================ */
+
+.ui-table-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ui-table-wrapper {
+  overflow-x: auto;
+}
+
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ui-table thead {
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border);
+}
+
+.ui-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.ui-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 2rem;
+}
+
+.ui-table th.sortable:hover {
+  background: var(--bg-tertiary);
+}
+
+.ui-table th.sortable::after {
+  content: '↕';
+  position: absolute;
+  right: 0.75rem;
+  opacity: 0.5;
+}
+
+.ui-table th.sortable.sort-asc::after {
+  content: '↑';
+  opacity: 1;
+}
+
+.ui-table th.sortable.sort-desc::after {
+  content: '↓';
+  opacity: 1;
+}
+
+.ui-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease;
+}
+
+.ui-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.ui-table tbody tr:hover {
+  background: var(--bg-secondary);
+}
+
+.ui-table tbody tr.striped:nth-child(even) {
+  background: var(--bg-secondary);
+}
+
+.ui-table tbody tr.striped:nth-child(even):hover {
+  background: var(--bg-tertiary);
+}
+
+.ui-table td {
+  padding: 1rem;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+/* ============================================================================
+   7. Skeleton Loader Component
+   ============================================================================ */
+
+.ui-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 0%,
+    var(--bg-tertiary) 50%,
+    var(--bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+.ui-skeleton-text {
+  height: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.ui-skeleton-title {
+  height: 1.5rem;
+  width: 60%;
+  margin-bottom: 1rem;
+}
+
+.ui-skeleton-circle {
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+}
+
+.ui-skeleton-rectangle {
+  height: 200px;
+  width: 100%;
+}
+
+.ui-skeleton-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ui-skeleton-table-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.ui-skeleton-table-cell {
+  height: 1rem;
+  flex: 1;
+}
+
+/* ============================================================================
+   8. Progress Bar Component
+   ============================================================================ */
+
+.ui-progress-container {
+  width: 100%;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  height: 8px;
+}
+
+.ui-progress-bar {
+  height: 100%;
+  background: var(--accent-primary);
+  border-radius: 8px;
+  transition: width 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Progress Bar Variants */
+.ui-progress-success {
+  background: var(--success);
+}
+
+.ui-progress-warning {
+  background: var(--warning);
+}
+
+.ui-progress-danger {
+  background: var(--danger);
+}
+
+.ui-progress-info {
+  background: var(--info);
+}
+
+/* Progress with Label */
+.ui-progress-with-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ui-progress-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 3rem;
+  text-align: right;
+}
+
+/* Progress Sizes */
+.ui-progress-sm {
+  height: 4px;
+}
+
+.ui-progress-md {
+  height: 8px;
+}
+
+.ui-progress-lg {
+  height: 12px;
+}
+
+/* Animated Progress */
+.ui-progress-animated .ui-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: progress-shine 2s infinite;
+}
+
+@keyframes progress-shine {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ============================================================================
+   9. Input Component
+   ============================================================================ */
+
+.ui-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ui-input-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.ui-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ui-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+}
+
+.ui-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-color-alpha);
+}
+
+.ui-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--bg-tertiary);
+}
+
+.ui-input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Input with Prefix/Suffix */
+.ui-input-prefix,
+.ui-input-suffix {
+  position: absolute;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+.ui-input-prefix {
+  left: 1rem;
+}
+
+.ui-input-suffix {
+  right: 1rem;
+}
+
+.ui-input.has-prefix {
+  padding-left: 2.5rem;
+}
+
+.ui-input.has-suffix {
+  padding-right: 2.5rem;
+}
+
+/* Input Error State */
+.ui-input-error .ui-input {
+  border-color: var(--danger);
+}
+
+.ui-input-error .ui-input:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.ui-input-error-message {
+  font-size: 0.875rem;
+  color: var(--danger);
+}
+
+/* ============================================================================
+   10. Tabs Component
+   ============================================================================ */
+
+.ui-tabs {
+  width: 100%;
+}
+
+.ui-tabs-header {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+  gap: 0.5rem;
+}
+
+.ui-tab {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.ui-tab:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.ui-tab.active {
+  color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
+}
+
+.ui-tab-content {
+  padding: 1.5rem 0;
+  display: none;
+}
+
+.ui-tab-content.active {
+  display: block;
+  animation: fade-enter 0.2s ease;
+}
+
+@keyframes fade-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .ui-modal {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+
+  .ui-table-wrapper {
+    overflow-x: scroll;
+  }
+
+  .ui-tabs-header {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ui-tab {
+    white-space: nowrap;
+  }
+}
+
+/* ============================================================================
+   Accessibility
+   ============================================================================ */
+
+.ui-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
