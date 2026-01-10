@@ -116,7 +116,7 @@ export class SectorAnalyzer {
   private identifyDrivers(category: CoinGeckoCategoryData): string[] {
     const drivers: string[] = [];
     const name = category.name.toLowerCase();
-    const content = category.content?.toLowerCase() || '';
+    // const content = category.content?.toLowerCase() || ''; // Reserved for future use
 
     // AI-related sectors
     if (name.includes('ai') || name.includes('artificial intelligence')) {

@@ -90,7 +90,7 @@ export class QuantitativeScreener {
    */
   private applyQuantitativeFilters(
     marketData: CoinGeckoMarketData[],
-    sector: SectorInfo
+    _sector: SectorInfo // Reserved for future sector-specific filters
   ): CoinGeckoMarketData[] {
     return marketData.filter(coin => {
       // Market cap rank filter

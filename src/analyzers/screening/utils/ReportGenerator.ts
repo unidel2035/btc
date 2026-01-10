@@ -5,7 +5,7 @@
 
 import type { ScreeningReport, PortfolioProject } from '../types/index.js';
 import { writeFileSync } from 'fs';
-import { join } from 'path';
+// import { join } from 'path'; // Reserved for future path utilities
 
 export class ReportGenerator {
   /**

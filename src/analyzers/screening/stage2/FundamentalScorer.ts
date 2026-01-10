@@ -160,7 +160,7 @@ export class FundamentalScorer {
    */
   private calculateMarketScore(
     candidate: ProjectCandidate,
-    details: CoinGeckoDetailedData
+    _details: CoinGeckoDetailedData // Reserved for future on-chain metrics
   ): number {
     let score = 0;
 
@@ -308,7 +308,7 @@ export class FundamentalScorer {
    */
   private generateReasoning(
     candidate: ProjectCandidate,
-    details: CoinGeckoDetailedData,
+    _details: CoinGeckoDetailedData, // Reserved for future detailed analysis
     scores: { fundamental: number; market: number; community: number },
     metrics: ScoredProject['metrics']
   ): string[] {
@@ -353,7 +353,7 @@ export class FundamentalScorer {
    */
   private identifyRisks(
     candidate: ProjectCandidate,
-    details: CoinGeckoDetailedData,
+    _details: CoinGeckoDetailedData, // Reserved for future risk analysis
     metrics: ScoredProject['metrics']
   ): string[] {
     const risks: string[] = [];

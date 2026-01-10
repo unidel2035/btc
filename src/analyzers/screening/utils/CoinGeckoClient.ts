@@ -11,12 +11,11 @@ import type {
 
 export class CoinGeckoClient {
   private client: AxiosInstance;
-  private apiKey?: string;
   private requestDelay: number = 1200; // Rate limit: ~50 requests/minute for free tier
   private lastRequestTime: number = 0;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey;
+    // apiKey is used in the client initialization
 
     this.client = axios.create({
       baseURL: apiKey
