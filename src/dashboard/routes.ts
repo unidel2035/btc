@@ -8,6 +8,7 @@ import { storage } from './storage.js';
 import type { SignalsProvider } from './providers/SignalsProvider.js';
 import type { ExchangeManager } from '../exchanges/ExchangeManager.js';
 import { CandleInterval, type Candle } from '../exchanges/types.js';
+import { setupWebhookRoutes } from '../webhooks/routes.js';
 
 // Type for dashboard server to access signals provider and exchange manager
 interface DashboardServerInterface {
@@ -16,6 +17,9 @@ interface DashboardServerInterface {
 }
 
 export function setupRoutes(router: Router, dashboardServer?: DashboardServerInterface): void {
+  // Setup webhook routes
+  setupWebhookRoutes(router);
+
   // Health check
   router.get('/health', (_req: Request, res: Response) => {
     res.json({
@@ -488,6 +492,9 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
     }
   });
 
+  // GET /api/strategies/:name/schema - Get strategy parameter schema
+  router.get('/api/strategies/:name/schema', (req: Request, res: Response): void => {
+    try {
       const signalsProvider = dashboardServer?.getSignalsProvider();
       if (!signalsProvider) {
         res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
@@ -642,9 +649,6 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
     },
   );
 
-  // POST /api/backtest/run - Run backtest
-  router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
-    try {
   // GET /api/chart/history - Chart historical data
   router.get('/api/chart/history', async (req: Request, res: Response): Promise<void> => {
     try {
@@ -705,75 +709,6 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       res.status(500).json({ error: 'Failed to fetch chart history', message: String(error) });
     }
   });
-
-  // POST /api/backtest/run - Run backtest
-  router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
-    try {
-      const {
-        strategy,
-        symbol,
-        startDate,
-        endDate,
-        initialCapital,
-        positionSize,
-        timeframe,
-        fees,
-        slippage,
-        allowShorts,
-      } = req.body as {
-        strategy: string;
-        symbol: string;
-        startDate: string;
-        endDate: string;
-        initialCapital: number;
-        positionSize: number;
-        timeframe: string;
-        fees: number;
-        slippage: number;
-        allowShorts: boolean;
-      };
-
-      // Validate required fields
-      if (
-        !strategy ||
-        !symbol ||
-        !startDate ||
-        !endDate ||
-        !initialCapital ||
-        !positionSize ||
-        !timeframe
-      ) {
-        res.status(400).json({ error: 'Missing required fields' });
-        return;
-      }
-
-      // Dynamic import to avoid circular dependencies
-      const { runBacktest } = await import('./backtest-runner.js');
-
-      // Run backtest
-      const results = await runBacktest({
-        strategy,
-        symbol,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        initialCapital,
-        positionSize,
-        timeframe,
-        fees: fees || 0.1,
-        slippage: slippage || 0.05,
-        allowShorts: allowShorts || false,
-      });
-
-      res.json(results);
-    } catch (error) {
-      console.error('Backtest error:', error);
-      res.status(500).json({
-        error: 'Failed to run backtest',
-        message: error instanceof Error ? error.message : String(error),
-      });
-    }
-  });
-}
 
   // POST /api/backtest/run - Run backtest
   router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
