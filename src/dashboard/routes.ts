@@ -169,10 +169,61 @@ export function setupRoutes(router: Router): void {
   router.get('/api/news', (req: Request, res: Response) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
-      const news = storage.getNews(limit);
+      const sentiment = req.query.sentiment as string;
+      const source = req.query.source as string;
+
+      let news = storage.getNews(limit);
+
+      // Фильтрация по sentiment
+      if (sentiment) {
+        const upperSentiment = sentiment.toUpperCase();
+        if (upperSentiment === 'POSITIVE' || upperSentiment === 'NEGATIVE' || upperSentiment === 'NEUTRAL') {
+          news = news.filter((n) => n.sentiment === upperSentiment);
+        }
+      }
+
+      // Фильтрация по источнику
+      if (source) {
+        const lowerSource = source.toLowerCase();
+        news = news.filter((n) => n.source.toLowerCase().includes(lowerSource));
+      }
+
       res.json(news);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch news' });
+    }
+  });
+
+  // News Stats
+  router.get('/api/news/stats', (_req: Request, res: Response) => {
+    try {
+      const news = storage.getNews(1000);
+
+      const stats = {
+        total: news.length,
+        bySource: {} as Record<string, number>,
+        bySentiment: {
+          POSITIVE: news.filter((n) => n.sentiment === 'POSITIVE').length,
+          NEGATIVE: news.filter((n) => n.sentiment === 'NEGATIVE').length,
+          NEUTRAL: news.filter((n) => n.sentiment === 'NEUTRAL').length,
+        },
+        avgSentimentScore:
+          news.length > 0 ? news.reduce((sum, n) => sum + n.sentimentScore, 0) / news.length : 0,
+        last24Hours: news.filter((n) => {
+          const publishedDate = new Date(n.publishedAt);
+          const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+          return publishedDate > yesterday;
+        }).length,
+      };
+
+      // Подсчет по источникам
+      news.forEach((n) => {
+        stats.bySource[n.source] = (stats.bySource[n.source] || 0) + 1;
+      });
+
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch news stats' });
     }
   });
 
