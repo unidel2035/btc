@@ -5,6 +5,8 @@ import { FundamentalScoring } from './FundamentalScoring.js';
 import { PortfolioConstruction } from './PortfolioConstruction.js';
 import { getScreeningConfig } from './config.js';
 import type { ScreeningConfig, ScreeningReport, CryptoSector } from './types.js';
+import type { IntegramClient } from '../../database/integram/IntegramClient.js';
+import type { ScreeningRepository } from '../../database/integram/ScreeningRepository.js';
 
 /**
  * Main Screening Module
@@ -20,10 +22,17 @@ export class ScreeningModule {
   private quantitativeScreening: QuantitativeScreening;
   private fundamentalScoring: FundamentalScoring;
   private portfolioConstruction: PortfolioConstruction;
+  private integramClient?: IntegramClient;
+  private screeningRepository?: ScreeningRepository;
 
-  constructor(apiKey?: string, config?: ScreeningConfig) {
+  constructor(
+    apiKey?: string,
+    config?: ScreeningConfig,
+    integramClient?: IntegramClient,
+  ) {
     this.client = new CoinGeckoClient(apiKey);
     this.config = config || getScreeningConfig();
+    this.integramClient = integramClient;
 
     // Initialize pipeline stages
     this.macroFilter = new MacroFilter(this.client, this.config.macroFilter);
@@ -36,6 +45,14 @@ export class ScreeningModule {
       this.config.scoring
     );
     this.portfolioConstruction = new PortfolioConstruction(this.config.portfolio);
+
+    // Initialize Integram repository if client is provided
+    if (this.integramClient) {
+      // Dynamically import to avoid circular dependencies
+      import('../../database/integram/ScreeningRepository.js').then((module) => {
+        this.screeningRepository = new module.ScreeningRepository(this.integramClient!);
+      });
+    }
   }
 
   /**
@@ -90,6 +107,17 @@ export class ScreeningModule {
       console.info(`✅ Screening completed in ${duration}s`);
       console.info(`📊 ${report.recommendations.length} projects recommended`);
       console.info('');
+
+      // Automatically save to Integram if repository is available
+      if (this.screeningRepository) {
+        try {
+          const reportId = await this.screeningRepository.saveReport(report);
+          console.info(`💾 Report saved to Integram: ID ${reportId}`);
+        } catch (error) {
+          console.error('⚠️  Failed to save report to Integram:', error);
+          // Don't throw - screening succeeded even if save failed
+        }
+      }
 
       return report;
     } catch (error) {

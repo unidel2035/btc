@@ -37,6 +37,12 @@ class DashboardStorage {
     maxAssetExposure: 15,
   };
 
+  // Screening-related properties
+  public screeningTasks: Map<string, unknown> | undefined;
+  public latestScreeningReport: unknown | undefined;
+  public screeningHistory: unknown[] | undefined;
+  public screeningConfigOverrides: Record<string, unknown> | undefined;
+
   constructor() {
     // Инициализация с демо данными
     this.initializeDemoData();
