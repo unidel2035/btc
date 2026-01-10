@@ -4,36 +4,9 @@
  */
 
 import { IntegramClient, type IntegramObject } from '../../database/integram/IntegramClient.js';
+import type { User, UserProfileUpdate, UserSettings } from './types.js';
 
-export interface User {
-  id: number;
-  telegramId: number;
-  username: string;
-  firstName?: string;
-  lastName?: string;
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  role?: string;
-  roleId?: number;
-  registrationDate: Date;
-  lastActivity: Date;
-  profilePhoto?: string;
-  notes?: string;
-}
-
-export interface UserProfileUpdate {
-  fullName?: string;
-  email?: string;
-  phone?: string;
-}
-
-export interface UserSettings {
-  maxPositionSize?: number;
-  defaultStopLoss?: number;
-  defaultTakeProfit?: number;
-  tradingPreferences?: Record<string, unknown>;
-}
+export type { User, UserProfileUpdate, UserSettings };
 
 /**
  * User Service for managing users in Integram database
@@ -262,6 +235,51 @@ export class UserService {
       return this.mapIntegramObjectToUser(userObj);
     } catch (error) {
       console.error(`Failed to get user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Find user by email
+   */
+  async findByEmail(email: string): Promise<User | null> {
+    try {
+      const users = await this.client.getObjects<IntegramObject>(this.TYPE_USERS);
+
+      const userObj = users.find((user) => {
+        const userEmail = user.requisites[this.FIELD_EMAIL];
+        return userEmail && typeof userEmail === 'string' && userEmail.toLowerCase() === email.toLowerCase();
+      });
+
+      if (!userObj) {
+        return null;
+      }
+
+      return this.mapIntegramObjectToUser(userObj);
+    } catch (error) {
+      console.error(`Failed to find user by email ${email}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Find user by username
+   */
+  async findByUsername(username: string): Promise<User | null> {
+    try {
+      const users = await this.client.getObjects<IntegramObject>(this.TYPE_USERS);
+
+      const userObj = users.find((user) => {
+        return user.value.toLowerCase() === username.toLowerCase();
+      });
+
+      if (!userObj) {
+        return null;
+      }
+
+      return this.mapIntegramObjectToUser(userObj);
+    } catch (error) {
+      console.error(`Failed to find user by username ${username}:`, error);
       throw error;
     }
   }

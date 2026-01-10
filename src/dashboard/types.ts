@@ -120,6 +120,7 @@ export interface StrategyPreset {
 
 export interface WebSocketMessage {
   type:
+    | 'connected'
     | 'metrics'
     | 'position'
     | 'signal'

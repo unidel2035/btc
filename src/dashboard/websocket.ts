@@ -40,10 +40,23 @@ export class DashboardWebSocket {
   private dashboardServer: DashboardServerInterface | null = null;
 
   constructor(server: Server) {
-    this.wss = new WebSocketServer({ server, path: '/ws' });
-    this.signalsWss = new WebSocketServer({ server, path: '/ws/signals' });
+    console.log('🔧 Initializing WebSocket server (SINGLE)');
+    this.wss = new WebSocketServer({
+      server,
+      path: '/ws'
+    });
+
+    // ВРЕМЕННО ОТКЛЮЧАЕМ signals WebSocket
+    this.signalsWss = new WebSocketServer({ noServer: true });
+
+    // Add error handler for WebSocket server
+    this.wss.on('error', (error) => {
+      console.error('❌ WebSocket Server error:', error);
+    });
+
+    console.log('✅ WebSocket server initialized (signals disabled)');
     this.setupWebSocket();
-    this.setupSignalsWebSocket();
+    // this.setupSignalsWebSocket(); // DISABLED
     this.startUpdateLoop();
     this.startPriceSimulation();
   }
@@ -77,7 +90,11 @@ export class DashboardWebSocket {
       });
 
       ws.on('error', (error) => {
-        console.error('WebSocket error:', error);
+        console.error('❌ WebSocket error:', {
+          message: error.message,
+          code: (error as any).code,
+          stack: error.stack?.split('\n')[0]
+        });
         this.clients.delete(ws);
         this.clientSubscriptions.delete(ws);
       });
@@ -157,26 +174,33 @@ export class DashboardWebSocket {
   }
 
   private sendInitialData(ws: WebSocket): void {
-    // Отправляем метрики
-    this.sendToClient(ws, {
-      type: 'metrics',
-      data: storage.getMetrics(),
-      timestamp: new Date().toISOString(),
-    });
+    try {
+      // Отправляем метрики
+      const metrics = storage.getMetrics();
+      this.sendToClient(ws, {
+        type: 'metrics',
+        data: metrics,
+        timestamp: new Date().toISOString(),
+      });
 
-    // Отправляем позиции
-    this.sendToClient(ws, {
-      type: 'position',
-      data: { positions: storage.getPositions() },
-      timestamp: new Date().toISOString(),
-    });
+      // Отправляем позиции
+      const positions = storage.getPositions();
+      this.sendToClient(ws, {
+        type: 'position',
+        data: { positions },
+        timestamp: new Date().toISOString(),
+      });
 
-    // Отправляем последние сигналы
-    this.sendToClient(ws, {
-      type: 'signal',
-      data: { signals: storage.getSignals(10) },
-      timestamp: new Date().toISOString(),
-    });
+      // Отправляем последние сигналы
+      const signals = storage.getSignals(10);
+      this.sendToClient(ws, {
+        type: 'signal',
+        data: { signals },
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('❌ Failed to send initial data:', error instanceof Error ? error.message : String(error));
+    }
   }
 
   private handleMessage(
@@ -270,17 +294,36 @@ export class DashboardWebSocket {
 
   private sendToClient(ws: WebSocket, message: WebSocketMessage): void {
     if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(message));
+      try {
+        const data = JSON.stringify(message);
+        ws.send(data);
+      } catch (error) {
+        console.error('❌ Failed to send WebSocket message:', {
+          error: error instanceof Error ? error.message : String(error),
+          messageType: message.type
+        });
+      }
     }
   }
 
   public broadcast(message: WebSocketMessage): void {
-    const data = JSON.stringify(message);
-    this.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(data);
-      }
-    });
+    try {
+      const data = JSON.stringify(message);
+      this.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          try {
+            client.send(data);
+          } catch (error) {
+            console.error('❌ Failed to broadcast to client:', error instanceof Error ? error.message : String(error));
+          }
+        }
+      });
+    } catch (error) {
+      console.error('❌ Failed to serialize broadcast message:', {
+        error: error instanceof Error ? error.message : String(error),
+        messageType: message.type
+      });
+    }
   }
 
   private startUpdateLoop(): void {

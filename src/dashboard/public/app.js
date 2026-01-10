@@ -308,12 +308,21 @@ function connectWebSocket() {
   };
 
   ws.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    handleWebSocketMessage(message);
+    try {
+      const message = JSON.parse(event.data);
+      handleWebSocketMessage(message);
+    } catch (error) {
+      console.error('❌ Error handling WebSocket message:', error);
+      console.error('❌ Raw data:', event.data);
+    }
   };
 
-  ws.onclose = () => {
-    console.log('WebSocket disconnected');
+  ws.onclose = (event) => {
+    console.log('WebSocket disconnected', {
+      code: event.code,
+      reason: event.reason || 'No reason provided',
+      wasClean: event.wasClean
+    });
     updateConnectionStatus(false);
     reconnectTimeout = setTimeout(() => connectWebSocket(), 3000);
   };
@@ -345,63 +354,98 @@ function updateConnectionStatus(connected) {
 }
 
 function handleWebSocketMessage(message) {
-  console.log('WebSocket message:', message.type);
+  try {
+    switch (message.type) {
+      case 'connected':
+        console.log('✅ Server connected message:', message.data);
+        break;
 
-  switch (message.type) {
-    case 'metrics':
-      state.metrics = message.data;
-      updateMetrics();
-      break;
-
-    case 'position':
-      if (message.data.positions) {
-        state.positions = message.data.positions;
-      } else {
-        updateOrAddPosition(message.data);
-      }
-      renderPositions();
-      renderDashboardPositions();
-      break;
-
-    case 'signal':
-      if (message.data.signals) {
-        state.signals = message.data.signals;
-      } else {
-        // New real-time signal
-        const newSignal = message.data;
-        state.signals.unshift(newSignal);
-        if (state.signals.length > 100) {
-          state.signals = state.signals.slice(0, 100);
+      case 'metrics':
+        state.metrics = message.data;
+        try {
+          updateMetrics();
+        } catch (err) {
+          console.warn('Failed to update metrics UI:', err.message);
         }
-        // Trigger notifications for new signal
-        handleNewSignal(newSignal);
-      }
-      renderSignals();
-      renderRecentSignals();
-      break;
+        break;
 
-    case 'news':
-      state.news.unshift(message.data);
-      if (state.news.length > 100) {
-        state.news = state.news.slice(0, 100);
-      }
-      renderNews();
-      break;
+      case 'position':
+        try {
+          if (message.data.positions) {
+            state.positions = message.data.positions;
+          } else {
+            updateOrAddPosition(message.data);
+          }
+          renderPositions();
+          renderDashboardPositions();
+        } catch (err) {
+          console.warn('Failed to update positions UI:', err.message);
+        }
+        break;
 
-    case 'price':
-      updatePositionPrice(message.data);
-      break;
+      case 'signal':
+        try {
+          if (message.data.signals) {
+            state.signals = message.data.signals;
+          } else {
+            // New real-time signal
+            const newSignal = message.data;
+            state.signals.unshift(newSignal);
+            if (state.signals.length > 100) {
+              state.signals = state.signals.slice(0, 100);
+            }
+            // Trigger notifications for new signal
+            handleNewSignal(newSignal);
+          }
+          renderSignals();
+          renderRecentSignals();
+        } catch (err) {
+          console.warn('Failed to update signals UI:', err.message);
+        }
+        break;
 
-    case 'notification':
-      showNotification(message.data);
-      break;
+      case 'news':
+        try {
+          state.news.unshift(message.data);
+          if (state.news.length > 100) {
+            state.news = state.news.slice(0, 100);
+          }
+          renderNews();
+        } catch (err) {
+          console.warn('Failed to update news UI:', err.message);
+        }
+        break;
 
-    case 'chart_candle':
-      // Forward to strategy chart if it's active
-      if (window.strategyChart && typeof window.strategyChart.handleChartCandle === 'function') {
-        window.strategyChart.handleChartCandle(message.data);
-      }
-      break;
+      case 'price':
+        try {
+          updatePositionPrice(message.data);
+        } catch (err) {
+          console.warn('Failed to update price:', err.message);
+        }
+        break;
+
+      case 'notification':
+        try {
+          showNotification(message.data);
+        } catch (err) {
+          console.warn('Failed to show notification:', err.message);
+        }
+        break;
+
+      case 'chart_candle':
+        try {
+          // Forward to strategy chart if it's active
+          if (window.strategyChart && typeof window.strategyChart.handleChartCandle === 'function') {
+            window.strategyChart.handleChartCandle(message.data);
+          }
+        } catch (err) {
+          console.warn('Failed to handle chart candle:', err.message);
+        }
+        break;
+    }
+  } catch (error) {
+    console.error('❌ Error in handleWebSocketMessage:', error);
+    console.error('❌ Message that caused error:', message);
   }
 }
 

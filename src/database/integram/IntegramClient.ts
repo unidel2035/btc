@@ -52,71 +52,72 @@ export class IntegramClient {
     }
 
     try {
-      const response = await this.client.post('/_auth', null, {
+      // Integram API требует form-data с полями: db, login, pwd
+      const formData = new URLSearchParams();
+      formData.append('db', this.config.database);
+      formData.append('login', this.config.login);
+      formData.append('pwd', this.config.password);
+
+      const response = await this.client.post('/auth', formData.toString(), {
         params: {
-          login: this.config.login,
-          password: this.config.password,
-          database: this.config.database,
+          JSON: '', // флаг для получения JSON ответа
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
 
-      // Извлечь токены из cookies
-      const cookies = response.headers['set-cookie'];
-      if (cookies) {
-        for (const cookie of cookies) {
-          if (cookie.includes('token=')) {
-            this.token = cookie.split('token=')[1]?.split(';')[0] || null;
-          }
-          if (cookie.includes('XSRF-TOKEN=')) {
-            this.xsrfToken = cookie.split('XSRF-TOKEN=')[1]?.split(';')[0] || null;
-          }
-        }
+      // Integram возвращает токен и _xsrf в JSON ответе
+      if (response.data && response.data.token) {
+        this.token = response.data.token;
+        this.xsrfToken = response.data._xsrf || response.data.token;
+        this.isAuthenticated = true;
+        console.log('✅ Integram authenticated successfully:', {
+          userId: response.data.id,
+          token: this.token?.substring(0, 10) + '...',
+        });
+        return;
       }
 
-      if (!this.token || !this.xsrfToken) {
-        throw new Error('Failed to extract authentication tokens');
-      }
-
-      this.isAuthenticated = true;
-      console.log('✅ Integram authenticated successfully');
+      throw new Error('Failed to extract authentication token from response');
     } catch (error) {
       console.error('❌ Integram authentication failed:', error);
+      this.isAuthenticated = false;
       throw error;
     }
   }
 
   /**
-   * Получить все объекты из таблицы с пагинацией
+   * Получить все объекты из таблицы
    */
   async getObjects<T = IntegramObject>(typeId: number, limit?: number): Promise<T[]> {
     await this.ensureAuthenticated();
 
-    const allObjects: T[] = [];
-    let page = 1;
-    const pageSize = 100;
-    const maxObjects = limit || Number.MAX_SAFE_INTEGER;
-
     try {
-      while (allObjects.length < maxObjects) {
-        const response = await this.client.get<IntegramListResponse>('/_d_list', {
-          params: {
-            type: typeId,
-            pg: page,
-            LIMIT: pageSize,
-          },
-          headers: this.getHeaders(),
-        });
+      const response = await this.client.get(`/object/${typeId}`, {
+        params: {
+          JSON: '',
+        },
+        headers: this.getHeaders(),
+      });
 
-        const objects = response.data?.objects || [];
-        if (objects.length === 0) break;
+      // Integram возвращает объекты в поле "object" (не "objects")
+      const objects = response.data?.object || [];
 
-        allObjects.push(...(objects as T[]));
+      // Также получаем реквизиты из поля "reqs"
+      const reqs = response.data?.reqs || {};
 
-        if (objects.length < pageSize || allObjects.length >= maxObjects) break;
-        page++;
-      }
+      // Объединяем объекты с их реквизитами
+      const result = objects.map((obj: any) => ({
+        ...obj,
+        id: parseInt(obj.id),
+        type: parseInt(obj.base),
+        value: obj.val,
+        requisites: reqs[obj.id] || {},
+        up: parseInt(obj.up),
+      }));
 
-      return allObjects.slice(0, maxObjects);
+      return limit ? result.slice(0, limit) : result;
     } catch (error) {
       console.error(`Failed to get objects for type ${typeId}:`, error);
       throw error;
@@ -262,7 +263,8 @@ export class IntegramClient {
   private getHeaders() {
     return {
       'X-XSRF-TOKEN': this.xsrfToken || '',
-      Cookie: `token=${this.token}; XSRF-TOKEN=${this.xsrfToken}`,
+      // Cookie: имя базы данных=токен
+      Cookie: `${this.config.database}=${this.token}; XSRF-TOKEN=${this.xsrfToken}`,
     };
   }
 }

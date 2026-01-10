@@ -106,9 +106,11 @@
     }
 
     // Update backtest equity chart if it exists
-    const backtestChart = Chart.getChart('backtestEquityChart');
-    if (backtestChart) {
-      updateEquityChartTheme(backtestChart, colors);
+    if (typeof Chart !== 'undefined') {
+      const backtestChart = Chart.getChart('backtestEquityChart');
+      if (backtestChart) {
+        updateEquityChartTheme(backtestChart, colors);
+      }
     }
 
     // Update market depth chart if it exists

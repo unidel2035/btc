@@ -9,6 +9,11 @@ import type { SignalsProvider } from './providers/SignalsProvider.js';
 import type { ExchangeManager } from '../exchanges/ExchangeManager.js';
 import { CandleInterval, type Candle } from '../exchanges/types.js';
 import { setupWebhookRoutes } from '../webhooks/routes.js';
+import { AuthServiceIntegram } from './services/AuthServiceIntegram.js';
+import { authMiddleware } from './middleware/auth.js';
+
+// Create global auth service instance
+const authService = new AuthServiceIntegram();
 
 // Type for dashboard server to access signals provider and exchange manager
 interface DashboardServerInterface {
@@ -17,6 +22,46 @@ interface DashboardServerInterface {
 }
 
 export function setupRoutes(router: Router, dashboardServer?: DashboardServerInterface): void {
+  // ============================================================================
+  // Authentication Routes (Public - No Auth Required)
+  // ============================================================================
+
+  // POST /api/auth/register - Register new user
+  router.post('/api/auth/register', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const result = await authService.register(req.body);
+      res.status(201).json(result);
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(400).json({
+        error: error instanceof Error ? error.message : 'Registration failed',
+      });
+    }
+  });
+
+  // POST /api/auth/login - Login user
+  router.post('/api/auth/login', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const result = await authService.login(req.body);
+      res.json(result);
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(401).json({
+        error: error instanceof Error ? error.message : 'Login failed',
+      });
+    }
+  });
+
+  // GET /api/auth/me - Get current user (requires auth)
+  router.get('/api/auth/me', authMiddleware, (req: Request, res: Response) => {
+    res.json({ user: req.user });
+  });
+
+  // POST /api/auth/logout - Logout user (client-side only)
+  router.post('/api/auth/logout', (_req: Request, res: Response) => {
+    res.json({ success: true, message: 'Logged out successfully' });
+  });
+
   // Setup webhook routes
   setupWebhookRoutes(router);
 
