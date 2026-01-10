@@ -16,8 +16,92 @@ const state = {
   riskConfig: {},
 };
 
+// Language management
+let currentLanguage = 'en';
+
+// Get current language from localStorage or browser
+function getCurrentLanguage() {
+  const savedLang = localStorage.getItem('preferredLanguage');
+  if (savedLang) {
+    return savedLang;
+  }
+  const browserLang = navigator.language.split('-')[0];
+  return browserLang === 'ru' ? 'ru' : 'en';
+}
+
+// Initialize i18next
+async function initializeI18n() {
+  currentLanguage = getCurrentLanguage();
+
+  try {
+    await i18next.init({
+      lng: currentLanguage,
+      fallbackLng: 'en',
+      resources: {
+        en: { translation: await fetchJSON('/locales/en.json') },
+        ru: { translation: await fetchJSON('/locales/ru.json') }
+      }
+    });
+
+    updateUILanguage();
+    highlightActiveLanguage(currentLanguage);
+  } catch (error) {
+    console.error('Failed to initialize i18n:', error);
+  }
+}
+
+// Fetch JSON file
+async function fetchJSON(url) {
+  const response = await fetch(url);
+  return await response.json();
+}
+
+// Switch language
+async function switchLanguage(lang) {
+  if (lang === currentLanguage) return;
+
+  currentLanguage = lang;
+  localStorage.setItem('preferredLanguage', lang);
+
+  await i18next.changeLanguage(lang);
+  updateUILanguage();
+  highlightActiveLanguage(lang);
+}
+
+// Highlight active language button
+function highlightActiveLanguage(lang) {
+  document.querySelectorAll('.language-option').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.lang === lang) {
+      btn.classList.add('active');
+    }
+  });
+}
+
+// Update UI with current language
+function updateUILanguage() {
+  // This is a basic implementation - will be expanded in issue #44
+  // For now, just update the page headers as a demonstration
+  document.querySelectorAll('[data-page]').forEach(link => {
+    const page = link.dataset.page;
+    const navText = link.querySelector('span:not(.icon)');
+    if (navText) {
+      navText.textContent = i18next.t(`nav.${page}`);
+    }
+  });
+
+  // Update connection status
+  const statusText = document.getElementById('wsStatusText');
+  if (statusText) {
+    const isConnected = statusText.classList.contains('connected');
+    const key = isConnected ? 'connected' : 'disconnected';
+    statusText.textContent = i18next.t(`connection.${key}`);
+  }
+}
+
 // Initialize app
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await initializeI18n();
   initializeNavigation();
   connectWebSocket();
   initializeEquityChart();
@@ -115,10 +199,10 @@ function updateConnectionStatus(connected) {
 
   if (connected) {
     statusDot.classList.add('connected');
-    statusText.textContent = 'Connected';
+    statusText.textContent = i18next.t('connection.connected');
   } else {
     statusDot.classList.remove('connected');
-    statusText.textContent = 'Disconnected';
+    statusText.textContent = i18next.t('connection.disconnected');
   }
 }
 
@@ -704,6 +788,13 @@ function renderStrategies() {
 
 // Event Listeners
 function setupEventListeners() {
+  // Language switcher
+  document.querySelectorAll('.language-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchLanguage(btn.dataset.lang);
+    });
+  });
+
   // Signal filters
   document.getElementById('signalTypeFilter')?.addEventListener('change', renderSignals);
   document.getElementById('signalActionFilter')?.addEventListener('change', renderSignals);

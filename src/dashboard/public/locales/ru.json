@@ -1,0 +1,109 @@
+{
+  "nav": {
+    "dashboard": "Панель управления",
+    "signals": "Сигналы",
+    "positions": "Позиции",
+    "news": "Лента новостей",
+    "analytics": "Аналитика",
+    "settings": "Настройки"
+  },
+  "dashboard": {
+    "title": "Панель управления",
+    "subtitle": "Обзор производительности торгового бота в реальном времени",
+    "balance": "Баланс",
+    "equity": "Капитал",
+    "pnl": "P&L",
+    "winRate": "Винрейт",
+    "trades": "сделок",
+    "equityChart": "График капитала",
+    "openPositions": "Открытые позиции",
+    "recentSignals": "Последние сигналы",
+    "noPositions": "Нет открытых позиций",
+    "noSignals": "Сигналов пока нет"
+  },
+  "signals": {
+    "title": "Торговые сигналы",
+    "subtitle": "Лента сигналов от всех стратегий в реальном времени",
+    "allTypes": "Все типы",
+    "allActions": "Все действия",
+    "strength": "Сила",
+    "confidence": "Уверенность",
+    "noSignals": "Сигналов не найдено"
+  },
+  "positions": {
+    "title": "Позиции",
+    "subtitle": "Управление открытыми позициями",
+    "symbol": "Символ",
+    "side": "Сторона",
+    "size": "Размер",
+    "entryPrice": "Цена входа",
+    "currentPrice": "Текущая цена",
+    "stopLoss": "Стоп-лосс",
+    "takeProfit": "Тейк-профит",
+    "openedAt": "Открыта",
+    "long": "ЛОНГ",
+    "short": "ШОРТ",
+    "editSLTP": "Изменить SL/TP",
+    "close": "Закрыть",
+    "closeConfirm": "Вы уверены, что хотите закрыть эту позицию?",
+    "noPositions": "Нет открытых позиций"
+  },
+  "news": {
+    "title": "Лента новостей",
+    "subtitle": "Последние новости криптовалют с анализом настроений",
+    "allSentiments": "Все настроения",
+    "positive": "ПОЗИТИВНОЕ",
+    "neutral": "НЕЙТРАЛЬНОЕ",
+    "negative": "НЕГАТИВНОЕ",
+    "readMore": "Читать далее",
+    "noNews": "Новостей не найдено"
+  },
+  "analytics": {
+    "title": "Аналитика",
+    "subtitle": "Отчеты и статистика производительности",
+    "totalTrades": "Всего сделок",
+    "winningTrades": "Прибыльных сделок",
+    "losingTrades": "Убыточных сделок",
+    "winRate": "Винрейт",
+    "avgWin": "Средняя прибыль",
+    "avgLoss": "Средний убыток",
+    "profitFactor": "Профит-фактор",
+    "sharpeRatio": "Коэффициент Шарпа",
+    "maxDrawdown": "Макс. просадка",
+    "tradeHistory": "История сделок",
+    "entry": "Вход",
+    "exit": "Выход",
+    "opened": "Открыта",
+    "closed": "Закрыта",
+    "noHistory": "История сделок отсутствует"
+  },
+  "settings": {
+    "title": "Настройки",
+    "subtitle": "Настройка параметров бота и управления рисками",
+    "riskManagement": "Управление рисками",
+    "maxPositionSize": "Макс. размер позиции (%)",
+    "maxPositions": "Макс. позиций",
+    "maxDailyLoss": "Макс. дневной убыток (%)",
+    "maxTotalDrawdown": "Макс. общая просадка (%)",
+    "defaultStopLoss": "Стоп-лосс по умолчанию (%)",
+    "defaultTakeProfit": "Тейк-профит по умолчанию (%)",
+    "trailingStop": "Включить трейлинг-стоп",
+    "saveSettings": "Сохранить настройки рисков",
+    "strategyConfig": "Конфигурация стратегии",
+    "riskPerTrade": "Риск на сделку",
+    "enabled": "Включена",
+    "disabled": "Отключена"
+  },
+  "connection": {
+    "connected": "Подключено",
+    "disconnected": "Отключено",
+    "connecting": "Подключение..."
+  },
+  "notifications": {
+    "positionClosed": "Позиция успешно закрыта",
+    "positionUpdated": "Позиция успешно обновлена",
+    "settingsUpdated": "Настройки рисков успешно обновлены",
+    "success": "Успешно",
+    "error": "Ошибка"
+  }
+}

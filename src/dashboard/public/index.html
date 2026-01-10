@@ -6,6 +6,7 @@
     <title>BTC Trading Bot Dashboard</title>
     <link rel="stylesheet" href="/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.16/i18next.min.js"></script>
   </head>
   <body>
     <div class="app">
@@ -50,6 +51,18 @@
 
       <!-- Main Content -->
       <main class="main-content">
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+          <button class="language-option" data-lang="en">
+            <span class="flag">🇬🇧</span>
+            <span class="lang-code">EN</span>
+          </button>
+          <button class="language-option" data-lang="ru">
+            <span class="flag">🇷🇺</span>
+            <span class="lang-code">RU</span>
+          </button>
+        </div>
+
         <!-- Dashboard Page -->
         <div class="page active" id="dashboard-page">
           <div class="page-header">

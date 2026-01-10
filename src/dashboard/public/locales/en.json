@@ -1,0 +1,109 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "signals": "Signals",
+    "positions": "Positions",
+    "news": "News Feed",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Real-time overview of your trading bot performance",
+    "balance": "Balance",
+    "equity": "Equity",
+    "pnl": "PnL",
+    "winRate": "Win Rate",
+    "trades": "trades",
+    "equityChart": "Equity Chart",
+    "openPositions": "Open Positions",
+    "recentSignals": "Recent Signals",
+    "noPositions": "No open positions",
+    "noSignals": "No signals yet"
+  },
+  "signals": {
+    "title": "Trading Signals",
+    "subtitle": "Real-time signal feed from all strategies",
+    "allTypes": "All Types",
+    "allActions": "All Actions",
+    "strength": "Strength",
+    "confidence": "Confidence",
+    "noSignals": "No signals found"
+  },
+  "positions": {
+    "title": "Positions",
+    "subtitle": "Manage your open positions",
+    "symbol": "Symbol",
+    "side": "Side",
+    "size": "Size",
+    "entryPrice": "Entry Price",
+    "currentPrice": "Current Price",
+    "stopLoss": "Stop Loss",
+    "takeProfit": "Take Profit",
+    "openedAt": "Opened At",
+    "long": "LONG",
+    "short": "SHORT",
+    "editSLTP": "Edit SL/TP",
+    "close": "Close",
+    "closeConfirm": "Are you sure you want to close this position?",
+    "noPositions": "No open positions"
+  },
+  "news": {
+    "title": "News Feed",
+    "subtitle": "Latest crypto news with sentiment analysis",
+    "allSentiments": "All Sentiments",
+    "positive": "POSITIVE",
+    "neutral": "NEUTRAL",
+    "negative": "NEGATIVE",
+    "readMore": "Read more",
+    "noNews": "No news found"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Performance reports and statistics",
+    "totalTrades": "Total Trades",
+    "winningTrades": "Winning Trades",
+    "losingTrades": "Losing Trades",
+    "winRate": "Win Rate",
+    "avgWin": "Average Win",
+    "avgLoss": "Average Loss",
+    "profitFactor": "Profit Factor",
+    "sharpeRatio": "Sharpe Ratio",
+    "maxDrawdown": "Max Drawdown",
+    "tradeHistory": "Trade History",
+    "entry": "Entry",
+    "exit": "Exit",
+    "opened": "Opened",
+    "closed": "Closed",
+    "noHistory": "No trade history"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure bot parameters and risk management",
+    "riskManagement": "Risk Management",
+    "maxPositionSize": "Max Position Size (%)",
+    "maxPositions": "Max Positions",
+    "maxDailyLoss": "Max Daily Loss (%)",
+    "maxTotalDrawdown": "Max Total Drawdown (%)",
+    "defaultStopLoss": "Default Stop Loss (%)",
+    "defaultTakeProfit": "Default Take Profit (%)",
+    "trailingStop": "Enable Trailing Stop",
+    "saveSettings": "Save Risk Settings",
+    "strategyConfig": "Strategy Configuration",
+    "riskPerTrade": "Risk per trade",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "connection": {
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "connecting": "Connecting..."
+  },
+  "notifications": {
+    "positionClosed": "Position closed successfully",
+    "positionUpdated": "Position updated successfully",
+    "settingsUpdated": "Risk settings updated successfully",
+    "success": "Success",
+    "error": "Error"
+  }
+}
