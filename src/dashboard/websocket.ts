@@ -101,7 +101,7 @@ export class DashboardWebSocket {
     }
   }
 
-  private broadcast(message: WebSocketMessage): void {
+  public broadcast(message: WebSocketMessage): void {
     const data = JSON.stringify(message);
     this.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
