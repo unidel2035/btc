@@ -3,7 +3,15 @@
  * Types for storing screening reports, recommendations, and analytics in Integram
  */
 
-import type { CryptoSector, ProjectRecommendation } from '../../analyzers/screening/types.js';
+import type {
+  CryptoSector,
+  ProjectRecommendation,
+  // SectorMetrics,
+  // ScreeningReport,
+} from '../../analyzers/screening/types.js';
+
+// Re-export for external use
+export type { SectorMetrics, ScreeningReport } from '../../analyzers/screening/types.js';
 
 /**
  * Table Type IDs in Integram
@@ -12,7 +20,9 @@ import type { CryptoSector, ProjectRecommendation } from '../../analyzers/screen
 export const SCREENING_TYPES = {
   // Main tables
   SCREENING_REPORTS: parseInt(process.env.INTEGRAM_TYPE_SCREENING_REPORTS || '0'),
-  SCREENING_RECOMMENDATIONS: parseInt(process.env.INTEGRAM_TYPE_SCREENING_RECOMMENDATIONS || '0'),
+  SCREENING_RECOMMENDATIONS: parseInt(
+    process.env.INTEGRAM_TYPE_SCREENING_RECOMMENDATIONS || '0',
+  ),
   CRYPTOCURRENCIES: parseInt(process.env.INTEGRAM_TYPE_CRYPTOCURRENCIES || '0'),
   SECTORS: parseInt(process.env.INTEGRAM_TYPE_SECTORS || '0'),
   SECTOR_PERFORMANCE: parseInt(process.env.INTEGRAM_TYPE_SECTOR_PERFORMANCE || '0'),

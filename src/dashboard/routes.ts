@@ -8,6 +8,7 @@ import { storage } from './storage.js';
 import type { SignalsProvider } from './providers/SignalsProvider.js';
 import type { ExchangeManager } from '../exchanges/ExchangeManager.js';
 import { CandleInterval, type Candle } from '../exchanges/types.js';
+import { setupWebhookRoutes } from '../webhooks/routes.js';
 
 // Type for dashboard server to access signals provider and exchange manager
 interface DashboardServerInterface {
@@ -16,6 +17,9 @@ interface DashboardServerInterface {
 }
 
 export function setupRoutes(router: Router, dashboardServer?: DashboardServerInterface): void {
+  // Setup webhook routes
+  setupWebhookRoutes(router);
+
   // Health check
   router.get('/health', (_req: Request, res: Response) => {
     res.json({
@@ -485,6 +489,31 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       res.json(stats);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch signal stats' });
+    }
+  });
+
+  // GET /api/strategies/:name/schema - Get strategy parameter schema
+  router.get('/api/strategies/:name/schema', (req: Request, res: Response): void => {
+    try {
+      const signalsProvider = dashboardServer?.getSignalsProvider();
+      if (!signalsProvider) {
+        res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
+        return;
+      }
+
+      const name = (
+        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+      ) as string;
+
+      const schema = signalsProvider.getStrategySchema(name || '');
+      if (!schema) {
+        res.status(404).json({ error: 'Strategy not found' });
+        return;
+      }
+
+      res.json(schema);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch strategy schema' });
     }
   });
 

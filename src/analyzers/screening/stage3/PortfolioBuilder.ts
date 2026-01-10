@@ -195,10 +195,11 @@ export class PortfolioBuilder {
     const specificRisks = project.risks.filter((risk) => !risk.includes('market volatility'));
 
     if (specificRisks.length > 0) {
-      return specificRisks[0] || 'General market volatility';
+      const firstSpecificRisk = specificRisks[0];
+      return firstSpecificRisk || project.risks[0] || 'General market risk';
     }
 
-    return project.risks[0] || 'General market volatility';
+    return project.risks[0] || 'General market risk';
   }
 
   /**
