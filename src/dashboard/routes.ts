@@ -890,7 +890,7 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
   });
 
   // PATCH /api/screening/config - Update screening configuration
-  router.patch('/api/screening/config', async (req: Request, res: Response): Promise<void> => {
+  router.patch('/api/screening/config', (req: Request, res: Response): void => {
     try {
       // Store config updates (in production, this would update environment variables or config file)
       if (!storage.screeningConfigOverrides) {
@@ -899,7 +899,7 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
 
       storage.screeningConfigOverrides = {
         ...storage.screeningConfigOverrides,
-        ...req.body,
+        ...(req.body as Record<string, unknown>),
       };
 
       res.json({ success: true, config: storage.screeningConfigOverrides });

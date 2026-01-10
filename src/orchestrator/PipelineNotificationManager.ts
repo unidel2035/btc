@@ -34,7 +34,7 @@ export class PipelineNotificationManager {
   /**
    * Send notification through configured channels
    */
-  async sendNotification(notification: PipelineNotification): Promise<void> {
+  sendNotification(notification: PipelineNotification): void {
     if (!this.config.enabled) {
       return;
     }
@@ -45,7 +45,7 @@ export class PipelineNotificationManager {
     // Send to each channel
     for (const channel of this.config.channels) {
       try {
-        await this.sendToChannel(channel, notification);
+        this.sendToChannel(channel, notification);
       } catch (error) {
         console.error(`Failed to send notification to ${channel}:`, error);
       }
@@ -55,22 +55,22 @@ export class PipelineNotificationManager {
   /**
    * Send to specific channel
    */
-  private async sendToChannel(
+  private sendToChannel(
     channel: 'dashboard' | 'telegram' | 'email' | 'sms',
     notification: PipelineNotification,
-  ): Promise<void> {
+  ): void {
     switch (channel) {
       case 'dashboard':
         this.sendToDashboard(notification);
         break;
       case 'telegram':
-        await this.sendToTelegram(notification);
+        this.sendToTelegram(notification);
         break;
       case 'email':
-        await this.sendToEmail(notification);
+        this.sendToEmail(notification);
         break;
       case 'sms':
-        await this.sendToSMS(notification);
+        this.sendToSMS(notification);
         break;
     }
   }

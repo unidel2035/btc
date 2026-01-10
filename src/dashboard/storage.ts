@@ -39,7 +39,7 @@ class DashboardStorage {
 
   // Screening-related properties
   public screeningTasks: Map<string, unknown> | undefined;
-  public latestScreeningReport: unknown | undefined;
+  public latestScreeningReport: Record<string, unknown> | undefined;
   public screeningHistory: unknown[] | undefined;
   public screeningConfigOverrides: Record<string, unknown> | undefined;
 

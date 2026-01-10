@@ -141,7 +141,7 @@ export class TradingPipeline {
         this.state.lastScreening = new Date();
 
         // Notify about screening completion
-        await this.notificationManager.sendNotification({
+        this.notificationManager.sendNotification({
           type: 'screening_complete',
           title: '🔍 Screening completed',
           message: `Selected ${tradingPairs.length} pairs: ${tradingPairs.join(', ')}`,
@@ -198,7 +198,7 @@ export class TradingPipeline {
       // Notify about signals
       for (const analysis of tradableAnalyses) {
         if (analysis.tradeDecision) {
-          await this.notificationManager.sendNotification({
+          this.notificationManager.sendNotification({
             type: 'signal_detected',
             title: `📈 Signal: ${analysis.tradeDecision.direction.toUpperCase()} ${analysis.pair}`,
             message: `Confidence: ${(analysis.tradeDecision.confidence * 100).toFixed(0)}%, Entry: ${analysis.tradeDecision.entryPrice}`,
@@ -227,7 +227,7 @@ export class TradingPipeline {
             if (executed) {
               report.positionsOpened++;
 
-              await this.notificationManager.sendNotification({
+              this.notificationManager.sendNotification({
                 type: 'position_opened',
                 title: `✅ Position opened: ${analysis.pair}`,
                 message: `${analysis.tradeDecision.direction.toUpperCase()} at ${analysis.tradeDecision.entryPrice}`,
@@ -258,7 +258,7 @@ export class TradingPipeline {
       this.addError(report, report.stage, error as Error);
       console.error('❌ Pipeline cycle failed:', error);
 
-      await this.notificationManager.sendNotification({
+      this.notificationManager.sendNotification({
         type: 'error',
         title: '❌ Pipeline failed',
         message: (error as Error).message,
