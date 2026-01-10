@@ -3,7 +3,7 @@
  * Background jobs for updating project metrics and calculating accuracy
  */
 
-import type * as cron from 'node-cron';
+import * as cron from 'node-cron';
 import { IntegramClient } from './IntegramClient.js';
 import { ScreeningRepository } from './ScreeningRepository.js';
 import { ScreeningAnalytics } from './ScreeningAnalytics.js';

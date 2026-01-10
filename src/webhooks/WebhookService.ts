@@ -204,10 +204,7 @@ export class WebhookService {
 
     // 5. Validate stop loss and take profit
     if (signal.stop_loss !== null) {
-      if (
-        signal.action === WebhookActionEnum.BUY ||
-        signal.action === WebhookActionEnum.LONG
-      ) {
+      if (signal.action === WebhookActionEnum.BUY || signal.action === WebhookActionEnum.LONG) {
         if (signal.stop_loss >= signal.price) {
           errors.push('Stop loss must be below entry price for long positions');
         }
@@ -222,10 +219,7 @@ export class WebhookService {
     }
 
     if (signal.take_profit !== null) {
-      if (
-        signal.action === WebhookActionEnum.BUY ||
-        signal.action === WebhookActionEnum.LONG
-      ) {
+      if (signal.action === WebhookActionEnum.BUY || signal.action === WebhookActionEnum.LONG) {
         if (signal.take_profit <= signal.price) {
           errors.push('Take profit must be above entry price for long positions');
         }
@@ -357,10 +351,7 @@ export class WebhookService {
     // Default stop loss: 2% from entry
     const stopLossPercent = 0.02;
 
-    if (
-      signal.action === WebhookActionEnum.BUY ||
-      signal.action === WebhookActionEnum.LONG
-    ) {
+    if (signal.action === WebhookActionEnum.BUY || signal.action === WebhookActionEnum.LONG) {
       return signal.price * (1 - stopLossPercent);
     } else if (
       signal.action === WebhookActionEnum.SELL ||
@@ -383,10 +374,7 @@ export class WebhookService {
     // Default take profit: 3x risk (6% from entry)
     const takeProfitPercent = 0.06;
 
-    if (
-      signal.action === WebhookActionEnum.BUY ||
-      signal.action === WebhookActionEnum.LONG
-    ) {
+    if (signal.action === WebhookActionEnum.BUY || signal.action === WebhookActionEnum.LONG) {
       return signal.price * (1 + takeProfitPercent);
     } else if (
       signal.action === WebhookActionEnum.SELL ||

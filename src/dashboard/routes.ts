@@ -859,7 +859,9 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
   // GET /api/screening/status/:taskId - Get screening status
   router.get('/api/screening/status/:taskId', (req: Request, res: Response): void => {
     try {
-      const taskId = (Array.isArray(req.params.taskId) ? req.params.taskId[0] : req.params.taskId) as string;
+      const taskId = (
+        Array.isArray(req.params.taskId) ? req.params.taskId[0] : req.params.taskId
+      ) as string;
 
       if (!storage.screeningTasks) {
         res.status(404).json({ error: 'Task not found' });
