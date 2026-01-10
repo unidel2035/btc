@@ -133,7 +133,8 @@ export abstract class BaseStrategy extends EventEmitter implements Strategy {
       id: `${this.name}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       strategy: this.name,
       symbol: marketData.symbol,
-      action: decision.direction === 'long' ? 'BUY' : decision.direction === 'short' ? 'SELL' : 'HOLD',
+      action:
+        decision.direction === 'long' ? 'BUY' : decision.direction === 'short' ? 'SELL' : 'HOLD',
       reason: decision.reason,
       confidence: decision.confidence,
       strength: decision.confidence * 100,
@@ -145,7 +146,7 @@ export abstract class BaseStrategy extends EventEmitter implements Strategy {
         positionSize: decision.positionSize,
         timeframe: decision.timeframe,
         signalsCount: decision.signals.length,
-        signals: decision.signals.map(s => ({
+        signals: decision.signals.map((s) => ({
           type: s.type,
           sentiment: s.sentiment,
           impact: s.impact,
