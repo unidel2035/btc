@@ -5,6 +5,7 @@
 import {
   NewsMomentumStrategy,
   SentimentSwingStrategy,
+  PriceChannelStrategy,
   StrategyManager,
   CombinationMode,
   type MarketData,
@@ -201,9 +202,79 @@ for (const [name, stats] of allStats) {
 }
 
 // ========================================
-// Пример 4: Обновление параметров
+// Пример 4: Price Channel Strategy
 // ========================================
-console.log('\n\n⚙️  Example 4: Dynamic Parameter Updates');
+console.log('\n\n📈 Example 4: Price Channel Breakout Strategy');
+console.log('─────────────────────────────────────────────────────\n');
+
+const priceChannelStrategy = new PriceChannelStrategy({
+  channelPeriod: 18,
+  minChannelPercent: 0.5,
+  maxChannelPercent: 3,
+  breakoutThreshold: 0.1,
+  requireSignalConfirmation: false,
+});
+
+console.log('Building price history...');
+const basePrice = 50000;
+const priceHistory = [
+  50000, 50100, 50200, 50300, 50400, 50350, 50300, 50250, 50200, 50150,
+  50100, 50050, 50000, 49950, 49900, 49950, 50000, 50050, 50100, 50150,
+];
+
+priceHistory.forEach((price, i) => {
+  const historicalData: MarketData = {
+    symbol: 'BTC/USDT',
+    price,
+    volume: 1000000,
+    timestamp: new Date(Date.now() - (priceHistory.length - i) * 3600000), // 1 час назад за каждый период
+    ohlc: {
+      open: price - 50,
+      high: price + 75,
+      low: price - 75,
+      close: price,
+    },
+  };
+  priceChannelStrategy.analyze(historicalData, []);
+});
+
+const currentChannel = priceChannelStrategy.getCurrentChannel();
+console.log('\nCurrent Price Channel:');
+console.log(`  High: $${currentChannel?.high.toLocaleString()}`);
+console.log(`  Low: $${currentChannel?.low.toLocaleString()}`);
+console.log(`  Width: $${currentChannel?.width.toFixed(2)} (${currentChannel?.widthPercent.toFixed(2)}%)`);
+
+// Симулируем пробой верхней границы
+const breakoutPrice = (currentChannel?.high ?? 50400) + 50;
+const breakoutData: MarketData = {
+  symbol: 'BTC/USDT',
+  price: breakoutPrice,
+  volume: 2000000,
+  timestamp: new Date(),
+  volatility: 0.1,
+};
+
+console.log(`\nSimulating upper breakout at $${breakoutPrice.toLocaleString()}...`);
+const decision4 = priceChannelStrategy.analyze(breakoutData, signals);
+
+console.log('\nDecision:');
+if (decision4) {
+  console.log(`  ✅ Breakout Signal Generated!`);
+  console.log(`  Direction: ${decision4.direction.toUpperCase()}`);
+  console.log(`  Confidence: ${(decision4.confidence * 100).toFixed(1)}%`);
+  console.log(`  Position Size: ${decision4.positionSize.toFixed(2)}% of capital`);
+  console.log(`  Entry Price: $${decision4.entryPrice.toLocaleString()}`);
+  console.log(`  Stop Loss: $${decision4.stopLoss?.toLocaleString()}`);
+  console.log(`  Take Profit: $${decision4.takeProfit?.toLocaleString()}`);
+  console.log(`  Reason: ${decision4.reason}`);
+} else {
+  console.log('  ℹ️  No breakout detected (price within channel or channel invalid)');
+}
+
+// ========================================
+// Пример 5: Обновление параметров
+// ========================================
+console.log('\n\n⚙️  Example 5: Dynamic Parameter Updates');
 console.log('─────────────────────────────────────────────────────\n');
 
 console.log('Original Parameters:');

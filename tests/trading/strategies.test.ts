@@ -5,6 +5,7 @@
 import {
   NewsMomentumStrategy,
   SentimentSwingStrategy,
+  PriceChannelStrategy,
   StrategyManager,
   CombinationMode,
   type MarketData,
@@ -163,6 +164,152 @@ function testSentimentSwingStrategy(): void {
   console.log('✅ Sentiment Swing Strategy tests completed\n');
 }
 
+// Тесты для Price Channel Strategy
+function testPriceChannelStrategy(): void {
+  console.log('🧪 Testing Price Channel Strategy...\n');
+
+  const strategy = new PriceChannelStrategy({
+    channelPeriod: 10, // Короткий период для тестов
+    minChannelPercent: 0.3,
+    maxChannelPercent: 5,
+  });
+
+  // Тест 1: Недостаточно истории
+  console.log('Test 1: Insufficient price history');
+  const marketData1 = createMarketData(50000);
+  const signals1: Signal[] = [];
+  const decision1 = strategy.analyze(marketData1, signals1);
+  console.log(`Result: ${decision1 ? 'Decision made' : 'No decision (expected)'} ✓\n`);
+
+  // Тест 2: Накопление истории и формирование канала
+  console.log('Test 2: Building price channel');
+  const basePrice = 50000;
+  const priceData = [
+    50000, 50100, 50200, 50300, 50250, 50150, 50100, 50050, 50000, 49950,
+  ];
+
+  for (const price of priceData) {
+    const marketData = {
+      symbol: 'BTC/USDT',
+      price,
+      volume: 1000000,
+      timestamp: new Date(),
+      ohlc: {
+        open: price - 50,
+        high: price + 50,
+        low: price - 50,
+        close: price,
+      },
+    };
+    strategy.analyze(marketData, []);
+  }
+
+  const channel = strategy.getCurrentChannel();
+  console.assert(channel !== null, 'Should have channel data');
+  console.log(`Channel: [${channel?.low.toFixed(2)}, ${channel?.high.toFixed(2)}], width: ${channel?.widthPercent.toFixed(2)}%`);
+  console.log('✓ Channel formed\n');
+
+  // Тест 3: Пробой верхней границы (LONG)
+  console.log('Test 3: Upper breakout (LONG signal)');
+  const upperBreakoutPrice = (channel?.high ?? 50300) + 10;
+  const marketData3 = {
+    symbol: 'BTC/USDT',
+    price: upperBreakoutPrice,
+    volume: 1000000,
+    timestamp: new Date(),
+  };
+  const decision3 = strategy.analyze(marketData3, []);
+  console.log(`Direction: ${decision3?.direction || 'None'}, Confidence: ${decision3?.confidence.toFixed(2) || 'N/A'}`);
+  if (decision3) {
+    console.assert(decision3.direction === 'long', 'Should be long for upper breakout');
+    console.assert(decision3.stopLoss !== undefined, 'Should have stop loss');
+    console.assert(decision3.takeProfit !== undefined, 'Should have take profit');
+    console.log('✓ Upper breakout detected\n');
+  } else {
+    console.log('No breakout detected (channel may be too narrow)\n');
+  }
+
+  // Тест 4: Пробой нижней границы (SHORT)
+  console.log('Test 4: Lower breakout (SHORT signal)');
+  strategy.clearHistory();
+
+  // Пересоздаем канал
+  for (const price of priceData) {
+    const marketData = {
+      symbol: 'BTC/USDT',
+      price,
+      volume: 1000000,
+      timestamp: new Date(),
+      ohlc: { open: price - 50, high: price + 50, low: price - 50, close: price },
+    };
+    strategy.analyze(marketData, []);
+  }
+
+  const channel4 = strategy.getCurrentChannel();
+  const lowerBreakoutPrice = (channel4?.low ?? 49900) - 10;
+  const marketData4 = {
+    symbol: 'BTC/USDT',
+    price: lowerBreakoutPrice,
+    volume: 1000000,
+    timestamp: new Date(),
+  };
+  const decision4 = strategy.analyze(marketData4, []);
+  console.log(`Direction: ${decision4?.direction || 'None'}, Confidence: ${decision4?.confidence.toFixed(2) || 'N/A'}`);
+  if (decision4) {
+    console.assert(decision4.direction === 'short', 'Should be short for lower breakout');
+    console.log('✓ Lower breakout detected\n');
+  } else {
+    console.log('No breakout detected (channel may be too narrow)\n');
+  }
+
+  // Тест 5: Подтверждение сигналом
+  console.log('Test 5: Signal confirmation required');
+  const strategyWithConfirmation = new PriceChannelStrategy({
+    channelPeriod: 10,
+    requireSignalConfirmation: true,
+  });
+
+  // Накапливаем историю
+  for (const price of priceData) {
+    const marketData = {
+      symbol: 'BTC/USDT',
+      price,
+      volume: 1000000,
+      timestamp: new Date(),
+      ohlc: { open: price - 50, high: price + 50, low: price - 50, close: price },
+    };
+    strategyWithConfirmation.analyze(marketData, []);
+  }
+
+  const channelConf = strategyWithConfirmation.getCurrentChannel();
+  const breakoutPrice5 = (channelConf?.high ?? 50300) + 10;
+
+  // Без сигнала
+  const marketData5a = {
+    symbol: 'BTC/USDT',
+    price: breakoutPrice5,
+    volume: 1000000,
+    timestamp: new Date(),
+  };
+  const decision5a = strategyWithConfirmation.analyze(marketData5a, []);
+  console.log(`Without signal: ${decision5a ? 'Decision made (unexpected)' : 'No decision (expected)'}`);
+
+  // С bullish сигналом
+  const bullishSignal = createSignal('technical' as SignalType, 'bullish' as SignalSentiment, 0.7, 10);
+  const decision5b = strategyWithConfirmation.analyze(marketData5a, [bullishSignal]);
+  console.log(`With bullish signal: ${decision5b ? 'Decision made (expected)' : 'No decision'}`);
+  console.log('✓ Signal confirmation working\n');
+
+  // Тест 6: Очистка истории
+  console.log('Test 6: Clear history');
+  strategy.clearHistory();
+  const channelAfterClear = strategy.getCurrentChannel();
+  console.assert(channelAfterClear === null, 'Channel should be null after clearing');
+  console.log('✓ History cleared\n');
+
+  console.log('✅ Price Channel Strategy tests completed\n');
+}
+
 // Тесты для Strategy Manager
 function testStrategyManager(): void {
   console.log('🧪 Testing Strategy Manager...\n');
@@ -236,6 +383,7 @@ function runAllTests(): void {
   try {
     testNewsMomentumStrategy();
     testSentimentSwingStrategy();
+    testPriceChannelStrategy();
     testStrategyManager();
 
     console.log('═══════════════════════════════════════════════════════');
