@@ -488,6 +488,163 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
     }
   });
 
+      const signalsProvider = dashboardServer?.getSignalsProvider();
+      if (!signalsProvider) {
+        res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
+        return;
+      }
+
+      const name = (
+        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+      ) as string;
+
+      const schema = signalsProvider.getStrategySchema(name || '');
+      if (!schema) {
+        res.status(404).json({ error: 'Strategy not found' });
+        return;
+      }
+
+      res.json(schema);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch strategy schema' });
+    }
+  });
+
+  // POST /api/strategies/:name/validate - Validate strategy parameters
+  router.post('/api/strategies/:name/validate', (req: Request, res: Response): void => {
+    try {
+      const signalsProvider = dashboardServer?.getSignalsProvider();
+      if (!signalsProvider) {
+        res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
+        return;
+      }
+
+      const name = (
+        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+      ) as string;
+
+      const result = signalsProvider.validateStrategyParams(
+        name || '',
+        req.body as Record<string, unknown>,
+      );
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to validate strategy parameters' });
+    }
+  });
+
+  // Strategy Presets Management
+
+  // GET /api/strategies/presets - Get all presets
+  router.get('/api/strategies/presets', (_req: Request, res: Response) => {
+    try {
+      const presets = storage.getStrategyPresets();
+      res.json(presets);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch presets' });
+    }
+  });
+
+  // GET /api/strategies/:name/presets - Get presets for specific strategy
+  router.get('/api/strategies/:name/presets', (req: Request, res: Response): void => {
+    try {
+      const name = (
+        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+      ) as string;
+      const presets = storage.getStrategyPresets(name || '');
+      res.json(presets);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch presets' });
+    }
+  });
+
+  // POST /api/strategies/presets - Create new preset
+  router.post('/api/strategies/presets', (req: Request, res: Response): void => {
+    try {
+      const preset = storage.createStrategyPreset(
+        req.body as {
+          name: string;
+          strategy: string;
+          params: Record<string, unknown>;
+          description?: string;
+        },
+      );
+      res.status(201).json(preset);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to create preset' });
+    }
+  });
+
+  // GET /api/strategies/presets/:id - Get preset by ID
+  router.get('/api/strategies/presets/:id', (req: Request, res: Response): void => {
+    try {
+      const id = (Array.isArray(req.params.id) ? req.params.id[0] : req.params.id) as string;
+      const preset = storage.getStrategyPreset(id || '');
+      if (!preset) {
+        res.status(404).json({ error: 'Preset not found' });
+        return;
+      }
+      res.json(preset);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch preset' });
+    }
+  });
+
+  // DELETE /api/strategies/presets/:id - Delete preset
+  router.delete('/api/strategies/presets/:id', (req: Request, res: Response): void => {
+    try {
+      const id = (Array.isArray(req.params.id) ? req.params.id[0] : req.params.id) as string;
+      const success = storage.deleteStrategyPreset(id || '');
+      if (!success) {
+        res.status(404).json({ error: 'Preset not found' });
+        return;
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to delete preset' });
+    }
+  });
+
+  // POST /api/strategies/:name/apply-preset/:presetId - Apply preset to strategy
+  router.post(
+    '/api/strategies/:name/apply-preset/:presetId',
+    (req: Request, res: Response): void => {
+      try {
+        const signalsProvider = dashboardServer?.getSignalsProvider();
+        if (!signalsProvider) {
+          res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
+          return;
+        }
+
+        const name = (
+          Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+        ) as string;
+        const presetId = (
+          Array.isArray(req.params.presetId) ? req.params.presetId[0] : req.params.presetId
+        ) as string;
+
+        const preset = storage.getStrategyPreset(presetId || '');
+        if (!preset) {
+          res.status(404).json({ error: 'Preset not found' });
+          return;
+        }
+
+        if (preset.strategy !== name) {
+          res.status(400).json({ error: 'Preset is for different strategy' });
+          return;
+        }
+
+        signalsProvider.updateStrategyParams(name || '', preset.params);
+        res.json({ success: true, message: `Preset "${preset.name}" applied to ${name}` });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to apply preset' });
+      }
+    },
+  );
+
+  // POST /api/backtest/run - Run backtest
+  router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
+    try {
   // GET /api/chart/history - Chart historical data
   router.get('/api/chart/history', async (req: Request, res: Response): Promise<void> => {
     try {
@@ -548,6 +705,75 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       res.status(500).json({ error: 'Failed to fetch chart history', message: String(error) });
     }
   });
+
+  // POST /api/backtest/run - Run backtest
+  router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const {
+        strategy,
+        symbol,
+        startDate,
+        endDate,
+        initialCapital,
+        positionSize,
+        timeframe,
+        fees,
+        slippage,
+        allowShorts,
+      } = req.body as {
+        strategy: string;
+        symbol: string;
+        startDate: string;
+        endDate: string;
+        initialCapital: number;
+        positionSize: number;
+        timeframe: string;
+        fees: number;
+        slippage: number;
+        allowShorts: boolean;
+      };
+
+      // Validate required fields
+      if (
+        !strategy ||
+        !symbol ||
+        !startDate ||
+        !endDate ||
+        !initialCapital ||
+        !positionSize ||
+        !timeframe
+      ) {
+        res.status(400).json({ error: 'Missing required fields' });
+        return;
+      }
+
+      // Dynamic import to avoid circular dependencies
+      const { runBacktest } = await import('./backtest-runner.js');
+
+      // Run backtest
+      const results = await runBacktest({
+        strategy,
+        symbol,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        initialCapital,
+        positionSize,
+        timeframe,
+        fees: fees || 0.1,
+        slippage: slippage || 0.05,
+        allowShorts: allowShorts || false,
+      });
+
+      res.json(results);
+    } catch (error) {
+      console.error('Backtest error:', error);
+      res.status(500).json({
+        error: 'Failed to run backtest',
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+}
 
   // POST /api/backtest/run - Run backtest
   router.post('/api/backtest/run', async (req: Request, res: Response): Promise<void> => {

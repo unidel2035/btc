@@ -6,6 +6,7 @@ import type {
   MarketData,
   Signal,
   TradeDecision,
+  ParamSchema,
 } from './types.js';
 
 /**
@@ -155,5 +156,129 @@ export abstract class BaseStrategy extends EventEmitter implements Strategy {
     };
 
     this.emit('signal', signalData);
+  }
+
+  /**
+   * Получить схему параметров стратегии
+   * Должен быть переопределен в наследниках для специфичных параметров
+   */
+  public getParameterSchema(): ParamSchema[] {
+    return [
+      {
+        name: 'enabled',
+        type: 'boolean',
+        default: true,
+        description: 'Включить стратегию',
+        tooltip: 'Включить или отключить стратегию',
+        group: 'general',
+      },
+      {
+        name: 'minImpact',
+        type: 'number',
+        default: 0.5,
+        min: 0,
+        max: 1,
+        step: 0.1,
+        description: 'Минимальный impact сигнала',
+        tooltip: 'Минимальная значимость сигнала для учета',
+        group: 'signal',
+      },
+      {
+        name: 'minConfidence',
+        type: 'number',
+        default: 0.6,
+        min: 0,
+        max: 1,
+        step: 0.05,
+        description: 'Минимальная уверенность',
+        tooltip: 'Минимальная уверенность для входа в сделку',
+        group: 'signal',
+      },
+      {
+        name: 'maxPositionSize',
+        type: 'number',
+        default: 5,
+        min: 1,
+        max: 100,
+        step: 1,
+        description: 'Макс. размер позиции (%)',
+        tooltip: 'Максимальный размер позиции в процентах от капитала',
+        group: 'risk',
+      },
+      {
+        name: 'stopLossPercent',
+        type: 'number',
+        default: 2,
+        min: 0.5,
+        max: 10,
+        step: 0.5,
+        description: 'Стоп-лосс (%)',
+        tooltip: 'Процент стоп-лосса от цены входа',
+        group: 'risk',
+      },
+      {
+        name: 'takeProfitPercent',
+        type: 'number',
+        default: 5,
+        min: 1,
+        max: 20,
+        step: 0.5,
+        description: 'Тейк-профит (%)',
+        tooltip: 'Процент тейк-профита от цены входа',
+        group: 'risk',
+      },
+    ];
+  }
+
+  /**
+   * Валидация параметров стратегии
+   */
+  public validateParameters(params: Partial<StrategyParams>): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    const schema = this.getParameterSchema();
+
+    for (const [key, value] of Object.entries(params)) {
+      const paramSchema = schema.find(s => s.name === key);
+      if (!paramSchema) {
+        continue; // Неизвестный параметр - игнорируем
+      }
+
+      // Проверка типа
+      if (paramSchema.type === 'number' && typeof value !== 'number') {
+        errors.push(`${key}: должен быть числом`);
+        continue;
+      }
+      if (paramSchema.type === 'boolean' && typeof value !== 'boolean') {
+        errors.push(`${key}: должен быть булевым значением`);
+        continue;
+      }
+      if (paramSchema.type === 'string' && typeof value !== 'string') {
+        errors.push(`${key}: должен быть строкой`);
+        continue;
+      }
+
+      // Проверка диапазона для чисел
+      if (paramSchema.type === 'number' && typeof value === 'number') {
+        if (paramSchema.min !== undefined && value < paramSchema.min) {
+          errors.push(`${key}: минимальное значение ${paramSchema.min}`);
+        }
+        if (paramSchema.max !== undefined && value > paramSchema.max) {
+          errors.push(`${key}: максимальное значение ${paramSchema.max}`);
+        }
+      }
+
+      // Проверка допустимых значений для select
+      if (paramSchema.type === 'select' && paramSchema.options) {
+        const validValues = paramSchema.options.map(o => o.value);
+        if (!validValues.includes(value)) {
+          errors.push(`${key}: недопустимое значение`);
+        }
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+    };
   }
 }

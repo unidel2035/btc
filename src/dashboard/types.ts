@@ -108,6 +108,16 @@ export interface PerformanceStats {
   totalPnlPercent: number;
 }
 
+export interface StrategyPreset {
+  id: string;
+  name: string;
+  strategy: string;
+  params: Record<string, unknown>;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface WebSocketMessage {
   type:
     | 'metrics'

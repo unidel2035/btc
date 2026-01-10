@@ -597,6 +597,51 @@
           </div>
 
           <div class="settings-grid">
+            <!-- Strategy Settings Panel -->
+            <div class="card card-full-width" id="strategySettingsPanel">
+              <h3 data-i18n="settings.strategyParameters">Strategy Parameters</h3>
+              <div class="strategy-settings-panel">
+                <div class="settings-header">
+                  <div class="strategy-selector-group">
+                    <label for="strategySelect" data-i18n="settings.selectStrategy">Select Strategy:</label>
+                    <select id="strategySelect" class="strategy-select">
+                      <option value="">Loading...</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="settings-content" id="strategySettingsContent">
+                  <!-- Dynamic form will be generated here -->
+                </div>
+
+                <div class="settings-actions">
+                  <button id="applySettings" class="btn btn-primary">
+                    <span data-i18n="settings.apply">Apply</span>
+                  </button>
+                  <button id="previewSettings" class="btn btn-secondary">
+                    <span data-i18n="settings.preview">Preview</span>
+                  </button>
+                  <button id="resetSettings" class="btn btn-secondary">
+                    <span data-i18n="settings.reset">Reset</span>
+                  </button>
+                  <button id="savePreset" class="btn btn-secondary">
+                    <span data-i18n="settings.savePreset">Save Preset</span>
+                  </button>
+                  <button id="exportConfig" class="btn btn-secondary">
+                    <span data-i18n="settings.export">Export</span>
+                  </button>
+                  <button id="importConfig" class="btn btn-secondary">
+                    <span data-i18n="settings.import">Import</span>
+                  </button>
+                </div>
+
+                <div class="settings-presets">
+                  <h4 data-i18n="settings.savedPresets">Saved Presets</h4>
+                  <div id="presetsList"></div>
+                </div>
+              </div>
+            </div>
+
             <div class="card">
               <h3 data-i18n="settings.riskManagement">Risk Management</h3>
               <form id="riskSettingsForm">
@@ -676,6 +721,8 @@
     <script src="/orderbook.js"></script>
     <script src="/recent-trades.js"></script>
     <script src="/market-depth.js"></script>
+    <script src="/preset-manager.js"></script>
+    <script src="/strategy-settings.js"></script>
     <script src="/backtest.js"></script>
     <script src="/app.js"></script>
   </body>

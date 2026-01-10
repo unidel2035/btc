@@ -99,6 +99,22 @@ export interface StrategyStats {
 }
 
 /**
+ * Схема параметра стратегии
+ */
+export interface ParamSchema {
+  name: string;
+  type: 'number' | 'boolean' | 'string' | 'select';
+  default: unknown;
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: Array<{ value: unknown; label: string }>;
+  description: string;
+  tooltip: string;
+  group?: string;
+}
+
+/**
  * Интерфейс торговой стратегии
  */
 export interface Strategy {
@@ -119,6 +135,16 @@ export interface Strategy {
    * Обновить параметры стратегии
    */
   updateParameters(params: Partial<StrategyParams>): void;
+
+  /**
+   * Получить схему параметров стратегии
+   */
+  getParameterSchema(): ParamSchema[];
+
+  /**
+   * Валидация параметров стратегии
+   */
+  validateParameters(params: Partial<StrategyParams>): { valid: boolean; errors: string[] };
 
   /**
    * Получить статистику стратегии

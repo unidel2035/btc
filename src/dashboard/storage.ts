@@ -14,6 +14,7 @@ import type {
   RiskConfig,
   PerformanceStats,
   DashboardMetrics,
+  StrategyPreset,
 } from './types.js';
 
 class DashboardStorage {
@@ -24,6 +25,7 @@ class DashboardStorage {
   private tradeHistory: TradeHistory[] = [];
   private balance: number = 10000;
   private strategyConfig: Map<string, StrategyConfig> = new Map();
+  private strategyPresets: Map<string, StrategyPreset> = new Map();
   private riskConfig: RiskConfig = {
     maxPositionSize: 10,
     maxPositions: 5,
@@ -340,6 +342,59 @@ class DashboardStorage {
   // Health check method
   isInitialized(): boolean {
     return this.equityHistory.length > 0;
+  }
+
+  // Strategy Presets Management
+
+  getStrategyPresets(strategyName?: string): StrategyPreset[] {
+    const allPresets = Array.from(this.strategyPresets.values());
+    if (strategyName) {
+      return allPresets.filter((p) => p.strategy === strategyName);
+    }
+    return allPresets;
+  }
+
+  getStrategyPreset(id: string): StrategyPreset | undefined {
+    return this.strategyPresets.get(id);
+  }
+
+  createStrategyPreset(data: {
+    name: string;
+    strategy: string;
+    params: Record<string, unknown>;
+    description?: string;
+  }): StrategyPreset {
+    const preset: StrategyPreset = {
+      id: randomUUID(),
+      name: data.name,
+      strategy: data.strategy,
+      params: data.params,
+      description: data.description,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.strategyPresets.set(preset.id, preset);
+    return preset;
+  }
+
+  updateStrategyPreset(
+    id: string,
+    updates: Partial<Omit<StrategyPreset, 'id' | 'createdAt'>>,
+  ): StrategyPreset | null {
+    const preset = this.strategyPresets.get(id);
+    if (!preset) return null;
+
+    const updated: StrategyPreset = {
+      ...preset,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    this.strategyPresets.set(id, updated);
+    return updated;
+  }
+
+  deleteStrategyPreset(id: string): boolean {
+    return this.strategyPresets.delete(id);
   }
 }
 

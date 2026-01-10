@@ -290,4 +290,75 @@ export class PriceChannelStrategy extends BaseStrategy {
   public clearHistory(): void {
     this.priceHistory = [];
   }
+
+  /**
+   * Получить схему параметров для Price Channel Strategy
+   */
+  public override getParameterSchema() {
+    const baseSchema = super.getParameterSchema();
+    const strategySchema = [
+      {
+        name: 'channelPeriod',
+        type: 'number' as const,
+        default: 18,
+        min: 5,
+        max: 100,
+        step: 1,
+        description: 'Период канала',
+        tooltip: 'Количество свечей для расчета ценового канала',
+        group: 'strategy',
+      },
+      {
+        name: 'breakoutThreshold',
+        type: 'number' as const,
+        default: 0.001,
+        min: 0,
+        max: 0.1,
+        step: 0.0001,
+        description: 'Порог пробоя',
+        tooltip: 'Минимальное отклонение для подтверждения пробоя',
+        group: 'strategy',
+      },
+      {
+        name: 'minChannelPercent',
+        type: 'number' as const,
+        default: 0.5,
+        min: 0,
+        max: 10,
+        step: 0.1,
+        description: 'Мин. ширина канала (%)',
+        tooltip: 'Минимальная ширина канала в процентах для валидности',
+        group: 'strategy',
+      },
+      {
+        name: 'maxChannelPercent',
+        type: 'number' as const,
+        default: 3,
+        min: 0.1,
+        max: 20,
+        step: 0.1,
+        description: 'Макс. ширина канала (%)',
+        tooltip: 'Максимальная ширина канала в процентах для валидности',
+        group: 'strategy',
+      },
+      {
+        name: 'requireSignalConfirmation',
+        type: 'boolean' as const,
+        default: false,
+        description: 'Требовать подтверждение сигналом',
+        tooltip: 'Требовать подтверждающий сигнал перед входом в позицию',
+        group: 'strategy',
+      },
+      {
+        name: 'useMultipleTimeframes',
+        type: 'boolean' as const,
+        default: false,
+        description: 'Несколько таймфреймов',
+        tooltip: 'Использовать множественные таймфреймы (18, 54, 108)',
+        group: 'strategy',
+      },
+    ];
+
+    return [...baseSchema, ...strategySchema];
+  }
 }
