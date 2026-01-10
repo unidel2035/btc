@@ -116,7 +116,7 @@ class RedisClient {
   /**
    * Get a JSON object
    */
-  async getJSON<T = unknown>(key: string): Promise<T | null> {
+  async getJSON<T = Record<string, unknown>>(key: string): Promise<T | null> {
     const value = await this.get(key);
     if (!value) return null;
 

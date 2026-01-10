@@ -23,7 +23,6 @@ async function runTests() {
 
   let passed = 0;
   let failed = 0;
-  let skipped = 0;
 
   const test = async (name: string, fn: () => Promise<void>) => {
     try {
@@ -37,19 +36,6 @@ async function runTests() {
     }
   };
 
-  const skipIfNotInitialized = async (
-    name: string,
-    exchange: { isInitialized: () => boolean },
-    fn: () => Promise<void>,
-  ) => {
-    if (!exchange.isInitialized()) {
-      console.log(`⏭️  ${name} (skipped - exchange not initialized)`);
-      skipped++;
-      return;
-    }
-    await test(name, fn);
-  };
-
   // ==================== Binance Tests ====================
   console.log('📊 Binance Exchange Tests\n');
 
@@ -59,28 +45,14 @@ async function runTests() {
     enableRateLimit: false, // Отключаем для тестов
   });
 
-  let binanceInitialized = false;
   await test('Binance Spot: Initialize without API keys', async () => {
-    try {
-      await binanceSpot.initialize();
-      if (!binanceSpot.isInitialized()) {
-        throw new Error('Exchange not initialized');
-      }
-      binanceInitialized = true;
-    } catch (error: unknown) {
-      const err = error as { statusCode?: number; message?: string };
-      // Skip geo-restricted errors in CI
-      if (err.statusCode === 451 || (err.message && err.message.includes('restricted location'))) {
-        console.log('   ⚠️  Skipping: Geo-restricted access');
-        passed++; // Count as passed to allow CI to succeed
-        binanceInitialized = false;
-        return;
-      }
-      throw error;
+    await binanceSpot.initialize();
+    if (!binanceSpot.isInitialized()) {
+      throw new Error('Exchange not initialized');
     }
   });
 
-  await skipIfNotInitialized('Binance Spot: Get candles', binanceSpot, async () => {
+  await test('Binance Spot: Get candles', async () => {
     const candles = await binanceSpot.getCandles('BTCUSDT', CandleInterval.ONE_HOUR, 10);
     if (candles.length === 0) {
       throw new Error('No candles returned');
@@ -90,7 +62,7 @@ async function runTests() {
     }
   });
 
-  await skipIfNotInitialized('Binance Spot: Get order book', binanceSpot, async () => {
+  await test('Binance Spot: Get order book', async () => {
     const orderBook = await binanceSpot.getOrderBook('BTCUSDT', 10);
     if (orderBook.bids.length === 0 || orderBook.asks.length === 0) {
       throw new Error('Invalid order book');
@@ -100,7 +72,7 @@ async function runTests() {
     }
   });
 
-  await skipIfNotInitialized('Binance Spot: Get recent trades', binanceSpot, async () => {
+  await test('Binance Spot: Get recent trades', async () => {
     const trades = await binanceSpot.getTrades('BTCUSDT', 10);
     if (trades.length === 0) {
       throw new Error('No trades returned');
@@ -110,7 +82,7 @@ async function runTests() {
     }
   });
 
-  await skipIfNotInitialized('Binance Spot: Get ticker', binanceSpot, async () => {
+  await test('Binance Spot: Get ticker', async () => {
     const ticker = await binanceSpot.getTicker('BTCUSDT');
     if (!ticker.lastPrice || ticker.lastPrice <= 0) {
       throw new Error('Invalid ticker data');
@@ -120,14 +92,14 @@ async function runTests() {
     }
   });
 
-  await skipIfNotInitialized('Binance Spot: Get all tickers', binanceSpot, async () => {
+  await test('Binance Spot: Get all tickers', async () => {
     const tickers = await binanceSpot.getAllTickers();
     if (tickers.length === 0) {
       throw new Error('No tickers returned');
     }
   });
 
-  await skipIfNotInitialized('Binance Spot: Get exchange info', binanceSpot, async () => {
+  await test('Binance Spot: Get exchange info', async () => {
     const info = await binanceSpot.getExchangeInfo();
     if (info.symbols.length === 0) {
       throw new Error('No symbols in exchange info');
@@ -137,14 +109,14 @@ async function runTests() {
     }
   });
 
-  await skipIfNotInitialized('Binance Spot: Validate symbol', binanceSpot, async () => {
+  await test('Binance Spot: Validate symbol', async () => {
     const isValid = await binanceSpot.validateSymbol('BTCUSDT');
     if (!isValid) {
       throw new Error('BTCUSDT should be valid');
     }
   });
 
-  await skipIfNotInitialized('Binance Spot: Format symbol', binanceSpot, () => {
+  await test('Binance Spot: Format symbol', () => {
     const symbol = binanceSpot.formatSymbol('BTC', 'USDT');
     if (symbol !== 'BTCUSDT') {
       throw new Error(`Expected BTCUSDT, got ${symbol}`);
@@ -152,7 +124,7 @@ async function runTests() {
     return Promise.resolve();
   });
 
-  await skipIfNotInitialized('Binance Spot: Require API keys for trading', binanceSpot, async () => {
+  await test('Binance Spot: Require API keys for trading', async () => {
     try {
       await binanceSpot.getBalance();
       throw new Error('Should require API keys');
@@ -385,33 +357,12 @@ async function runTests() {
 
   // ==================== Results ====================
   console.log('\n' + '='.repeat(50));
-  console.log(`📊 Test Results: ${passed} passed, ${failed} failed, ${skipped} skipped`);
+  console.log(`📊 Test Results: ${passed} passed, ${failed} failed`);
   console.log('='.repeat(50));
 
-  // Only fail if there are actual test failures (not skipped tests)
   if (failed > 0) {
-    console.log(
-      '\n⚠️  Some tests failed. This may be due to geo-restrictions or API availability.',
-    );
-    console.log('If failures are only related to Binance/Bybit access, they may be expected in CI.');
-
-    // Allow tests to pass if we have reasonable success despite geo-restrictions
-    // This handles cases where external APIs (Binance/Bybit) are unavailable in CI
-    const totalAttempted = passed + failed;
-    const successRate = passed / totalAttempted;
-
-    if (passed >= 5 && successRate >= 0.4) {
-      console.log(
-        `\n✅ Allowing tests to pass: ${passed}/${totalAttempted} tests passed (${Math.round(successRate * 100)}% success rate).`,
-      );
-      console.log(`   ${skipped} tests were skipped due to exchange initialization failures.`);
-      process.exit(0);
-    }
-
     process.exit(1);
   }
-
-  console.log(`\n✅ All tests completed successfully!`);
 }
 
 // Run tests

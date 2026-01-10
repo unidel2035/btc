@@ -36,7 +36,6 @@ export class TelegramCollector {
   private logger: SocialLogger;
   private seenIds: Set<string>;
   private intervalId?: NodeJS.Timeout;
-
   private lastMessageIds: Map<string, number>; // channelId -> lastMessageId
 
   constructor(config: TelegramConfig) {

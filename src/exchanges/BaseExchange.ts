@@ -217,13 +217,7 @@ export abstract class BaseExchange implements IExchange {
   /**
    * Получить статистику rate limiter
    */
-  getRateLimiterStats(): {
-    maxRequests: number;
-    interval: number;
-    currentRequests: number;
-    remainingRequests: number;
-    enabled: boolean;
-  } {
+  getRateLimiterStats() {
     return this.rateLimiter.getStats();
   }
 
