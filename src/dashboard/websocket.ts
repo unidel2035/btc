@@ -9,11 +9,22 @@ import type { Server } from 'http';
 import type { WebSocketMessage } from './types.js';
 import { storage } from './storage.js';
 
+interface ClientSubscription {
+  ws: WebSocket;
+  subscriptions: Set<string>; // Set of subscription keys like "chart:binance:BTC/USDT:1h"
+}
+
+interface DashboardServerInterface {
+  getChartDataProvider(): any;
+}
+
 export class DashboardWebSocket {
   private wss: WebSocketServer;
   private clients: Set<WebSocket> = new Set();
+  private clientSubscriptions: Map<WebSocket, ClientSubscription> = new Map();
   private updateInterval: NodeJS.Timeout | null = null;
   private priceSimulationInterval: NodeJS.Timeout | null = null;
+  private dashboardServer: DashboardServerInterface | null = null;
 
   constructor(server: Server) {
     this.wss = new WebSocketServer({ server, path: '/ws' });
@@ -22,10 +33,15 @@ export class DashboardWebSocket {
     this.startPriceSimulation();
   }
 
+  setDashboardServer(dashboardServer: DashboardServerInterface): void {
+    this.dashboardServer = dashboardServer;
+  }
+
   private setupWebSocket(): void {
     this.wss.on('connection', (ws: WebSocket) => {
       console.log('🔌 WebSocket client connected');
       this.clients.add(ws);
+      this.clientSubscriptions.set(ws, { ws, subscriptions: new Set() });
 
       // Отправляем начальные данные при подключении
       this.sendInitialData(ws);
@@ -42,11 +58,13 @@ export class DashboardWebSocket {
       ws.on('close', () => {
         console.log('🔌 WebSocket client disconnected');
         this.clients.delete(ws);
+        this.clientSubscriptions.delete(ws);
       });
 
       ws.on('error', (error) => {
         console.error('WebSocket error:', error);
         this.clients.delete(ws);
+        this.clientSubscriptions.delete(ws);
       });
     });
   }
@@ -74,7 +92,7 @@ export class DashboardWebSocket {
     });
   }
 
-  private handleMessage(ws: WebSocket, message: { type?: string }): void {
+  private handleMessage(ws: WebSocket, message: { type?: string; channel?: string; exchange?: string; symbol?: string; timeframe?: string }): void {
     console.log('📨 Received message:', message);
 
     switch (message.type) {
@@ -87,7 +105,42 @@ export class DashboardWebSocket {
         break;
 
       case 'subscribe':
-        // В будущем можно добавить подписки на конкретные каналы
+        if (message.channel === 'chart' && message.exchange && message.symbol && message.timeframe) {
+          const subscriptionKey = `chart:${message.exchange}:${message.symbol}:${message.timeframe}`;
+          const clientSub = this.clientSubscriptions.get(ws);
+          if (clientSub) {
+            clientSub.subscriptions.add(subscriptionKey);
+            console.log(`Client subscribed to ${subscriptionKey}`);
+
+            // Trigger subscription on ChartDataProvider
+            const chartDataProvider = this.dashboardServer?.getChartDataProvider();
+            if (chartDataProvider) {
+              chartDataProvider.subscribeToChart(message.exchange, message.symbol, message.timeframe);
+            }
+
+            this.sendToClient(ws, {
+              type: 'subscribed',
+              data: { channel: 'chart', exchange: message.exchange, symbol: message.symbol, timeframe: message.timeframe },
+              timestamp: new Date().toISOString(),
+            });
+          }
+        }
+        break;
+
+      case 'unsubscribe':
+        if (message.channel === 'chart' && message.exchange && message.symbol && message.timeframe) {
+          const subscriptionKey = `chart:${message.exchange}:${message.symbol}:${message.timeframe}`;
+          const clientSub = this.clientSubscriptions.get(ws);
+          if (clientSub) {
+            clientSub.subscriptions.delete(subscriptionKey);
+            console.log(`Client unsubscribed from ${subscriptionKey}`);
+            this.sendToClient(ws, {
+              type: 'unsubscribed',
+              data: { channel: 'chart', exchange: message.exchange, symbol: message.symbol, timeframe: message.timeframe },
+              timestamp: new Date().toISOString(),
+            });
+          }
+        }
         break;
 
       default:
@@ -197,6 +250,22 @@ export class DashboardWebSocket {
       type: 'notification',
       data: notification,
       timestamp: new Date().toISOString(),
+    });
+  }
+
+  public broadcastChartCandle(candle: { exchange: string; symbol: string; timeframe: string; [key: string]: unknown }): void {
+    const subscriptionKey = `chart:${candle.exchange}:${candle.symbol}:${candle.timeframe}`;
+    const message = JSON.stringify({
+      type: 'chart_candle',
+      data: candle,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Send only to subscribed clients
+    this.clientSubscriptions.forEach((clientSub) => {
+      if (clientSub.subscriptions.has(subscriptionKey) && clientSub.ws.readyState === WebSocket.OPEN) {
+        clientSub.ws.send(message);
+      }
     });
   }
 

@@ -78,6 +78,9 @@ let ws = null;
 let reconnectTimeout = null;
 let equityChart = null;
 
+// Expose WebSocket globally for chart
+window.ws = null;
+
 // State
 const state = {
   metrics: {},
@@ -168,6 +171,7 @@ function connectWebSocket() {
 
   ws.onopen = () => {
     console.log('WebSocket connected');
+    window.ws = ws; // Expose globally for chart
     updateConnectionStatus(true);
     if (reconnectTimeout) {
       clearTimeout(reconnectTimeout);
@@ -250,6 +254,13 @@ function handleWebSocketMessage(message) {
 
     case 'notification':
       showNotification(message.data);
+      break;
+
+    case 'chart_candle':
+      // Forward to strategy chart if it's active
+      if (window.strategyChart && typeof window.strategyChart.handleChartCandle === 'function') {
+        window.strategyChart.handleChartCandle(message.data);
+      }
       break;
   }
 }

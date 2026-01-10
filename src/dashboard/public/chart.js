@@ -18,6 +18,13 @@ class StrategyChart {
     this.trades = [];
 
     this.CHANNEL_PERIOD = 18;
+
+    // Real data mode settings
+    this.useRealData = true;
+    this.exchange = 'binance';
+    this.symbol = 'BTC/USDT';
+    this.timeframe = '1h';
+    this.ws = null;
   }
 
   initialize() {
@@ -92,6 +99,17 @@ class StrategyChart {
     document.getElementById('chartPause')?.addEventListener('click', () => this.pause());
     document.getElementById('chartReset')?.addEventListener('click', () => this.reset());
 
+    // Обработчики селекторов
+    document.getElementById('exchangeSelect')?.addEventListener('change', (e) => {
+      this.updateSettings(e.target.value, this.symbol, this.timeframe);
+    });
+    document.getElementById('symbolSelect')?.addEventListener('change', (e) => {
+      this.updateSettings(this.exchange, e.target.value, this.timeframe);
+    });
+    document.getElementById('timeframeSelect')?.addEventListener('change', (e) => {
+      this.updateSettings(this.exchange, this.symbol, e.target.value);
+    });
+
     // Адаптивность
     window.addEventListener('resize', () => {
       if (this.chart) {
@@ -103,6 +121,44 @@ class StrategyChart {
 
     // Инициализация с историческими данными
     this.reset();
+  }
+
+  async loadRealData() {
+    try {
+      const response = await fetch(`/api/chart/history?exchange=${this.exchange}&symbol=${this.symbol}&timeframe=${this.timeframe}&limit=100`);
+
+      if (!response.ok) {
+        console.warn('Failed to load real data, falling back to simulation');
+        this.useRealData = false;
+        return this.generateHistoricalData();
+      }
+
+      const result = await response.json();
+      const data = result.data;
+
+      if (!data || data.length === 0) {
+        console.warn('No data received, falling back to simulation');
+        this.useRealData = false;
+        return this.generateHistoricalData();
+      }
+
+      // Update price history for channel calculation
+      this.priceHistory = data.map(candle => ({
+        time: candle.time,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close
+      }));
+
+      this.currentPrice = data[data.length - 1].close;
+      this.currentTime = data[data.length - 1].time;
+
+      return data;
+    } catch (error) {
+      console.error('Error loading real data:', error);
+      this.useRealData = false;
+      return this.generateHistoricalData();
+    }
   }
 
   generateHistoricalData() {
@@ -128,6 +184,95 @@ class StrategyChart {
     this.currentTime = data[data.length - 1].time + 3600;
 
     return data;
+  }
+
+  setupWebSocket() {
+    if (!this.useRealData) return;
+
+    // Connect to existing WebSocket
+    if (window.ws && window.ws.readyState === WebSocket.OPEN) {
+      this.ws = window.ws;
+      this.subscribeToChart();
+    } else {
+      console.warn('WebSocket not available, real-time updates disabled');
+    }
+  }
+
+  subscribeToChart() {
+    if (!this.ws) return;
+
+    // Subscribe to chart updates
+    this.ws.send(JSON.stringify({
+      type: 'subscribe',
+      channel: 'chart',
+      exchange: this.exchange,
+      symbol: this.symbol,
+      timeframe: this.timeframe
+    }));
+
+    console.log(`Subscribed to chart: ${this.exchange} ${this.symbol} ${this.timeframe}`);
+  }
+
+  unsubscribeFromChart() {
+    if (!this.ws) return;
+
+    this.ws.send(JSON.stringify({
+      type: 'unsubscribe',
+      channel: 'chart',
+      exchange: this.exchange,
+      symbol: this.symbol,
+      timeframe: this.timeframe
+    }));
+
+    console.log(`Unsubscribed from chart: ${this.exchange} ${this.symbol} ${this.timeframe}`);
+  }
+
+  handleChartCandle(candle) {
+    if (!candle || candle.exchange !== this.exchange || candle.symbol !== this.symbol || candle.timeframe !== this.timeframe) {
+      return;
+    }
+
+    const chartCandle = {
+      time: Math.floor(candle.timestamp / 1000),
+      open: candle.open,
+      high: candle.high,
+      low: candle.low,
+      close: candle.close
+    };
+
+    // Update or add candle
+    this.candlestickSeries.update(chartCandle);
+
+    // Update price history
+    this.priceHistory.push({
+      time: chartCandle.time,
+      high: chartCandle.high,
+      low: chartCandle.low,
+      close: chartCandle.close
+    });
+
+    if (this.priceHistory.length > 200) {
+      this.priceHistory.shift();
+    }
+
+    this.currentPrice = chartCandle.close;
+    this.currentTime = chartCandle.time;
+
+    // Update channel and check for signals
+    const channel = this.calculateChannel();
+    if (channel) {
+      this.channelHighSeries.update({ time: chartCandle.time, value: channel.high });
+      this.channelLowSeries.update({ time: chartCandle.time, value: channel.low });
+
+      const signal = this.checkBreakout(chartCandle.close, channel);
+      if (signal) {
+        this.addTrade(signal, chartCandle.close, channel);
+      }
+
+      this.updateUI(chartCandle, channel, signal);
+    } else {
+      this.updateUI(chartCandle, null, null);
+    }
   }
 
   calculateChannel() {
@@ -315,14 +460,15 @@ class StrategyChart {
     }
   }
 
-  reset() {
+  async reset() {
     this.pause();
+    this.unsubscribeFromChart();
     this.priceHistory = [];
     this.trades = [];
     this.currentTime = Math.floor(Date.now() / 1000);
     this.currentPrice = 50000;
 
-    const historicalData = this.generateHistoricalData();
+    const historicalData = this.useRealData ? await this.loadRealData() : this.generateHistoricalData();
     this.candlestickSeries.setData(historicalData);
 
     const channel = this.calculateChannel();
@@ -336,13 +482,32 @@ class StrategyChart {
 
     document.getElementById('chartLastSignal').innerHTML = '<p class="text-muted">Waiting for channel breakout...</p>';
     document.getElementById('chartTradeHistory').innerHTML = '<p class="text-muted">No trades yet</p>';
+
+    // Setup WebSocket for real-time updates
+    if (this.useRealData) {
+      this.setupWebSocket();
+    }
   }
 
   destroy() {
     this.pause();
+    this.unsubscribeFromChart();
     if (this.chart) {
       this.chart.remove();
     }
+  }
+
+  async updateSettings(exchange, symbol, timeframe) {
+    // Unsubscribe from old settings
+    this.unsubscribeFromChart();
+
+    // Update settings
+    this.exchange = exchange;
+    this.symbol = symbol;
+    this.timeframe = timeframe;
+
+    // Reload data
+    await this.reset();
   }
 }
 

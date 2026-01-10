@@ -6,10 +6,13 @@
 import type { Request, Response, Router } from 'express';
 import { storage } from './storage.js';
 import type { SignalsProvider } from './providers/SignalsProvider.js';
+import type { ExchangeManager } from '../exchanges/ExchangeManager.js';
+import { CandleInterval, type Candle } from '../exchanges/types.js';
 
-// Type for dashboard server to access signals provider
+// Type for dashboard server to access signals provider and exchange manager
 interface DashboardServerInterface {
   getSignalsProvider(): SignalsProvider | null;
+  getExchangeManager(): ExchangeManager | null;
 }
 
 export function setupRoutes(router: Router, dashboardServer?: DashboardServerInterface): void {
@@ -482,6 +485,65 @@ export function setupRoutes(router: Router, dashboardServer?: DashboardServerInt
       res.json(stats);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch signal stats' });
+    }
+  });
+
+  // GET /api/chart/history - Chart historical data
+  router.get('/api/chart/history', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const exchangeManager = dashboardServer?.getExchangeManager();
+      if (!exchangeManager) {
+        res.status(503).json({ error: 'Exchange manager not available (demo mode or disabled)' });
+        return;
+      }
+
+      const exchange = (req.query.exchange as string) || 'binance';
+      const symbol = (req.query.symbol as string) || 'BTC/USDT';
+      const timeframe = (req.query.timeframe as string) || '1h';
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+
+      // Validate timeframe
+      const validTimeframes = Object.values(CandleInterval);
+      if (!validTimeframes.includes(timeframe as CandleInterval)) {
+        res.status(400).json({ error: `Invalid timeframe. Valid values: ${validTimeframes.join(', ')}` });
+        return;
+      }
+
+      // Get exchange instance
+      let exchangeInstance;
+      try {
+        exchangeInstance = exchangeManager.getExchange(exchange as 'binance' | 'bybit' | 'okx');
+      } catch (error) {
+        res.status(404).json({ error: `Exchange ${exchange} not found or not initialized` });
+        return;
+      }
+
+      // Fetch historical candles
+      const candles: Candle[] = await exchangeInstance.getCandles(
+        symbol,
+        timeframe as CandleInterval,
+        limit
+      );
+
+      // Transform to chart format
+      const chartData = candles.map(candle => ({
+        time: Math.floor(candle.timestamp / 1000), // Convert to seconds for lightweight-charts
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+        volume: candle.volume,
+      }));
+
+      res.json({
+        exchange,
+        symbol,
+        timeframe,
+        data: chartData,
+      });
+    } catch (error) {
+      console.error('Failed to fetch chart history:', error);
+      res.status(500).json({ error: 'Failed to fetch chart history', message: String(error) });
     }
   });
 }
