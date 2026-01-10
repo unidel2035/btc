@@ -47,6 +47,10 @@
             <span class="icon">📈</span>
             <span data-i18n="nav.chart">Strategy Chart</span>
           </a>
+          <a href="#backtest" class="nav-item" data-page="backtest">
+            <span class="icon">🧪</span>
+            <span data-i18n="nav.backtest">Backtesting</span>
+          </a>
           <a href="#settings" class="nav-item" data-page="settings">
             <span class="icon">⚙️</span>
             <span data-i18n="nav.settings">Settings</span>
@@ -388,6 +392,183 @@
           </div>
         </div>
 
+        <!-- Backtesting Page -->
+        <div class="page" id="backtest-page">
+          <div class="page-header">
+            <h1 data-i18n="backtest.title">Strategy Backtesting</h1>
+            <p data-i18n="backtest.subtitle">Test your strategies on historical data</p>
+          </div>
+
+          <!-- Backtest Controls -->
+          <div class="card backtest-controls">
+            <h3 data-i18n="backtest.settings">Backtest Settings</h3>
+            <form id="backtestForm" class="backtest-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label data-i18n="backtest.strategy">Strategy</label>
+                  <select id="backtestStrategy" required>
+                    <option value="price-channel">Price Channel Breakout</option>
+                    <option value="news-momentum">News Momentum</option>
+                    <option value="sentiment-swing">Sentiment Swing</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label data-i18n="backtest.period">Period</label>
+                  <select id="backtestPeriod" required>
+                    <option value="7d">Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                    <option value="90d">Last 3 months</option>
+                    <option value="1y">Last year</option>
+                    <option value="custom">Custom period</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label data-i18n="backtest.symbol">Symbol</label>
+                  <input type="text" id="backtestSymbol" value="BTC/USDT" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label data-i18n="backtest.initialCapital">Initial Capital ($)</label>
+                  <input type="number" id="backtestCapital" value="10000" min="100" step="100" required />
+                </div>
+
+                <div class="form-group">
+                  <label data-i18n="backtest.positionSize">Position Size (%)</label>
+                  <input type="number" id="backtestPositionSize" value="10" min="1" max="100" step="1" required />
+                </div>
+
+                <div class="form-group">
+                  <label data-i18n="backtest.timeframe">Timeframe</label>
+                  <select id="backtestTimeframe" required>
+                    <option value="1m">1 minute</option>
+                    <option value="5m">5 minutes</option>
+                    <option value="15m">15 minutes</option>
+                    <option value="1h" selected>1 hour</option>
+                    <option value="4h">4 hours</option>
+                    <option value="1d">1 day</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label data-i18n="backtest.fees">Trading Fees (%)</label>
+                  <input type="number" id="backtestFees" value="0.1" min="0" max="1" step="0.01" required />
+                </div>
+
+                <div class="form-group">
+                  <label data-i18n="backtest.slippage">Slippage (%)</label>
+                  <input type="number" id="backtestSlippage" value="0.05" min="0" max="1" step="0.01" required />
+                </div>
+
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" id="backtestAllowShorts" />
+                    <span data-i18n="backtest.allowShorts">Allow Short Positions</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" id="runBacktest" class="btn btn-primary">
+                  <span data-i18n="backtest.run">Run Backtest</span>
+                </button>
+                <button type="button" id="exportBacktest" class="btn btn-secondary" disabled>
+                  <span data-i18n="backtest.export">Export Results</span>
+                </button>
+              </div>
+            </form>
+
+            <div id="backtestProgress" class="backtest-progress" style="display: none;">
+              <div class="progress-bar">
+                <div class="progress-fill" id="backtestProgressBar"></div>
+              </div>
+              <div class="progress-text" id="backtestProgressText">Running backtest...</div>
+            </div>
+          </div>
+
+          <!-- Backtest Results -->
+          <div id="backtestResultsContainer" style="display: none;">
+            <!-- Results Summary -->
+            <div class="card">
+              <h3 data-i18n="backtest.results">Backtest Results</h3>
+              <div class="backtest-summary metrics-grid">
+                <div class="metric-card">
+                  <div class="metric-label" data-i18n="backtest.totalReturn">Total Return</div>
+                  <div class="metric-value" id="btTotalReturn">+0.00%</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label" data-i18n="backtest.winRate">Win Rate</div>
+                  <div class="metric-value" id="btWinRate">0%</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label" data-i18n="backtest.sharpeRatio">Sharpe Ratio</div>
+                  <div class="metric-value" id="btSharpeRatio">0.00</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label" data-i18n="backtest.maxDrawdown">Max Drawdown</div>
+                  <div class="metric-value negative" id="btMaxDrawdown">-0.00%</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label" data-i18n="backtest.profitFactor">Profit Factor</div>
+                  <div class="metric-value" id="btProfitFactor">0.00</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label" data-i18n="backtest.totalTrades">Total Trades</div>
+                  <div class="metric-value" id="btTotalTrades">0</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label" data-i18n="backtest.avgWin">Average Win</div>
+                  <div class="metric-value positive" id="btAvgWin">+0.00%</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label" data-i18n="backtest.avgLoss">Average Loss</div>
+                  <div class="metric-value negative" id="btAvgLoss">-0.00%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Equity Curve -->
+            <div class="card">
+              <h3 data-i18n="backtest.equityCurve">Equity Curve</h3>
+              <canvas id="backtestEquityChart"></canvas>
+            </div>
+
+            <!-- Price Chart with Trades -->
+            <div class="card">
+              <h3 data-i18n="backtest.priceChart">Price Chart with Trades</h3>
+              <div id="backtestPriceChart" class="backtest-chart-container"></div>
+            </div>
+
+            <!-- Trade List -->
+            <div class="card">
+              <h3 data-i18n="backtest.tradeList">Trade History</h3>
+              <div class="table-container">
+                <table id="backtestTradesTable" class="trades-table">
+                  <thead>
+                    <tr>
+                      <th data-i18n="backtest.table.entry">Entry Time</th>
+                      <th data-i18n="backtest.table.exit">Exit Time</th>
+                      <th data-i18n="backtest.table.direction">Direction</th>
+                      <th data-i18n="backtest.table.entryPrice">Entry Price</th>
+                      <th data-i18n="backtest.table.exitPrice">Exit Price</th>
+                      <th data-i18n="backtest.table.quantity">Quantity</th>
+                      <th data-i18n="backtest.table.pnl">P&L</th>
+                      <th data-i18n="backtest.table.pnlPercent">P&L %</th>
+                      <th data-i18n="backtest.table.reason">Exit Reason</th>
+                    </tr>
+                  </thead>
+                  <tbody id="backtestTradesBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Settings Page -->
         <div class="page" id="settings-page">
           <div class="page-header">
@@ -475,6 +656,7 @@
     <script src="/orderbook.js"></script>
     <script src="/recent-trades.js"></script>
     <script src="/market-depth.js"></script>
+    <script src="/backtest.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>
