@@ -6,20 +6,14 @@
 import { IntegramClient } from './IntegramClient.js';
 import { ScreeningRepository } from './ScreeningRepository.js';
 import { CoinGeckoClient } from '../../analyzers/screening/CoinGeckoClient.js';
-import type {
-  PredictionAccuracy,
-  SectorAnalysis,
-} from './screening-types.js';
+import type { PredictionAccuracy, SectorAnalysis } from './screening-types.js';
 import type { ScoringConfig } from '../../analyzers/screening/types.js';
 
 export class ScreeningAnalytics {
   private repository: ScreeningRepository;
   private coinGeckoClient?: CoinGeckoClient;
 
-  constructor(
-    integramClient: IntegramClient,
-    coinGeckoApiKey?: string,
-  ) {
+  constructor(integramClient: IntegramClient, coinGeckoApiKey?: string) {
     this.repository = new ScreeningRepository(integramClient);
     if (coinGeckoApiKey) {
       this.coinGeckoClient = new CoinGeckoClient(coinGeckoApiKey);
@@ -30,10 +24,7 @@ export class ScreeningAnalytics {
    * Calculate prediction accuracy (backtest)
    * Evaluates how well recommendations performed after N days
    */
-  async calculateAccuracy(
-    reportId: number,
-    daysAfter: number = 30,
-  ): Promise<PredictionAccuracy> {
+  async calculateAccuracy(reportId: number, daysAfter: number = 30): Promise<PredictionAccuracy> {
     if (!this.coinGeckoClient) {
       throw new Error('CoinGecko API key required for accuracy calculation');
     }
@@ -134,8 +125,7 @@ export class ScreeningAnalytics {
 
       const avgMarketCapGrowth =
         trend.metrics.reduce((sum, m) => sum + m.marketCapGrowth30d, 0) / trend.metrics.length;
-      const avgScore =
-        trend.metrics.reduce((sum, m) => sum + m.score, 0) / trend.metrics.length;
+      const avgScore = trend.metrics.reduce((sum, m) => sum + m.score, 0) / trend.metrics.length;
 
       let performance: 'strong' | 'moderate' | 'weak';
       if (avgMarketCapGrowth > 15 && avgScore > 75) {
@@ -249,9 +239,7 @@ export class ScreeningAnalytics {
   /**
    * Generate textual report of analytics
    */
-  formatAnalyticsSummary(
-    summary: Awaited<ReturnType<typeof this.getAnalyticsSummary>>,
-  ): string {
+  formatAnalyticsSummary(summary: Awaited<ReturnType<typeof this.getAnalyticsSummary>>): string {
     const lines: string[] = [];
 
     lines.push('📊 SCREENING ANALYTICS SUMMARY');
@@ -269,9 +257,7 @@ export class ScreeningAnalytics {
     lines.push('');
 
     lines.push('📈 SECTOR DISTRIBUTION:');
-    const sortedSectors = Object.entries(summary.sectorDistribution).sort(
-      (a, b) => b[1] - a[1],
-    );
+    const sortedSectors = Object.entries(summary.sectorDistribution).sort((a, b) => b[1] - a[1]);
     for (const [sector, count] of sortedSectors) {
       lines.push(`  ${sector}: ${count} recommendations`);
     }

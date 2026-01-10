@@ -252,7 +252,9 @@ export class SmartTakeProfit {
               0,
             );
             if (Math.abs(totalClosePercent - 100) > 0.01) {
-              errors.push(`Sum of closePercent must equal 100%, got ${totalClosePercent.toFixed(2)}%`);
+              errors.push(
+                `Sum of closePercent must equal 100%, got ${totalClosePercent.toFixed(2)}%`,
+              );
             }
           }
 

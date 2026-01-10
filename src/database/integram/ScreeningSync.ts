@@ -15,10 +15,7 @@ export class ScreeningSync {
   private coinGeckoClient: CoinGeckoClient;
   private jobs: cron.ScheduledTask[] = [];
 
-  constructor(
-    integramClient: IntegramClient,
-    coinGeckoApiKey?: string,
-  ) {
+  constructor(integramClient: IntegramClient, coinGeckoApiKey?: string) {
     this.repository = new ScreeningRepository(integramClient);
     this.analytics = new ScreeningAnalytics(integramClient, coinGeckoApiKey);
     this.coinGeckoClient = new CoinGeckoClient(coinGeckoApiKey);
@@ -135,9 +132,7 @@ export class ScreeningSync {
         try {
           // Calculate accuracy after 7 days
           const reportDate = new Date(report.generatedAt);
-          const daysAgo = Math.floor(
-            (Date.now() - reportDate.getTime()) / (1000 * 60 * 60 * 24),
-          );
+          const daysAgo = Math.floor((Date.now() - reportDate.getTime()) / (1000 * 60 * 60 * 24));
 
           if (daysAgo >= 7) {
             const accuracy = await this.analytics.calculateAccuracy(

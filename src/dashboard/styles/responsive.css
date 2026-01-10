@@ -1,0 +1,852 @@
+/**
+ * Responsive Design System
+ * Enhanced mobile layout with touch-friendly interactions
+ * Following mobile-first approach with progressive enhancement
+ */
+
+/* ============================================================================
+   CSS Variables for Responsive Breakpoints
+   ============================================================================ */
+
+:root {
+  /* Breakpoint values */
+  --breakpoint-mobile: 767px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-tablet-max: 1023px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-large-desktop: 1440px;
+
+  /* Responsive spacing */
+  --spacing-mobile: 1rem;
+  --spacing-tablet: 1.5rem;
+  --spacing-desktop: 2rem;
+
+  /* Touch target sizes */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+
+  /* Transitions */
+  --transition-slide: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fade: opacity 0.3s ease;
+}
+
+/* ============================================================================
+   Mobile Layout (<768px)
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  /* ------------------------------------
+     Sidebar - Mobile Overlay
+     ------------------------------------ */
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    transform: translateX(-100%);
+    transition: var(--transition-slide);
+    z-index: 1000;
+    box-shadow: none;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    opacity: 0;
+    transition: var(--transition-fade);
+    backdrop-filter: blur(2px);
+  }
+
+  .sidebar-backdrop.active {
+    display: block;
+    opacity: 1;
+  }
+
+  /* Close sidebar on nav item click */
+  .sidebar .nav-item {
+    cursor: pointer;
+    min-height: var(--touch-target-min);
+  }
+
+  /* ------------------------------------
+     Header - Mobile Optimized
+     ------------------------------------ */
+
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    padding: 0 0.75rem;
+    z-index: 100;
+  }
+
+  .header-left {
+    flex: 0 0 auto;
+  }
+
+  .header-center {
+    display: none;
+  }
+
+  .header-right {
+    gap: 0.5rem;
+  }
+
+  /* Hide less important header elements on mobile */
+  .header-info-item {
+    display: none !important;
+  }
+
+  .status-indicator {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  /* Hamburger menu always visible */
+  #sidebarToggle {
+    display: flex !important;
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
+
+  /* ------------------------------------
+     Main Content - Mobile
+     ------------------------------------ */
+
+  .main-content {
+    margin-left: 0;
+    margin-top: 56px;
+    padding: var(--spacing-mobile);
+    width: 100%;
+  }
+
+  /* ------------------------------------
+     Typography - Mobile
+     ------------------------------------ */
+
+  .page-header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .page-header p {
+    font-size: 0.875rem;
+  }
+
+  .page-header {
+    margin-bottom: 1rem;
+  }
+
+  /* ------------------------------------
+     Dashboard Grid - 1 Column
+     ------------------------------------ */
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  /* ------------------------------------
+     Cards - Mobile Optimized
+     ------------------------------------ */
+
+  .card,
+  .metric-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+
+  .metric-card:hover {
+    transform: none; /* Disable hover effects on mobile */
+  }
+
+  /* ------------------------------------
+     Tables - Horizontal Scroll
+     ------------------------------------ */
+
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+
+  .table-modern {
+    min-width: 600px;
+  }
+
+  .table-modern th,
+  .table-modern td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Sticky first column */
+  .table-modern th:first-child,
+  .table-modern td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--bg-secondary);
+    z-index: 1;
+  }
+
+  .table-modern thead th:first-child {
+    z-index: 2;
+  }
+
+  /* ------------------------------------
+     Charts - Mobile Optimized
+     ------------------------------------ */
+
+  .chart-card {
+    padding: 1rem;
+  }
+
+  .chart-card canvas {
+    height: 200px !important;
+    max-height: 200px;
+  }
+
+  #equityChart {
+    height: 180px !important;
+  }
+
+  /* Chart toolbar */
+  .chart-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .chart-toolbar-section {
+    flex: 1 1 auto;
+  }
+
+  .timeframe-btn,
+  .chart-type-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
+
+  /* Enhanced Chart Layout - Mobile Stacking */
+  .enhanced-chart-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .chart-left-panel,
+  .chart-right-panel {
+    width: 100%;
+    order: 2;
+  }
+
+  .chart-center-panel {
+    width: 100%;
+    order: 1;
+  }
+
+  .trading-chart-container {
+    height: 300px;
+  }
+
+  /* ------------------------------------
+     Modals - Fullscreen on Mobile
+     ------------------------------------ */
+
+  .modal,
+  .dialog,
+  [role="dialog"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    transform: translateY(100%) !important;
+    transition: var(--transition-slide);
+  }
+
+  .modal.active,
+  .dialog.active,
+  [role="dialog"].active {
+    transform: translateY(0) !important;
+  }
+
+  /* ------------------------------------
+     Forms - Mobile Friendly
+     ------------------------------------ */
+
+  .form-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-group {
+    width: 100%;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    min-height: var(--touch-target-min);
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* ------------------------------------
+     Buttons - Touch Friendly
+     ------------------------------------ */
+
+  .btn {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .btn-icon {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    padding: 0.5rem;
+  }
+
+  .btn-small {
+    min-height: 40px;
+    padding: 0.5rem 1rem;
+  }
+
+  /* ------------------------------------
+     Filters and Controls
+     ------------------------------------ */
+
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .filters select {
+    width: 100%;
+  }
+
+  /* ------------------------------------
+     Notifications Dropdown
+     ------------------------------------ */
+
+  #notificationDropdown {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: calc(100vh - 56px);
+    border-radius: 0;
+  }
+
+  /* ------------------------------------
+     Strategy Comparison
+     ------------------------------------ */
+
+  .strategy-comparison {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .comparison-table {
+    min-width: 600px;
+    font-size: 0.8125rem;
+  }
+
+  /* ------------------------------------
+     Backtest Page
+     ------------------------------------ */
+
+  .backtest-controls {
+    padding: 1rem;
+  }
+
+  .backtest-form .form-row {
+    flex-direction: column;
+  }
+
+  .backtest-chart-container {
+    height: 300px;
+  }
+
+  /* ------------------------------------
+     Screening Page
+     ------------------------------------ */
+
+  .screening-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .screening-controls .btn {
+    width: 100%;
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ------------------------------------
+     Settings Page
+     ------------------------------------ */
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ------------------------------------
+     Positions and Signals
+     ------------------------------------ */
+
+  .positions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .signals-feed,
+  .signals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .signal-card,
+  .position-card {
+    padding: 1rem;
+  }
+}
+
+/* ============================================================================
+   Tablet Layout (768px - 1023px)
+   ============================================================================ */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* ------------------------------------
+     Layout
+     ------------------------------------ */
+
+  .main-content {
+    padding: var(--spacing-tablet);
+  }
+
+  /* ------------------------------------
+     Dashboard Grid - 2 Columns
+     ------------------------------------ */
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* ------------------------------------
+     Header
+     ------------------------------------ */
+
+  .header-center {
+    display: flex;
+  }
+
+  .header-info-item:nth-child(n+3) {
+    display: none; /* Hide less important items */
+  }
+
+  /* ------------------------------------
+     Sidebar
+     ------------------------------------ */
+
+  .sidebar {
+    width: 220px;
+  }
+
+  .main-content {
+    margin-left: 220px;
+  }
+
+  /* ------------------------------------
+     Charts
+     ------------------------------------ */
+
+  .chart-card canvas {
+    height: 250px !important;
+  }
+
+  .enhanced-chart-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 1rem;
+  }
+
+  .chart-left-panel,
+  .chart-right-panel {
+    width: 100%;
+  }
+
+  /* ------------------------------------
+     Tables
+     ------------------------------------ */
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  /* ------------------------------------
+     Positions Grid
+     ------------------------------------ */
+
+  .positions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* ------------------------------------
+     Settings
+     ------------------------------------ */
+
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================================================
+   Desktop Layout (>= 1024px)
+   ============================================================================ */
+
+@media (min-width: 1024px) {
+  /* ------------------------------------
+     Dashboard Grid - 3 Columns
+     ------------------------------------ */
+
+  .metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* ------------------------------------
+     Enhanced Chart Layout
+     ------------------------------------ */
+
+  .enhanced-chart-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr 300px;
+    gap: 1rem;
+  }
+
+  .chart-left-panel {
+    order: 1;
+  }
+
+  .chart-center-panel {
+    order: 2;
+  }
+
+  .chart-right-panel {
+    order: 3;
+  }
+
+  /* ------------------------------------
+     Settings
+     ------------------------------------ */
+
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* ------------------------------------
+     Positions
+     ------------------------------------ */
+
+  .positions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ============================================================================
+   Large Desktop Layout (>= 1440px)
+   ============================================================================ */
+
+@media (min-width: 1440px) {
+  /* ------------------------------------
+     Enhanced spacing
+     ------------------------------------ */
+
+  .main-content {
+    padding: 2.5rem;
+    max-width: 1920px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ------------------------------------
+     Grid enhancements
+     ------------------------------------ */
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .positions-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* ------------------------------------
+     Chart layout
+     ------------------------------------ */
+
+  .enhanced-chart-layout {
+    grid-template-columns: 280px 1fr 350px;
+  }
+}
+
+/* ============================================================================
+   Touch-Friendly Interactions (All Mobile Devices)
+   ============================================================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Ensure all interactive elements are touch-friendly */
+  button,
+  a,
+  .clickable,
+  .nav-item,
+  .btn,
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+
+  /* Remove hover effects on touch devices */
+  .card:hover,
+  .metric-card:hover,
+  .btn:hover {
+    transform: none;
+  }
+
+  /* Increase tap target for small icons */
+  .icon,
+  .badge {
+    padding: 0.5rem;
+  }
+
+  /* Better spacing for touch interactions */
+  .nav-item {
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* ============================================================================
+   Landscape Mode Optimizations (Mobile)
+   ============================================================================ */
+
+@media (max-width: 767px) and (orientation: landscape) {
+  /* Reduce header height in landscape */
+  .header {
+    height: 48px;
+  }
+
+  .main-content {
+    margin-top: 48px;
+  }
+
+  /* Optimize chart height for landscape */
+  .chart-card canvas,
+  .trading-chart-container {
+    height: 180px !important;
+  }
+
+  /* Compact page header */
+  .page-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .page-header p {
+    font-size: 0.8125rem;
+  }
+}
+
+/* ============================================================================
+   Print Styles
+   ============================================================================ */
+
+@media print {
+  .sidebar,
+  .header,
+  .sidebar-backdrop,
+  .filters,
+  .btn,
+  .chart-toolbar {
+    display: none !important;
+  }
+
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .page {
+    page-break-after: always;
+  }
+
+  .card {
+    page-break-inside: avoid;
+  }
+
+  @page {
+    margin: 1cm;
+  }
+}
+
+/* ============================================================================
+   Accessibility - High Contrast Mode
+   ============================================================================ */
+
+@media (prefers-contrast: high) {
+  .sidebar,
+  .header,
+  .card,
+  .metric-card,
+  .btn {
+    border-width: 2px;
+  }
+
+  .nav-item.active {
+    border-left-width: 4px;
+  }
+}
+
+/* ============================================================================
+   Accessibility - Reduced Motion
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================================
+   Custom Utility Classes for Responsive Design
+   ============================================================================ */
+
+/* Visibility utilities */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-only {
+    display: block;
+  }
+
+  .desktop-only,
+  .tablet-only {
+    display: none !important;
+  }
+}
+
+.tablet-only {
+  display: none;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet-only {
+    display: block;
+  }
+
+  .mobile-only,
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .desktop-only {
+    display: block;
+  }
+
+  .mobile-only,
+  .tablet-only {
+    display: none !important;
+  }
+}
+
+/* Responsive text alignment */
+@media (max-width: 767px) {
+  .text-center-mobile {
+    text-align: center;
+  }
+}
+
+/* Responsive spacing utilities */
+@media (max-width: 767px) {
+  .mt-mobile-0 { margin-top: 0 !important; }
+  .mb-mobile-0 { margin-bottom: 0 !important; }
+  .p-mobile-1 { padding: 1rem !important; }
+}
