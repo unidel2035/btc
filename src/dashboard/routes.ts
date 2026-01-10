@@ -78,7 +78,7 @@ export function setupRoutes(router: Router): void {
 
   router.get('/api/positions/:id', (req: Request, res: Response): void => {
     try {
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const id = (Array.isArray(req.params.id) ? req.params.id[0] : req.params.id) as string;
       const position = storage.getPosition(id || '');
       if (!position) {
         res.status(404).json({ error: 'Position not found' });
@@ -98,7 +98,7 @@ export function setupRoutes(router: Router): void {
         return;
       }
 
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const id = (Array.isArray(req.params.id) ? req.params.id[0] : req.params.id) as string;
       const trade = storage.closePosition(id || '', exitPrice, reason || 'Manual close');
       if (!trade) {
         res.status(404).json({ error: 'Position not found' });
@@ -128,7 +128,7 @@ export function setupRoutes(router: Router): void {
 
       if (stopLoss !== undefined) updates.stopLoss = stopLoss;
       if (takeProfit !== undefined) updates.takeProfit = takeProfit;
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const id = (Array.isArray(req.params.id) ? req.params.id[0] : req.params.id) as string;
       if (currentPrice !== undefined) {
         updates.currentPrice = currentPrice;
         const position = storage.getPosition(id || '');
@@ -220,7 +220,9 @@ export function setupRoutes(router: Router): void {
 
   router.get('/api/strategies/:name', (req: Request, res: Response): void => {
     try {
-      const name = Array.isArray(req.params.name) ? req.params.name[0] : req.params.name;
+      const name = (
+        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+      ) as string;
       const strategy = storage.getStrategyConfig(name || '');
       if (!strategy) {
         res.status(404).json({ error: 'Strategy not found' });
@@ -234,7 +236,9 @@ export function setupRoutes(router: Router): void {
 
   router.patch('/api/strategies/:name', (req: Request, res: Response): void => {
     try {
-      const name = Array.isArray(req.params.name) ? req.params.name[0] : req.params.name;
+      const name = (
+        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+      ) as string;
       const strategy = storage.updateStrategyConfig(
         name || '',
         req.body as Record<string, unknown>,
