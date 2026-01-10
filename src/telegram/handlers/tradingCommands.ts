@@ -107,7 +107,7 @@ export async function handleClosePosition(
     const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
     const parts = text.split(' ');
 
-    if (parts.length < 2) {
+    if (parts.length < 2 || !parts[1]) {
       await ctx.reply('❌ Usage: /close\\_position <symbol>\nExample: /close\\_position BTC/USDT');
       return;
     }

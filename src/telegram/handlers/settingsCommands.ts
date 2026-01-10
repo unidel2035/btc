@@ -12,7 +12,7 @@ import { getDefaultNotificationSettings } from '../middleware/auth.js';
  */
 export async function handleSettings(
   ctx: TelegramBotContext,
-  service: TelegramBotService,
+  _service: TelegramBotService,
 ): Promise<void> {
   try {
     const settings = ctx.session?.notificationSettings || getDefaultNotificationSettings();
@@ -182,8 +182,12 @@ export async function toggleNotificationSetting(
   ctx: TelegramBotContext,
   setting: string,
 ): Promise<void> {
-  if (!ctx.session || !ctx.session.notificationSettings) {
-    ctx.session!.notificationSettings = getDefaultNotificationSettings();
+  if (!ctx.session) {
+    return;
+  }
+
+  if (!ctx.session.notificationSettings) {
+    ctx.session.notificationSettings = getDefaultNotificationSettings();
   }
 
   const settings = ctx.session.notificationSettings;

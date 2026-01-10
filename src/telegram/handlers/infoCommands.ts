@@ -236,7 +236,7 @@ async function getOpenPositions(service: TelegramBotService) {
   }));
 }
 
-async function getRecentSignals(service: TelegramBotService) {
+async function getRecentSignals(_service: TelegramBotService) {
   // Mock implementation - replace with actual signals from strategy manager
   return [];
 }
@@ -253,8 +253,8 @@ async function getScreeningResults(service: TelegramBotService) {
     totalAnalyzed: report.totalProjectsAnalyzed || 0,
     qualified: report.recommendations?.length || 0,
     topPicks: (report.recommendations || []).slice(0, 5).map((rec, index) => ({
-      symbol: rec.symbol,
-      score: rec.totalScore,
+      symbol: rec.ticker,
+      score: rec.score,
       sector: rec.sector || 'unknown',
       rank: index + 1,
     })),

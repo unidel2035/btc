@@ -174,6 +174,7 @@ export class TelegramBot {
       if (match && match[1]) {
         return settingsCommands.toggleNotificationSetting(ctx, match[1]);
       }
+      return Promise.resolve();
     });
   }
 

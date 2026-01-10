@@ -3,12 +3,7 @@
  * Types for storing screening reports, recommendations, and analytics in Integram
  */
 
-import type {
-  CryptoSector,
-  ProjectRecommendation,
-  SectorMetrics,
-  ScreeningReport,
-} from '../../analyzers/screening/types.js';
+import type { CryptoSector, ProjectRecommendation } from '../../analyzers/screening/types.js';
 
 /**
  * Table Type IDs in Integram

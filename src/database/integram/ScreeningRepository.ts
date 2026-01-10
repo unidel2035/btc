@@ -14,7 +14,6 @@ import type {
   ProjectMetricsHistory,
   ProjectRanking,
   SectorTrend,
-  SCREENING_TYPES,
 } from './screening-types.js';
 
 export class ScreeningRepository {
@@ -84,6 +83,9 @@ export class ScreeningRepository {
       }
 
       const latestReport = reports[0];
+      if (!latestReport) {
+        return null;
+      }
       return await this.buildReportFromIntegram(latestReport.id);
     } catch (error) {
       console.error('Failed to get latest report:', error);
