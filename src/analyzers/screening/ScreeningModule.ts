@@ -29,12 +29,9 @@ export class ScreeningModule {
     this.macroFilter = new MacroFilter(this.client, this.config.macroFilter);
     this.quantitativeScreening = new QuantitativeScreening(
       this.client,
-      this.config.quantitativeScreening
+      this.config.quantitativeScreening,
     );
-    this.fundamentalScoring = new FundamentalScoring(
-      this.client,
-      this.config.scoring
-    );
+    this.fundamentalScoring = new FundamentalScoring(this.client, this.config.scoring);
     this.portfolioConstruction = new PortfolioConstruction(this.config.portfolio);
   }
 
@@ -80,10 +77,7 @@ export class ScreeningModule {
       }
 
       // Stage 3: Portfolio Construction
-      const report = this.portfolioConstruction.constructPortfolio(
-        scoredProjects,
-        selectedSectors
-      );
+      const report = this.portfolioConstruction.constructPortfolio(scoredProjects, selectedSectors);
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(1);
       console.info('='.repeat(60));
@@ -126,14 +120,11 @@ export class ScreeningModule {
     if (config.quantitativeScreening) {
       this.quantitativeScreening = new QuantitativeScreening(
         this.client,
-        this.config.quantitativeScreening
+        this.config.quantitativeScreening,
       );
     }
     if (config.scoring) {
-      this.fundamentalScoring = new FundamentalScoring(
-        this.client,
-        this.config.scoring
-      );
+      this.fundamentalScoring = new FundamentalScoring(this.client, this.config.scoring);
     }
     if (config.portfolio) {
       this.portfolioConstruction = new PortfolioConstruction(this.config.portfolio);

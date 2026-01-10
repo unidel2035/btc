@@ -3,11 +3,7 @@
  * Selects final 2-4 projects with diversification and risk balance
  */
 
-import type {
-  ScoredProject,
-  PortfolioProject,
-  ScreeningConfig,
-} from '../types/index.js';
+import type { ScoredProject, PortfolioProject, ScreeningConfig } from '../types/index.js';
 
 export class PortfolioBuilder {
   private config: ScreeningConfig;
@@ -34,7 +30,7 @@ export class PortfolioBuilder {
     console.log(`\n✅ Final portfolio: ${portfolio.length} projects`);
     portfolio.forEach((project, idx) => {
       console.log(
-        `   ${idx + 1}. ${project.ticker} - ${project.name} (${project.sector}) - ${project.rating}/100`
+        `   ${idx + 1}. ${project.ticker} - ${project.name} (${project.sector}) - ${project.rating}/100`,
       );
     });
 
@@ -44,9 +40,7 @@ export class PortfolioBuilder {
   /**
    * Group projects by sector
    */
-  private groupBySector(
-    projects: ScoredProject[]
-  ): Map<string, ScoredProject[]> {
+  private groupBySector(projects: ScoredProject[]): Map<string, ScoredProject[]> {
     const grouped = new Map<string, ScoredProject[]>();
 
     for (const project of projects) {
@@ -68,7 +62,7 @@ export class PortfolioBuilder {
    * Select projects ensuring diversification across sectors and risk levels
    */
   private selectDiversifiedProjects(
-    projectsBySector: Map<string, ScoredProject[]>
+    projectsBySector: Map<string, ScoredProject[]>,
   ): ScoredProject[] {
     const selected: ScoredProject[] = [];
     const targetCount = this.config.finalProjectCount;
@@ -111,7 +105,7 @@ export class PortfolioBuilder {
     gazzelles.sort((a, b) => b.scores.total - a.scores.total);
 
     // Add bluechips up to the target
-    let addedBluechips = selected.filter(p => p.marketCapRank <= 50).length;
+    let addedBluechips = selected.filter((p) => p.marketCapRank <= 50).length;
     for (const bluechip of bluechips) {
       if (selected.length >= targetCount) break;
       if (addedBluechips >= bluechipCount) break;
@@ -122,7 +116,7 @@ export class PortfolioBuilder {
 
     // Add gazzelles up to the target
     let addedGazzelles = selected.filter(
-      p => p.marketCapRank > 50 && p.marketCapRank <= 200
+      (p) => p.marketCapRank > 50 && p.marketCapRank <= 200,
     ).length;
     for (const gazzelle of gazzelles) {
       if (selected.length >= targetCount) break;
@@ -141,9 +135,7 @@ export class PortfolioBuilder {
   /**
    * Convert scored projects to portfolio format
    */
-  private convertToPortfolioProjects(
-    projects: ScoredProject[]
-  ): PortfolioProject[] {
+  private convertToPortfolioProjects(projects: ScoredProject[]): PortfolioProject[] {
     return projects.map((project, index) => ({
       rank: index + 1,
       ticker: project.symbol,
@@ -194,9 +186,7 @@ export class PortfolioBuilder {
     }
 
     // Prioritize specific risks over general ones
-    const specificRisks = project.risks.filter(
-      risk => !risk.includes('market volatility')
-    );
+    const specificRisks = project.risks.filter((risk) => !risk.includes('market volatility'));
 
     if (specificRisks.length > 0) {
       return specificRisks[0];
@@ -215,33 +205,29 @@ export class PortfolioBuilder {
     const issues: string[] = [];
 
     // Check sector diversity
-    const sectors = new Set(portfolio.map(p => p.sector));
+    const sectors = new Set(portfolio.map((p) => p.sector));
     if (sectors.size < this.config.minProjectsPerSector && portfolio.length > 1) {
-      issues.push(
-        `Low sector diversity: only ${sectors.size} different sectors`
-      );
+      issues.push(`Low sector diversity: only ${sectors.size} different sectors`);
     }
 
     // Check we don't have duplicate functionality
-    const names = portfolio.map(p => p.name.toLowerCase());
+    const names = portfolio.map((p) => p.name.toLowerCase());
     const duplicates = names.filter((name, idx) => names.indexOf(name) !== idx);
     if (duplicates.length > 0) {
       issues.push('Potential duplicate projects detected');
     }
 
     // Check balance between bluechips and gazzelles
-    const bluechips = portfolio.filter(p => {
+    const bluechips = portfolio.filter((p) => {
       // Infer from name or rating
       return p.rating >= 80;
     });
 
-    const expectedBluechips = Math.ceil(
-      portfolio.length * this.config.bluechipRatio
-    );
+    const expectedBluechips = Math.ceil(portfolio.length * this.config.bluechipRatio);
 
     if (Math.abs(bluechips.length - expectedBluechips) > 1) {
       issues.push(
-        `Imbalanced risk profile: ${bluechips.length} bluechips vs ${expectedBluechips} expected`
+        `Imbalanced risk profile: ${bluechips.length} bluechips vs ${expectedBluechips} expected`,
       );
     }
 
@@ -259,8 +245,7 @@ export class PortfolioBuilder {
     sectorBreakdown: Record<string, number>;
     riskProfile: string;
   } {
-    const avgRating =
-      portfolio.reduce((sum, p) => sum + p.rating, 0) / portfolio.length;
+    const avgRating = portfolio.reduce((sum, p) => sum + p.rating, 0) / portfolio.length;
 
     const sectorBreakdown: Record<string, number> = {};
     for (const project of portfolio) {
