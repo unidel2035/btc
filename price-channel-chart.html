@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Channel Breakout Strategy - Live Chart</title>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0e27;
+            color: #e0e3eb;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        #chart {
+            background: #131722;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            height: 600px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: #131722;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel h3 {
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #1e222d;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #787b86;
+            font-size: 0.9em;
+        }
+
+        .stat-value {
+            font-weight: 600;
+        }
+
+        .stat-value.up {
+            color: #26a69a;
+        }
+
+        .stat-value.down {
+            color: #ef5350;
+        }
+
+        .signal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .signal-badge.long {
+            background: rgba(38, 166, 154, 0.2);
+            color: #26a69a;
+        }
+
+        .signal-badge.short {
+            background: rgba(239, 83, 80, 0.2);
+            color: #ef5350;
+        }
+
+        .signal-badge.none {
+            background: rgba(120, 123, 134, 0.2);
+            color: #787b86;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #1e222d;
+            color: #e0e3eb;
+            border: 1px solid #2a2e39;
+        }
+
+        .btn-secondary:hover {
+            background: #2a2e39;
+        }
+
+        .info-text {
+            font-size: 0.85em;
+            color: #787b86;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85em;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #chart {
+                height: 500px;
+            }
+        }
+
+        .trade-history {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .trade-item {
+            padding: 10px;
+            background: #1e222d;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+        }
+
+        .trade-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .trade-pnl {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📈 Price Channel Breakout Strategy</h1>
+            <p class="subtitle">Визуализация торгового алгоритма в реальном времени</p>
+        </header>
+
+        <div class="main-grid">
+            <div id="chart"></div>
+
+            <div class="sidebar">
+                <div class="panel">
+                    <h3>📊 Текущее состояние</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Символ</span>
+                        <span class="stat-value" id="symbol">BTC/USDT</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Текущая цена</span>
+                        <span class="stat-value" id="current-price">$50,000</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Верх канала</span>
+                        <span class="stat-value up" id="channel-high">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Низ канала</span>
+                        <span class="stat-value down" id="channel-low">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Ширина канала</span>
+                        <span class="stat-value" id="channel-width">-</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Сигнал</span>
+                        <span id="signal-status"><span class="signal-badge none">Нет сигнала</span></span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>🎯 Последний сигнал</h3>
+                    <div id="last-signal">
+                        <p class="info-text">Ожидание пробоя границ канала...</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>⚙️ Управление</h3>
+                    <div class="controls">
+                        <button class="btn-primary" onclick="startSimulation()">▶ Запустить</button>
+                        <button class="btn-secondary" onclick="pauseSimulation()">⏸ Пауза</button>
+                        <button class="btn-secondary" onclick="resetSimulation()">🔄 Сброс</button>
+                    </div>
+                    <p class="info-text">Симуляция генерирует рыночные данные и отображает работу стратегии в реальном времени.</p>
+                </div>
+
+                <div class="panel">
+                    <h3>📝 История сделок</h3>
+                    <div class="trade-history" id="trade-history">
+                        <p class="info-text">Сделки будут отображаться здесь</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>🔖 Легенда</h3>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #26a69a;"></div>
+                            <span>Верх канала</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ef5350;"></div>
+                            <span>Низ канала</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #2962ff;"></div>
+                            <span>Stop Loss</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ff6d00;"></div>
+                            <span>Take Profit</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация графика
+        const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+            width: document.getElementById('chart').clientWidth,
+            height: 600,
+            layout: {
+                background: { color: '#131722' },
+                textColor: '#d1d4dc',
+            },
+            grid: {
+                vertLines: { color: '#1e222d' },
+                horzLines: { color: '#1e222d' },
+            },
+            crosshair: {
+                mode: LightweightCharts.CrosshairMode.Normal,
+            },
+            rightPriceScale: {
+                borderColor: '#2a2e39',
+            },
+            timeScale: {
+                borderColor: '#2a2e39',
+                timeVisible: true,
+                secondsVisible: false,
+            },
+        });
+
+        // Создание серий
+        const candlestickSeries = chart.addCandlestickSeries({
+            upColor: '#26a69a',
+            downColor: '#ef5350',
+            borderVisible: false,
+            wickUpColor: '#26a69a',
+            wickDownColor: '#ef5350',
+        });
+
+        const channelHighSeries = chart.addLineSeries({
+            color: '#26a69a',
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            title: 'Верх канала',
+        });
+
+        const channelLowSeries = chart.addLineSeries({
+            color: '#ef5350',
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            title: 'Низ канала',
+        });
+
+        // Параметры симуляции
+        let simulationRunning = false;
+        let simulationInterval = null;
+        let currentTime = Math.floor(Date.now() / 1000);
+        let currentPrice = 50000;
+        let priceHistory = [];
+        const CHANNEL_PERIOD = 18;
+        let trades = [];
+
+        // Генерация исторических данных
+        function generateHistoricalData() {
+            const data = [];
+            let price = 49900;
+            const startTime = currentTime - (100 * 3600); // 100 часов назад
+
+            for (let i = 0; i < 100; i++) {
+                const time = startTime + (i * 3600);
+                const change = (Math.random() - 0.5) * 200;
+                price += change;
+
+                const open = price;
+                const high = price + Math.random() * 100;
+                const low = price - Math.random() * 100;
+                const close = price + (Math.random() - 0.5) * 50;
+
+                data.push({
+                    time,
+                    open,
+                    high,
+                    low,
+                    close,
+                });
+
+                priceHistory.push({ time, high, low, close });
+            }
+
+            currentPrice = data[data.length - 1].close;
+            currentTime = data[data.length - 1].time + 3600;
+
+            return data;
+        }
+
+        // Расчет канала
+        function calculateChannel() {
+            if (priceHistory.length < CHANNEL_PERIOD) return null;
+
+            const recent = priceHistory.slice(-CHANNEL_PERIOD);
+            const high = Math.max(...recent.map(p => p.high));
+            const low = Math.min(...recent.map(p => p.low));
+            const width = high - low;
+            const widthPercent = (width / low) * 100;
+
+            return { high, low, width, widthPercent };
+        }
+
+        // Проверка пробоя
+        function checkBreakout(price, channel) {
+            if (!channel) return null;
+
+            const threshold = channel.width * 0.001; // 0.1% от ширины канала
+
+            if (price > channel.high + threshold) {
+                return 'LONG';
+            } else if (price < channel.low - threshold) {
+                return 'SHORT';
+            }
+
+            return null;
+        }
+
+        // Добавление сделки
+        function addTrade(direction, entryPrice, channel) {
+            const stopLoss = direction === 'LONG' ? channel.low : channel.high;
+            const takeProfitDistance = channel.width * 1.5;
+            const takeProfit = direction === 'LONG'
+                ? entryPrice + takeProfitDistance
+                : entryPrice - takeProfitDistance;
+
+            const trade = {
+                direction,
+                entryPrice,
+                stopLoss,
+                takeProfit,
+                time: currentTime,
+                confidence: 80,
+            };
+
+            trades.push(trade);
+            updateLastSignal(trade);
+            updateTradeHistory(trade);
+
+            // Добавляем маркеры на график
+            candlestickSeries.setMarkers([{
+                time: currentTime,
+                position: direction === 'LONG' ? 'belowBar' : 'aboveBar',
+                color: direction === 'LONG' ? '#26a69a' : '#ef5350',
+                shape: direction === 'LONG' ? 'arrowUp' : 'arrowDown',
+                text: direction,
+            }]);
+        }
+
+        // Обновление UI
+        function updateUI(candle, channel, signal) {
+            document.getElementById('current-price').textContent = `$${candle.close.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+            if (channel) {
+                document.getElementById('channel-high').textContent = `$${channel.high.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                document.getElementById('channel-low').textContent = `$${channel.low.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                document.getElementById('channel-width').textContent = `$${channel.width.toFixed(2)} (${channel.widthPercent.toFixed(2)}%)`;
+            }
+
+            if (signal) {
+                const badgeClass = signal === 'LONG' ? 'long' : 'short';
+                document.getElementById('signal-status').innerHTML = `<span class="signal-badge ${badgeClass}">${signal}</span>`;
+            } else {
+                document.getElementById('signal-status').innerHTML = '<span class="signal-badge none">Нет сигнала</span>';
+            }
+        }
+
+        function updateLastSignal(trade) {
+            const signalHtml = `
+                <div class="stat-row">
+                    <span class="stat-label">Направление</span>
+                    <span class="stat-value ${trade.direction === 'LONG' ? 'up' : 'down'}">${trade.direction}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Цена входа</span>
+                    <span class="stat-value">$${trade.entryPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Stop Loss</span>
+                    <span class="stat-value down">$${trade.stopLoss.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Take Profit</span>
+                    <span class="stat-value up">$${trade.takeProfit.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Уверенность</span>
+                    <span class="stat-value">${trade.confidence}%</span>
+                </div>
+            `;
+            document.getElementById('last-signal').innerHTML = signalHtml;
+        }
+
+        function updateTradeHistory(trade) {
+            const tradeHtml = `
+                <div class="trade-item">
+                    <div class="trade-item-header">
+                        <span class="signal-badge ${trade.direction === 'LONG' ? 'long' : 'short'}">${trade.direction}</span>
+                        <span>$${trade.entryPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                    </div>
+                    <div>SL: $${trade.stopLoss.toLocaleString(undefined, {minimumFractionDigits: 2})} | TP: $${trade.takeProfit.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                </div>
+            `;
+
+            const historyDiv = document.getElementById('trade-history');
+            if (historyDiv.querySelector('.info-text')) {
+                historyDiv.innerHTML = '';
+            }
+            historyDiv.insertAdjacentHTML('afterbegin', tradeHtml);
+        }
+
+        // Генерация новой свечи
+        function generateNextCandle() {
+            const change = (Math.random() - 0.5) * 300;
+            currentPrice += change;
+
+            const open = currentPrice;
+            const high = currentPrice + Math.random() * 150;
+            const low = currentPrice - Math.random() * 150;
+            const close = currentPrice + (Math.random() - 0.5) * 100;
+
+            const candle = {
+                time: currentTime,
+                open,
+                high,
+                low,
+                close,
+            };
+
+            currentPrice = close;
+            priceHistory.push({ time: currentTime, high, low, close });
+
+            // Ограничиваем историю
+            if (priceHistory.length > 200) {
+                priceHistory.shift();
+            }
+
+            currentTime += 3600; // +1 час
+
+            return candle;
+        }
+
+        // Симуляция
+        function simulationStep() {
+            const candle = generateNextCandle();
+            candlestickSeries.update(candle);
+
+            const channel = calculateChannel();
+
+            if (channel) {
+                channelHighSeries.update({ time: candle.time, value: channel.high });
+                channelLowSeries.update({ time: candle.time, value: channel.low });
+
+                const signal = checkBreakout(candle.close, channel);
+
+                if (signal) {
+                    addTrade(signal, candle.close, channel);
+                }
+
+                updateUI(candle, channel, signal);
+            } else {
+                updateUI(candle, null, null);
+            }
+        }
+
+        function startSimulation() {
+            if (!simulationRunning) {
+                simulationRunning = true;
+                simulationInterval = setInterval(simulationStep, 500); // Каждые 500мс
+            }
+        }
+
+        function pauseSimulation() {
+            simulationRunning = false;
+            if (simulationInterval) {
+                clearInterval(simulationInterval);
+                simulationInterval = null;
+            }
+        }
+
+        function resetSimulation() {
+            pauseSimulation();
+            priceHistory = [];
+            trades = [];
+            currentTime = Math.floor(Date.now() / 1000);
+            currentPrice = 50000;
+
+            const historicalData = generateHistoricalData();
+            candlestickSeries.setData(historicalData);
+
+            const channel = calculateChannel();
+            if (channel) {
+                const channelData = historicalData.map(d => ({
+                    time: d.time,
+                    value: channel.high,
+                }));
+                channelHighSeries.setData(channelData.map(d => ({ ...d, value: channel.high })));
+                channelLowSeries.setData(channelData.map(d => ({ ...d, value: channel.low })));
+
+                updateUI(historicalData[historicalData.length - 1], channel, null);
+            }
+
+            document.getElementById('last-signal').innerHTML = '<p class="info-text">Ожидание пробоя границ канала...</p>';
+            document.getElementById('trade-history').innerHTML = '<p class="info-text">Сделки будут отображаться здесь</p>';
+        }
+
+        // Инициализация
+        window.addEventListener('resize', () => {
+            chart.applyOptions({
+                width: document.getElementById('chart').clientWidth
+            });
+        });
+
+        // Загрузка исторических данных при старте
+        resetSimulation();
+    </script>
+</body>
+</html>

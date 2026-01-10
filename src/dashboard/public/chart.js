@@ -22,12 +22,27 @@ class StrategyChart {
 
   initialize() {
     const chartElement = document.getElementById('tradingChart');
-    if (!chartElement) return;
+    if (!chartElement) {
+      console.error('Chart element not found');
+      return;
+    }
+
+    console.log('Initializing chart...', {
+      width: chartElement.clientWidth,
+      height: chartElement.clientHeight,
+      offsetWidth: chartElement.offsetWidth,
+      offsetHeight: chartElement.offsetHeight
+    });
 
     // Создаем график
+    const width = chartElement.clientWidth || chartElement.offsetWidth || 800;
+    const height = chartElement.clientHeight || chartElement.offsetHeight || 600;
+
+    console.log('Creating chart with dimensions:', { width, height });
+
     this.chart = LightweightCharts.createChart(chartElement, {
-      width: chartElement.clientWidth,
-      height: chartElement.clientHeight || 500,
+      width,
+      height,
       layout: {
         background: { color: '#141932' },
         textColor: '#a0aec0',
