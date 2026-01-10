@@ -1,3 +1,78 @@
+// i18n setup
+let currentLocale = localStorage.getItem('language') || 'en';
+
+// Initialize i18next
+async function initI18next() {
+  try {
+    const [enData, ruData] = await Promise.all([fetch('/locales/en.json').then((r) => r.json()), fetch('/locales/ru.json').then((r) => r.json())]);
+
+    await i18next.init({
+      lng: currentLocale,
+      fallbackLng: 'en',
+      resources: {
+        en: { translation: enData },
+        ru: { translation: ruData },
+      },
+    });
+
+    updatePageLanguage();
+  } catch (error) {
+    console.error('Failed to initialize i18next:', error);
+  }
+}
+
+// Update all translatable elements
+function updatePageLanguage() {
+  document.querySelectorAll('[data-i18n]').forEach((element) => {
+    const key = element.getAttribute('data-i18n');
+    element.textContent = i18next.t(key);
+  });
+
+  // Update document language attribute
+  document.documentElement.lang = currentLocale;
+
+  // Update language button
+  document.getElementById('currentLang').textContent = currentLocale.toUpperCase();
+
+  // Re-render dynamic content with new locale
+  renderDashboard();
+  renderPositions();
+  renderSignals();
+  renderNews();
+}
+
+// Translation helper
+function t(key) {
+  return i18next.t(key);
+}
+
+// Translation helpers for dynamic values
+function translateSignalAction(action) {
+  const actionMap = {
+    BUY: 'signals.buy',
+    SELL: 'signals.sell',
+    HOLD: 'signals.hold',
+  };
+  return t(actionMap[action] || action);
+}
+
+function translateSentiment(sentiment) {
+  const sentimentMap = {
+    POSITIVE: 'news.positive',
+    NEGATIVE: 'news.negative',
+    NEUTRAL: 'news.neutral',
+  };
+  return t(sentimentMap[sentiment] || sentiment);
+}
+
+// Switch language
+function switchLanguage() {
+  currentLocale = currentLocale === 'en' ? 'ru' : 'en';
+  localStorage.setItem('language', currentLocale);
+  i18next.changeLanguage(currentLocale);
+  updatePageLanguage();
+}
+
 // WebSocket connection
 let ws = null;
 let reconnectTimeout = null;
@@ -17,7 +92,8 @@ const state = {
 };
 
 // Initialize app
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await initI18next();
   initializeNavigation();
   connectWebSocket();
   initializeEquityChart();
@@ -115,10 +191,10 @@ function updateConnectionStatus(connected) {
 
   if (connected) {
     statusDot.classList.add('connected');
-    statusText.textContent = 'Connected';
+    statusText.textContent = t('status.connected');
   } else {
     statusDot.classList.remove('connected');
-    statusText.textContent = 'Disconnected';
+    statusText.textContent = t('status.disconnected');
   }
 }
 
@@ -242,7 +318,7 @@ function updateMetrics() {
   document.getElementById('pnl').textContent = formatCurrency(pnl);
   document.getElementById('pnlPercent').textContent = formatPercent(pnlPercent);
   document.getElementById('winRate').textContent = formatPercent(winRate);
-  document.getElementById('totalTrades').textContent = `${totalTrades} trades`;
+  document.getElementById('totalTrades').innerHTML = `${totalTrades} <span data-i18n="metrics.totalTrades">${t('metrics.totalTrades')}</span>`;
 
   // Update change indicators
   updateChangeIndicator('balanceChange', dailyPnlPercent);
@@ -278,7 +354,7 @@ function renderDashboardPositions() {
   if (!container) return;
 
   if (state.positions.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No open positions</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('dashboard.noPositions')}</p>`;
     return;
   }
 
@@ -288,7 +364,7 @@ function renderDashboardPositions() {
     <div class="position-item">
       <div class="position-header">
         <span class="position-symbol">${pos.symbol}</span>
-        <span class="position-side ${pos.side}">${pos.side}</span>
+        <span class="position-side ${pos.side}">${t(`positions.${pos.side.toLowerCase()}`)}</span>
       </div>
       <div class="position-pnl ${pos.pnl >= 0 ? 'positive' : 'negative'}">
         ${formatCurrency(pos.pnl)} (${formatPercent(pos.pnlPercent)})
@@ -306,7 +382,7 @@ function renderRecentSignals() {
   const recentSignals = state.signals.slice(0, 5);
 
   if (recentSignals.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No signals yet</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('dashboard.noSignals')}</p>`;
     return;
   }
 
@@ -318,7 +394,7 @@ function renderRecentSignals() {
         <div class="signal-header">
           <span class="signal-type">${signal.type}</span>
           <span class="signal-symbol">${signal.symbol}</span>
-          <span class="signal-action ${signal.action}">${signal.action}</span>
+          <span class="signal-action ${signal.action}">${translateSignalAction(signal.action)}</span>
         </div>
         <div class="signal-reason">${signal.reason}</div>
       </div>
@@ -370,7 +446,8 @@ function initializeEquityChart() {
 function updateEquityChart() {
   if (!equityChart || state.equity.length === 0) return;
 
-  const labels = state.equity.map((point) => new Date(point.timestamp).toLocaleTimeString());
+  const locale = currentLocale === 'ru' ? 'ru-RU' : 'en-US';
+  const labels = state.equity.map((point) => new Date(point.timestamp).toLocaleTimeString(locale));
   const data = state.equity.map((point) => point.equity);
 
   equityChart.data.labels = labels;
@@ -386,7 +463,7 @@ function renderSignals() {
   const filteredSignals = filterSignals();
 
   if (filteredSignals.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No signals found</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('signals.noSignals')}</p>`;
     return;
   }
 
@@ -398,13 +475,13 @@ function renderSignals() {
         <div class="signal-header">
           <span class="signal-type">${signal.type}</span>
           <span class="signal-symbol">${signal.symbol}</span>
-          <span class="signal-action ${signal.action}">${signal.action}</span>
+          <span class="signal-action ${signal.action}">${translateSignalAction(signal.action)}</span>
         </div>
         <div class="signal-reason">${signal.reason}</div>
         <div class="signal-meta">
-          <span>Strength: ${signal.strength.toFixed(1)}</span>
-          <span>Confidence: ${formatPercent(signal.confidence * 100)}</span>
-          <span>${new Date(signal.timestamp).toLocaleString()}</span>
+          <span>${t('signals.strength')}: ${signal.strength.toFixed(1)}</span>
+          <span>${t('signals.confidence')}: ${formatPercent(signal.confidence * 100)}</span>
+          <span>${formatDateTime(signal.timestamp)}</span>
         </div>
       </div>
     </div>
@@ -430,7 +507,7 @@ function renderPositions() {
   if (!container) return;
 
   if (state.positions.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No open positions</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('positions.noPositions')}</p>`;
     return;
   }
 
@@ -440,40 +517,40 @@ function renderPositions() {
     <div class="position-item">
       <div class="position-header">
         <span class="position-symbol">${pos.symbol}</span>
-        <span class="position-side ${pos.side}">${pos.side}</span>
+        <span class="position-side ${pos.side}">${t(`positions.${pos.side.toLowerCase()}`)}</span>
       </div>
       <div class="position-details">
         <div class="position-detail">
-          <div class="position-detail-label">Entry Price</div>
+          <div class="position-detail-label">${t('positions.entryPrice')}</div>
           <div>${formatCurrency(pos.entryPrice)}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Current Price</div>
+          <div class="position-detail-label">${t('positions.currentPrice')}</div>
           <div>${formatCurrency(pos.currentPrice)}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Size</div>
+          <div class="position-detail-label">${t('positions.size')}</div>
           <div>${pos.size}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Stop Loss</div>
+          <div class="position-detail-label">${t('positions.stopLoss')}</div>
           <div>${pos.stopLoss ? formatCurrency(pos.stopLoss) : '-'}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Take Profit</div>
+          <div class="position-detail-label">${t('positions.takeProfit')}</div>
           <div>${pos.takeProfit ? formatCurrency(pos.takeProfit) : '-'}</div>
         </div>
         <div class="position-detail">
-          <div class="position-detail-label">Opened At</div>
-          <div>${new Date(pos.openedAt).toLocaleString()}</div>
+          <div class="position-detail-label">${t('positions.openedAt')}</div>
+          <div>${formatDateTime(pos.openedAt)}</div>
         </div>
       </div>
       <div class="position-pnl ${pos.pnl >= 0 ? 'positive' : 'negative'}">
         ${formatCurrency(pos.pnl)} (${formatPercent(pos.pnlPercent)})
       </div>
       <div class="position-actions">
-        <button class="btn btn-secondary btn-small" onclick="editPosition('${pos.id}')">Edit SL/TP</button>
-        <button class="btn btn-danger btn-small" onclick="closePosition('${pos.id}', ${pos.currentPrice})">Close</button>
+        <button class="btn btn-secondary btn-small" onclick="editPosition('${pos.id}')">${t('positions.editSlTp')}</button>
+        <button class="btn btn-danger btn-small" onclick="closePosition('${pos.id}', ${pos.currentPrice})">${t('positions.close')}</button>
       </div>
     </div>
   `,
@@ -503,7 +580,7 @@ function updatePositionPrice(data) {
 }
 
 async function closePosition(id, currentPrice) {
-  if (!confirm('Are you sure you want to close this position?')) return;
+  if (!confirm(t('positions.closeConfirm'))) return;
 
   const result = await postAPI(`/api/positions/${id}/close`, {
     exitPrice: currentPrice,
@@ -514,7 +591,7 @@ async function closePosition(id, currentPrice) {
     state.positions = state.positions.filter((p) => p.id !== id);
     renderPositions();
     renderDashboardPositions();
-    showNotification({ message: 'Position closed successfully', type: 'success' });
+    showNotification({ message: t('positions.closedSuccess'), type: 'success' });
   }
 }
 
@@ -522,8 +599,8 @@ function editPosition(id) {
   const position = state.positions.find((p) => p.id === id);
   if (!position) return;
 
-  const stopLoss = prompt('Enter new Stop Loss price:', position.stopLoss || '');
-  const takeProfit = prompt('Enter new Take Profit price:', position.takeProfit || '');
+  const stopLoss = prompt(t('positions.enterStopLoss'), position.stopLoss || '');
+  const takeProfit = prompt(t('positions.enterTakeProfit'), position.takeProfit || '');
 
   if (stopLoss || takeProfit) {
     patchAPI(`/api/positions/${id}`, {
@@ -533,7 +610,7 @@ function editPosition(id) {
       if (result) {
         updateOrAddPosition(result);
         renderPositions();
-        showNotification({ message: 'Position updated successfully', type: 'success' });
+        showNotification({ message: t('positions.updatedSuccess'), type: 'success' });
       }
     });
   }
@@ -547,7 +624,7 @@ function renderNews() {
   const filteredNews = filterNews();
 
   if (filteredNews.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No news found</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('news.noNews')}</p>`;
     return;
   }
 
@@ -559,13 +636,13 @@ function renderNews() {
         <div>
           <div class="news-title">${news.title}</div>
         </div>
-        <span class="news-sentiment ${news.sentiment}">${news.sentiment}</span>
+        <span class="news-sentiment ${news.sentiment}">${translateSentiment(news.sentiment)}</span>
       </div>
       <div class="news-content">${news.content}</div>
       <div class="news-meta">
-        <span>${news.source}</span>
-        <span>${new Date(news.publishedAt).toLocaleString()}</span>
-        <a href="${news.url}" target="_blank" style="color: var(--accent-primary);">Read more</a>
+        <span>${t('news.source')}: ${news.source}</span>
+        <span>${t('news.published')}: ${formatDateTime(news.publishedAt)}</span>
+        <a href="${news.url}" target="_blank" style="color: var(--accent-primary);">${t('news.readMore')}</a>
       </div>
     </div>
   `,
@@ -613,7 +690,7 @@ function renderTradeHistory() {
   if (!container) return;
 
   if (state.history.length === 0) {
-    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No trade history</p>';
+    container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">${t('analytics.noHistory')}</p>`;
     return;
   }
 
@@ -621,13 +698,13 @@ function renderTradeHistory() {
     <table>
       <thead>
         <tr>
-          <th>Symbol</th>
-          <th>Side</th>
-          <th>Entry</th>
-          <th>Exit</th>
-          <th>PnL</th>
-          <th>Opened</th>
-          <th>Closed</th>
+          <th>${t('positions.symbol')}</th>
+          <th>${t('positions.side')}</th>
+          <th>${t('analytics.entry')}</th>
+          <th>${t('analytics.exit')}</th>
+          <th>${t('positions.pnl')}</th>
+          <th>${t('analytics.opened')}</th>
+          <th>${t('analytics.closed')}</th>
         </tr>
       </thead>
       <tbody>
@@ -636,14 +713,14 @@ function renderTradeHistory() {
             (trade) => `
           <tr>
             <td>${trade.symbol}</td>
-            <td><span class="position-side ${trade.side}">${trade.side}</span></td>
+            <td><span class="position-side ${trade.side}">${t(`positions.${trade.side.toLowerCase()}`)}</span></td>
             <td>${formatCurrency(trade.entryPrice)}</td>
             <td>${formatCurrency(trade.exitPrice)}</td>
             <td style="color: ${trade.pnl >= 0 ? 'var(--success)' : 'var(--danger)'}">
               ${formatCurrency(trade.pnl)} (${formatPercent(trade.pnlPercent)})
             </td>
-            <td>${new Date(trade.openedAt).toLocaleString()}</td>
-            <td>${new Date(trade.closedAt).toLocaleString()}</td>
+            <td>${formatDateTime(trade.openedAt)}</td>
+            <td>${formatDateTime(trade.closedAt)}</td>
           </tr>
         `,
           )
@@ -689,12 +766,12 @@ function renderStrategies() {
       <div class="strategy-header">
         <span class="strategy-name">${strategy.name}</span>
         <span class="strategy-status ${strategy.enabled ? 'enabled' : 'disabled'}">
-          ${strategy.enabled ? 'Enabled' : 'Disabled'}
+          ${strategy.enabled ? t('settings.enabled') : t('settings.disabled')}
         </span>
       </div>
       <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
-        <div>Risk per trade: ${strategy.riskPerTrade}%</div>
-        <div>Max positions: ${strategy.maxPositions}</div>
+        <div>${t('settings.riskPerTrade')}: ${strategy.riskPerTrade}%</div>
+        <div>${t('settings.maxPositionsStrategy')}: ${strategy.maxPositions}</div>
       </div>
     </div>
   `,
@@ -704,6 +781,9 @@ function renderStrategies() {
 
 // Event Listeners
 function setupEventListeners() {
+  // Language switcher
+  document.getElementById('langSwitcher')?.addEventListener('click', switchLanguage);
+
   // Signal filters
   document.getElementById('signalTypeFilter')?.addEventListener('change', renderSignals);
   document.getElementById('signalActionFilter')?.addEventListener('change', renderSignals);
@@ -728,7 +808,7 @@ function setupEventListeners() {
     const result = await patchAPI('/api/settings/risk', data);
     if (result) {
       state.riskConfig = result;
-      showNotification({ message: 'Risk settings updated successfully', type: 'success' });
+      showNotification({ message: t('settings.settingsUpdated'), type: 'success' });
     }
   });
 }
@@ -736,7 +816,8 @@ function setupEventListeners() {
 // Utility functions
 function formatCurrency(value) {
   if (value === undefined || value === null) return '$0.00';
-  return new Intl.NumberFormat('en-US', {
+  // Use current locale for number formatting, but keep USD as currency
+  return new Intl.NumberFormat(currentLocale === 'ru' ? 'ru-RU' : 'en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
@@ -747,7 +828,23 @@ function formatCurrency(value) {
 function formatPercent(value) {
   if (value === undefined || value === null) return '0.00%';
   const sign = value > 0 ? '+' : '';
-  return `${sign}${value.toFixed(2)}%`;
+  // Use current locale for decimal separator
+  const formatted = new Intl.NumberFormat(currentLocale === 'ru' ? 'ru-RU' : 'en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Math.abs(value));
+  return `${sign}${formatted}%`;
+}
+
+function formatDateTime(timestamp) {
+  if (!timestamp) return '-';
+  return new Intl.DateTimeFormat(currentLocale === 'ru' ? 'ru-RU' : 'en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(timestamp));
 }
 
 function showNotification(data) {
