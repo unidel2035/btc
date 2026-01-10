@@ -5,8 +5,14 @@
 
 import type { Request, Response, Router } from 'express';
 import { storage } from './storage.js';
+import type { SignalsProvider } from './providers/SignalsProvider.js';
 
-export function setupRoutes(router: Router): void {
+// Type for dashboard server to access signals provider
+interface DashboardServerInterface {
+  getSignalsProvider(): SignalsProvider | null;
+}
+
+export function setupRoutes(router: Router, dashboardServer?: DashboardServerInterface): void {
   // Health check
   router.get('/health', (_req: Request, res: Response) => {
     res.json({
@@ -367,6 +373,115 @@ export function setupRoutes(router: Router): void {
       }
     } catch (error) {
       res.status(500).json({ error: 'Failed to update settings' });
+    }
+  });
+
+  // Strategy Management Endpoints (using SignalsProvider)
+
+  // GET /api/strategies/status - Get all strategies status
+  router.get('/api/strategies/status', (_req: Request, res: Response) => {
+    try {
+      const signalsProvider = dashboardServer?.getSignalsProvider();
+      if (!signalsProvider) {
+        res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
+        return;
+      }
+
+      const strategies = signalsProvider.getStrategiesStatus();
+      res.json(strategies);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch strategies status' });
+    }
+  });
+
+  // POST /api/strategies/:name/enable - Enable strategy
+  router.post('/api/strategies/:name/enable', (req: Request, res: Response): void => {
+    try {
+      const signalsProvider = dashboardServer?.getSignalsProvider();
+      if (!signalsProvider) {
+        res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
+        return;
+      }
+
+      const name = (
+        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+      ) as string;
+
+      signalsProvider.enableStrategy(name || '');
+      res.json({ success: true, message: `Strategy ${name} enabled` });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to enable strategy' });
+    }
+  });
+
+  // POST /api/strategies/:name/disable - Disable strategy
+  router.post('/api/strategies/:name/disable', (req: Request, res: Response): void => {
+    try {
+      const signalsProvider = dashboardServer?.getSignalsProvider();
+      if (!signalsProvider) {
+        res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
+        return;
+      }
+
+      const name = (
+        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+      ) as string;
+
+      signalsProvider.disableStrategy(name || '');
+      res.json({ success: true, message: `Strategy ${name} disabled` });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to disable strategy' });
+    }
+  });
+
+  // PATCH /api/strategies/:name/params - Update strategy parameters
+  router.patch('/api/strategies/:name/params', (req: Request, res: Response): void => {
+    try {
+      const signalsProvider = dashboardServer?.getSignalsProvider();
+      if (!signalsProvider) {
+        res.status(503).json({ error: 'Signals provider not available (demo mode or disabled)' });
+        return;
+      }
+
+      const name = (
+        Array.isArray(req.params.name) ? req.params.name[0] : req.params.name
+      ) as string;
+
+      signalsProvider.updateStrategyParams(name || '', req.body as Record<string, unknown>);
+      res.json({ success: true, message: `Strategy ${name} parameters updated` });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update strategy parameters' });
+    }
+  });
+
+  // GET /api/signals/stats - Signal statistics
+  router.get('/api/signals/stats', (req: Request, res: Response) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 1000;
+      const signals = storage.getSignals(limit);
+
+      const stats = {
+        total: signals.length,
+        byStrategy: {} as Record<string, number>,
+        byAction: {
+          BUY: signals.filter((s) => s.action === 'BUY').length,
+          SELL: signals.filter((s) => s.action === 'SELL').length,
+          HOLD: signals.filter((s) => s.action === 'HOLD').length,
+        },
+        avgConfidence:
+          signals.length > 0
+            ? signals.reduce((sum, s) => sum + s.confidence, 0) / signals.length
+            : 0,
+        highConfidence: signals.filter((s) => s.confidence > 0.8).length,
+      };
+
+      signals.forEach((s) => {
+        stats.byStrategy[s.type] = (stats.byStrategy[s.type] || 0) + 1;
+      });
+
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch signal stats' });
     }
   });
 }
