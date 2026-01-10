@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import type {
   Strategy,
   StrategyParams,
@@ -10,7 +11,7 @@ import type {
 /**
  * Базовый класс для торговых стратегий
  */
-export abstract class BaseStrategy implements Strategy {
+export abstract class BaseStrategy extends EventEmitter implements Strategy {
   public abstract name: string;
   public abstract description: string;
 
@@ -18,6 +19,7 @@ export abstract class BaseStrategy implements Strategy {
   protected stats: StrategyStats;
 
   constructor(params: StrategyParams = { enabled: true }) {
+    super();
     const { enabled = true, ...rest } = params;
     this.params = {
       minImpact: 0.5,
@@ -121,5 +123,36 @@ export abstract class BaseStrategy implements Strategy {
       this.stats.totalTrades += 1;
     }
     this.stats.lastExecuted = new Date();
+  }
+
+  /**
+   * Emit a signal event for real-time broadcasting
+   */
+  protected emitSignal(decision: TradeDecision, marketData: MarketData): void {
+    const signalData = {
+      id: `${this.name}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      strategy: this.name,
+      symbol: marketData.symbol,
+      action: decision.direction === 'long' ? 'BUY' : decision.direction === 'short' ? 'SELL' : 'HOLD',
+      reason: decision.reason,
+      confidence: decision.confidence,
+      strength: decision.confidence * 100,
+      price: decision.entryPrice,
+      timestamp: Date.now(),
+      metadata: {
+        stopLoss: decision.stopLoss,
+        takeProfit: decision.takeProfit,
+        positionSize: decision.positionSize,
+        timeframe: decision.timeframe,
+        signalsCount: decision.signals.length,
+        signals: decision.signals.map(s => ({
+          type: s.type,
+          sentiment: s.sentiment,
+          impact: s.impact,
+        })),
+      },
+    };
+
+    this.emit('signal', signalData);
   }
 }

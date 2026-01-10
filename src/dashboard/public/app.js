@@ -81,6 +81,17 @@ let equityChart = null;
 // Expose WebSocket globally for chart
 window.ws = null;
 
+// Notification settings
+const notificationSettings = {
+  desktop: localStorage.getItem('notifications_desktop') !== 'false',
+  audio: localStorage.getItem('notifications_audio') !== 'false',
+  minConfidence: parseFloat(localStorage.getItem('notifications_min_confidence') || '0.7'),
+};
+
+// Audio notification
+let audioContext = null;
+let notificationSound = null;
+
 // State
 const state = {
   metrics: {},
@@ -92,12 +103,14 @@ const state = {
   performance: {},
   strategies: [],
   riskConfig: {},
+  newSignalsCount: 0,
 };
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async () => {
   await initI18next();
   initializeNavigation();
+  initializeNotifications();
   connectWebSocket();
   initializeEquityChart();
   loadInitialData();
@@ -139,6 +152,7 @@ function loadPageData(page) {
       renderDashboard();
       break;
     case 'signals':
+      clearNewSignalsCounter();
       renderSignals();
       break;
     case 'positions':
@@ -260,10 +274,14 @@ function handleWebSocketMessage(message) {
       if (message.data.signals) {
         state.signals = message.data.signals;
       } else {
-        state.signals.unshift(message.data);
+        // New real-time signal
+        const newSignal = message.data;
+        state.signals.unshift(newSignal);
         if (state.signals.length > 100) {
           state.signals = state.signals.slice(0, 100);
         }
+        // Trigger notifications for new signal
+        handleNewSignal(newSignal);
       }
       renderSignals();
       renderRecentSignals();
@@ -798,6 +816,11 @@ function renderSettings() {
   document.getElementById('defaultTakeProfit').value = state.riskConfig.defaultTakeProfit || 0;
   document.getElementById('trailingStop').checked = state.riskConfig.trailingStop || false;
 
+  // Populate notification settings
+  document.getElementById('desktopNotifications').checked = notificationSettings.desktop;
+  document.getElementById('audioNotifications').checked = notificationSettings.audio;
+  document.getElementById('minConfidenceNotifications').value = Math.round(notificationSettings.minConfidence * 100);
+
   renderStrategies();
 }
 
@@ -857,6 +880,40 @@ function setupEventListeners() {
       showNotification({ message: t('settings.settingsUpdated'), type: 'success' });
     }
   });
+
+  // Notification settings form
+  document.getElementById('notificationSettingsForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const desktopEnabled = document.getElementById('desktopNotifications').checked;
+    const audioEnabled = document.getElementById('audioNotifications').checked;
+    const minConfidence = parseFloat(document.getElementById('minConfidenceNotifications').value) / 100;
+
+    // Request desktop notification permission if enabling
+    if (desktopEnabled && 'Notification' in window && Notification.permission === 'default') {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        alert('Desktop notifications permission denied. Please enable it in your browser settings.');
+        return;
+      }
+    }
+
+    // Save settings to localStorage
+    notificationSettings.desktop = desktopEnabled;
+    notificationSettings.audio = audioEnabled;
+    notificationSettings.minConfidence = minConfidence;
+
+    localStorage.setItem('notifications_desktop', desktopEnabled);
+    localStorage.setItem('notifications_audio', audioEnabled);
+    localStorage.setItem('notifications_min_confidence', minConfidence);
+
+    // Reinitialize audio context if needed
+    if (audioEnabled && !audioContext && 'AudioContext' in window) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    showNotification({ message: 'Notification settings updated', type: 'success' });
+  });
 }
 
 // Utility functions
@@ -898,4 +955,114 @@ function showNotification(data) {
   const type = data.type || 'info';
   console.log(`[${type.toUpperCase()}] ${message}`);
   alert(message);
+}
+
+// Notifications initialization
+function initializeNotifications() {
+  // Request desktop notification permission
+  if (notificationSettings.desktop && 'Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  // Initialize audio context
+  if (notificationSettings.audio && 'AudioContext' in window) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+// Play notification sound
+function playNotificationSound() {
+  if (!notificationSettings.audio || !audioContext) return;
+
+  try {
+    // Create a simple beep sound
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 800; // Frequency in Hz
+    oscillator.type = 'sine';
+
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+  } catch (error) {
+    console.error('Failed to play notification sound:', error);
+  }
+}
+
+// Show desktop notification
+function showDesktopNotification(signal) {
+  if (!notificationSettings.desktop || !('Notification' in window) || Notification.permission !== 'granted') {
+    return;
+  }
+
+  try {
+    const title = `${signal.action} Signal: ${signal.symbol}`;
+    const options = {
+      body: `${signal.reason}\nConfidence: ${(signal.confidence * 100).toFixed(0)}%`,
+      icon: '/favicon.ico',
+      badge: '/favicon.ico',
+      tag: signal.id,
+      requireInteraction: false,
+    };
+
+    const notification = new Notification(title, options);
+
+    notification.onclick = () => {
+      window.focus();
+      navigateToPage('signals');
+      notification.close();
+    };
+
+    // Auto close after 5 seconds
+    setTimeout(() => notification.close(), 5000);
+  } catch (error) {
+    console.error('Failed to show desktop notification:', error);
+  }
+}
+
+// Handle new signal with notifications
+function handleNewSignal(signal) {
+  // Check if signal meets notification threshold
+  const confidence = signal.confidence || signal.strength / 100 || 0;
+
+  if (confidence >= notificationSettings.minConfidence) {
+    // Play sound
+    if (notificationSettings.audio) {
+      playNotificationSound();
+    }
+
+    // Show desktop notification
+    if (notificationSettings.desktop) {
+      showDesktopNotification(signal);
+    }
+  }
+
+  // Increment new signals counter
+  state.newSignalsCount++;
+  updateNewSignalsBadge();
+}
+
+// Update new signals badge
+function updateNewSignalsBadge() {
+  const badge = document.getElementById('newSignalsBadge');
+  if (badge) {
+    if (state.newSignalsCount > 0) {
+      badge.textContent = state.newSignalsCount > 99 ? '99+' : state.newSignalsCount;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+}
+
+// Clear new signals counter when viewing signals page
+function clearNewSignalsCounter() {
+  state.newSignalsCount = 0;
+  updateNewSignalsBadge();
 }

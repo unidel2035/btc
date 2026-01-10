@@ -119,7 +119,8 @@ export interface WebSocketMessage {
     | 'pong'
     | 'subscribed'
     | 'unsubscribed'
-    | 'chart_candle';
+    | 'chart_candle'
+    | 'filtersUpdated';
   data: unknown;
   timestamp: string;
 }
