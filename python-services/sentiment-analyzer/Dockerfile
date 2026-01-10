@@ -14,8 +14,10 @@ COPY requirements.txt .
 # Установка Python зависимостей
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Загрузка spaCy модели
-RUN python -m spacy download en_core_web_sm
+# Загрузка spaCy модели с повторными попытками и тайм-аутом
+RUN python -m spacy download en_core_web_sm || \
+    (sleep 5 && python -m spacy download en_core_web_sm) || \
+    echo "Warning: spaCy model download failed, will be downloaded at runtime"
 
 # Копирование кода приложения
 COPY . .

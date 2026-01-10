@@ -1,4 +1,9 @@
-import type { SocialPost, TelegramConfig, SocialCollectionResult, SocialDeduplicationOptions } from '../types.js';
+import type {
+  SocialPost,
+  TelegramConfig,
+  SocialCollectionResult,
+  SocialDeduplicationOptions,
+} from '../types.js';
 import { SocialPlatform } from '../types.js';
 import { RateLimiter } from '../utils/rateLimiter.js';
 import { withRetry } from '../utils/retry.js';
@@ -19,13 +24,6 @@ interface TelegramMessage {
   replies?: number;
 }
 
-interface TelegramChannel {
-  id: string;
-  username: string;
-  title: string;
-  memberCount?: number;
-}
-
 /**
  * Telegram Collector для мониторинга публичных каналов
  *
@@ -38,7 +36,7 @@ export class TelegramCollector {
   private logger: SocialLogger;
   private seenIds: Set<string>;
   private intervalId?: NodeJS.Timeout;
-  private client: unknown; // Здесь должен быть реальный Telegram client
+
   private lastMessageIds: Map<string, number>; // channelId -> lastMessageId
 
   constructor(config: TelegramConfig) {
@@ -211,7 +209,9 @@ export class TelegramCollector {
       }
 
       const duration = Date.now() - startTime;
-      this.logger.info(`Completed in ${duration}ms. Unique: ${totalPosts}, Duplicates: ${duplicatesSkipped}`);
+      this.logger.info(
+        `Completed in ${duration}ms. Unique: ${totalPosts}, Duplicates: ${duplicatesSkipped}`,
+      );
 
       return {
         platform: SocialPlatform.TELEGRAM,

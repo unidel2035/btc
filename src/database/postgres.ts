@@ -69,9 +69,9 @@ class PostgresClient {
   /**
    * Execute a query
    */
-  async query<T extends Record<string, any> = any>(
+  async query<T extends Record<string, unknown> = Record<string, unknown>>(
     text: string,
-    params?: any[],
+    params?: unknown[],
   ): Promise<QueryResult<T>> {
     if (!this.pool) {
       throw new Error('Database not connected. Call connect() first.');

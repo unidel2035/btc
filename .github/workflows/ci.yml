@@ -54,6 +54,9 @@ jobs:
           npm run test:risk
           npm run test:strategies
           npm run test:paper
+          npm run test:social:retry
+          npm run test:social:orchestrator
+          npm run test:exchanges
 
   integration-tests:
     name: Integration Tests

@@ -198,7 +198,22 @@ export class BinanceExchange extends BaseExchange {
 
     const endpoint = this.marketType === MarketType.SPOT ? '/klines' : '/klines';
     const data = await this.request<
-      Array<[number, string, string, string, string, string, number, string, number, string, string, string]>
+      Array<
+        [
+          number,
+          string,
+          string,
+          string,
+          string,
+          string,
+          number,
+          string,
+          number,
+          string,
+          string,
+          string,
+        ]
+      >
     >('GET', endpoint, params);
 
     return data.map((candle) => ({
@@ -364,7 +379,10 @@ export class BinanceExchange extends BaseExchange {
     let commissionAsset: string | undefined;
 
     if (data.fills && data.fills.length > 0) {
-      const totalCost = data.fills.reduce((sum, fill) => sum + parseFloat(fill.price) * parseFloat(fill.qty), 0);
+      const totalCost = data.fills.reduce(
+        (sum, fill) => sum + parseFloat(fill.price) * parseFloat(fill.qty),
+        0,
+      );
       const totalQty = data.fills.reduce((sum, fill) => sum + parseFloat(fill.qty), 0);
       averagePrice = totalCost / totalQty;
 
@@ -663,7 +681,12 @@ export class BinanceExchange extends BaseExchange {
     this.requireInitialized();
     this.requireApiKeys();
 
-    await this.request('POST', '/marginType', { symbol, marginType: marginType.toUpperCase() }, true);
+    await this.request(
+      'POST',
+      '/marginType',
+      { symbol, marginType: marginType.toUpperCase() },
+      true,
+    );
   }
 
   // WebSocket Methods (simplified implementation)
@@ -683,7 +706,11 @@ export class BinanceExchange extends BaseExchange {
     // TODO: Implement WebSocket for order book
   }
 
-  subscribeToCandles(_symbol: string, _interval: CandleInterval, _callback: (candle: Candle) => void): void {
+  subscribeToCandles(
+    _symbol: string,
+    _interval: CandleInterval,
+    _callback: (candle: Candle) => void,
+  ): void {
     console.warn(`[${this.name}] WebSocket subscriptions not fully implemented yet`);
     // TODO: Implement WebSocket for candles
   }

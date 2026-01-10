@@ -1,5 +1,9 @@
-import { randomUUID } from 'crypto';
-import type { SocialPost, TwitterConfig, SocialCollectionResult, SocialDeduplicationOptions } from '../types.js';
+import type {
+  SocialPost,
+  TwitterConfig,
+  SocialCollectionResult,
+  SocialDeduplicationOptions,
+} from '../types.js';
 import { SocialPlatform } from '../types.js';
 import { RateLimiter } from '../utils/rateLimiter.js';
 import { withRetry } from '../utils/retry.js';
@@ -281,7 +285,9 @@ export class TwitterCollector {
       }
 
       const duration = Date.now() - startTime;
-      this.logger.info(`Completed in ${duration}ms. Unique: ${totalPosts}, Duplicates: ${duplicatesSkipped}`);
+      this.logger.info(
+        `Completed in ${duration}ms. Unique: ${totalPosts}, Duplicates: ${duplicatesSkipped}`,
+      );
 
       return {
         platform: SocialPlatform.TWITTER,
@@ -368,7 +374,10 @@ export class TwitterCollector {
   /**
    * Получение статистики
    */
-  getStats(): { cachedIds: number; rateLimitStats: { availableTokens: number; maxTokens: number } } {
+  getStats(): {
+    cachedIds: number;
+    rateLimitStats: { availableTokens: number; maxTokens: number };
+  } {
     return {
       cachedIds: this.seenIds.size,
       rateLimitStats: this.rateLimiter.getStats(),
