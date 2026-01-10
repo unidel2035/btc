@@ -11,6 +11,9 @@ import { DemoDataGenerator } from './demo.js';
 import { IntegramClient } from '../database/integram/IntegramClient.js';
 import { IntegramStorage } from './storage/IntegramStorage.js';
 import { storage as memoryStorage } from './storage.js';
+import { RealDataProvider } from './providers/RealDataProvider.js';
+import { ExchangeManager } from '../exchanges/ExchangeManager.js';
+import { MarketType } from '../exchanges/types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,6 +29,7 @@ class DashboardServer {
   private server: ReturnType<typeof createServer>;
   private ws: DashboardWebSocket | null = null;
   private demoGenerator: DemoDataGenerator | null = null;
+  private realDataProvider: RealDataProvider | null = null;
   private port: number;
   private host: string;
 
@@ -75,11 +79,63 @@ class DashboardServer {
     this.ws = new DashboardWebSocket(this.server);
   }
 
-  private setupDemoData(): void {
+  private async setupDataProvider(): Promise<void> {
     const enableDemo = process.env.DASHBOARD_DEMO !== 'false';
+
     if (enableDemo) {
+      // Демо режим
+      console.log('🎲 Demo mode enabled');
       this.demoGenerator = new DemoDataGenerator(this.ws || undefined);
       this.demoGenerator.start();
+    } else {
+      // Реальные данные
+      console.log('🔗 Real data mode enabled');
+
+      try {
+        const exchangeConfig = {
+          exchanges: {
+            binance: {
+              apiKey: process.env.BINANCE_API_KEY,
+              apiSecret: process.env.BINANCE_SECRET,
+              testnet: process.env.BINANCE_TESTNET === 'true',
+              marketType: MarketType.FUTURES,
+              enabled: !!(process.env.BINANCE_API_KEY && process.env.BINANCE_SECRET),
+            },
+            bybit: {
+              apiKey: process.env.BYBIT_API_KEY,
+              apiSecret: process.env.BYBIT_SECRET,
+              testnet: process.env.BYBIT_TESTNET === 'true',
+              marketType: MarketType.FUTURES,
+              enabled: !!(process.env.BYBIT_API_KEY && process.env.BYBIT_SECRET),
+            },
+            okx: {
+              apiKey: process.env.OKX_API_KEY,
+              apiSecret: process.env.OKX_SECRET,
+              passphrase: process.env.OKX_PASSPHRASE,
+              testnet: process.env.OKX_TESTNET === 'true',
+              marketType: MarketType.FUTURES,
+              enabled: !!(
+                process.env.OKX_API_KEY &&
+                process.env.OKX_SECRET &&
+                process.env.OKX_PASSPHRASE
+              ),
+            },
+          },
+        };
+
+        const exchangeManager = new ExchangeManager(exchangeConfig);
+        this.realDataProvider = new RealDataProvider(exchangeManager, this.ws || undefined);
+        await this.realDataProvider.start();
+
+        console.log('✅ Real data provider initialized');
+      } catch (error) {
+        console.error('❌ Failed to initialize real data provider:', error);
+        console.log('⚠️  Falling back to demo mode');
+
+        // Fallback to demo mode
+        this.demoGenerator = new DemoDataGenerator(this.ws || undefined);
+        this.demoGenerator.start();
+      }
     }
   }
 
@@ -139,8 +195,8 @@ class DashboardServer {
         console.log(`   GET  /api/settings/risk   - Risk settings`);
         console.log('');
 
-        // Запускаем demo data generator
-        this.setupDemoData();
+        // Запускаем провайдер данных (demo или real)
+        void this.setupDataProvider();
 
         console.log('✅ Dashboard server started successfully');
         console.log('');
@@ -161,6 +217,10 @@ class DashboardServer {
 
     if (this.demoGenerator) {
       this.demoGenerator.stop();
+    }
+
+    if (this.realDataProvider) {
+      this.realDataProvider.stop();
     }
 
     if (this.ws) {

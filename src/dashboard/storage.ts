@@ -105,6 +105,10 @@ class DashboardStorage {
     return updatedPosition;
   }
 
+  clearPositions(): void {
+    this.positions.clear();
+  }
+
   closePosition(id: string, exitPrice: number, reason: string): TradeHistory | null {
     const position = this.positions.get(id);
     if (!position) return null;
