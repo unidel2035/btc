@@ -16,7 +16,7 @@ import type {
  * Format number with commas and fixed decimals
  */
 export function formatNumber(num: number, decimals: number = 2): string {
-  return num.toLocaleString('en-US', {
+  return num.toLocaleString('ru-RU', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
@@ -80,18 +80,18 @@ export function getPnLEmoji(pnl: number): string {
  */
 export function welcomeMessage(): string {
   return `
-🤖 *BTC TRADING BOT*
+🤖 *ТОРГОВЫЙ БОТ BTC*
 
-Welcome to your trading bot control center!
+Добро пожаловать в центр управления торговым ботом!
 
-Use the menu below or type commands:
-• /status - Check bot status
-• /balance - View your balance
-• /positions - See open positions
-• /pnl - Check profit & loss
-• /help - Show all commands
+Используйте меню ниже или введите команды:
+• /status - Статус бота
+• /balance - Баланс счета
+• /positions - Открытые позиции
+• /pnl - Прибыль и убытки
+• /help - Все команды
 
-Let's start trading! 🚀
+Начнем торговать! 🚀
 `.trim();
 }
 
@@ -100,26 +100,26 @@ Let's start trading! 🚀
  */
 export function helpMessage(): string {
   return `
-📚 *AVAILABLE COMMANDS*
+📚 *ДОСТУПНЫЕ КОМАНДЫ*
 
-*📊 Information*
-/status - Current bot status
-/balance - Balance overview
-/positions - Open positions list
-/pnl - Profit & loss report
-/signals - Recent trading signals
-/screening - Latest screening results
+*📊 Информация*
+/status - Текущий статус бота
+/balance - Обзор баланса
+/positions - Список открытых позиций
+/pnl - Отчет о прибыли и убытках
+/signals - Последние торговые сигналы
+/screening - Результаты скрининга
 
-*🎮 Trading Control*
-/start\\_trading - Start auto trading
-/stop\\_trading - Stop auto trading
-/close\\_position <symbol> - Close position
+*🎮 Управление торговлей*
+/start\\_trading - Запустить авто-торговлю
+/stop\\_trading - Остановить авто-торговлю
+/close\\_position <symbol> - Закрыть позицию
 
-*⚙️ Settings*
-/settings - Notification settings
-/help - Show this help
+*⚙️ Настройки*
+/settings - Настройки уведомлений
+/help - Показать эту справку
 
-*Security:* Critical operations require PIN confirmation.
+*Безопасность:* Критические операции требуют подтверждения PIN-кодом.
 `.trim();
 }
 
@@ -128,22 +128,22 @@ export function helpMessage(): string {
  */
 export function statusMessage(stats: TradingStats): string {
   const statusEmoji = stats.running ? '🟢' : '🔴';
-  const statusText = stats.running ? 'ACTIVE' : 'STOPPED';
+  const statusText = stats.running ? 'АКТИВЕН' : 'ОСТАНОВЛЕН';
 
   return `
-🤖 *BOT STATUS*
+🤖 *СТАТУС БОТА*
 
-Status: ${statusEmoji} ${statusText}
-Uptime: ${formatDuration(stats.uptime)}
-Open Positions: ${stats.openPositions}
+Статус: ${statusEmoji} ${statusText}
+Время работы: ${formatDuration(stats.uptime)}
+Открытые позиции: ${stats.openPositions}
 
-*Performance*
-Daily P&L: ${getPnLEmoji(stats.dailyPnL)} ${formatCurrency(stats.dailyPnL)}
-Weekly P&L: ${getPnLEmoji(stats.weeklyPnL)} ${formatCurrency(stats.weeklyPnL)}
-Total P&L: ${getPnLEmoji(stats.totalPnL)} ${formatCurrency(stats.totalPnL)}
+*Производительность*
+P&L за день: ${getPnLEmoji(stats.dailyPnL)} ${formatCurrency(stats.dailyPnL)}
+P&L за неделю: ${getPnLEmoji(stats.weeklyPnL)} ${formatCurrency(stats.weeklyPnL)}
+Общий P&L: ${getPnLEmoji(stats.totalPnL)} ${formatCurrency(stats.totalPnL)}
 
-Win Rate: ${formatPercent(stats.winRate * 100)}
-Total Trades: ${stats.totalTrades}
+Процент побед: ${formatPercent(stats.winRate * 100)}
+Всего сделок: ${stats.totalTrades}
 `.trim();
 }
 
@@ -160,17 +160,17 @@ export function balanceMessage(balance: BalanceSummary): string {
     .join('\n');
 
   return `
-💰 *BALANCE*
+💰 *БАЛАНС*
 
-Total: ${formatCurrency(balance.total, balance.currency)}
-Available: ${formatCurrency(balance.available, balance.currency)}
-In Positions: ${formatCurrency(balance.inPositions, balance.currency)}
+Всего: ${formatCurrency(balance.total, balance.currency)}
+Доступно: ${formatCurrency(balance.available, balance.currency)}
+В позициях: ${formatCurrency(balance.inPositions, balance.currency)}
 
-*Performance*
-Daily P&L: ${getPnLEmoji(balance.dailyPnL)} ${formatCurrency(balance.dailyPnL)} (${formatPercent(balance.dailyPnLPercent)})
-Weekly P&L: ${getPnLEmoji(balance.weeklyPnL)} ${formatCurrency(balance.weeklyPnL)} (${formatPercent(balance.weeklyPnLPercent)})
+*Производительность*
+P&L за день: ${getPnLEmoji(balance.dailyPnL)} ${formatCurrency(balance.dailyPnL)} (${formatPercent(balance.dailyPnLPercent)})
+P&L за неделю: ${getPnLEmoji(balance.weeklyPnL)} ${formatCurrency(balance.weeklyPnL)} (${formatPercent(balance.weeklyPnLPercent)})
 
-*Assets*
+*Активы*
 ${assetsList}
 `.trim();
 }
@@ -185,17 +185,17 @@ export function positionMessage(position: PositionSummary): string {
   return `
 ${sideEmoji} *${position.side.toUpperCase()} ${position.symbol}*
 
-Entry: ${formatCurrency(position.entryPrice)}
-Current: ${formatCurrency(position.currentPrice)} (${formatPercent(position.unrealizedPnLPercent)})
-Size: ${formatNumber(position.quantity, 4)} (${formatCurrency(position.value)})
+Вход: ${formatCurrency(position.entryPrice)}
+Текущая: ${formatCurrency(position.currentPrice)} (${formatPercent(position.unrealizedPnLPercent)})
+Объем: ${formatNumber(position.quantity, 4)} (${formatCurrency(position.value)})
 
 ${pnlEmoji} P&L: ${formatCurrency(position.unrealizedPnL)} (${formatPercent(position.unrealizedPnLPercent)})
 
-Stop Loss: ${position.stopLoss ? formatCurrency(position.stopLoss) : 'Not set'}
-Take Profit: ${position.takeProfit ? formatCurrency(position.takeProfit) : 'Not set'}
+Стоп-лосс: ${position.stopLoss ? formatCurrency(position.stopLoss) : 'Не установлен'}
+Тейк-профит: ${position.takeProfit ? formatCurrency(position.takeProfit) : 'Не установлен'}
 
-Duration: ${position.duration}
-Opened: ${formatTimestamp(position.openedAt)}
+Длительность: ${position.duration}
+Открыта: ${formatTimestamp(position.openedAt)}
 `.trim();
 }
 
@@ -204,7 +204,7 @@ Opened: ${formatTimestamp(position.openedAt)}
  */
 export function positionsListMessage(positions: PositionSummary[]): string {
   if (positions.length === 0) {
-    return '📊 *POSITIONS*\n\nNo open positions.';
+    return '📊 *ПОЗИЦИИ*\n\nНет открытых позиций.';
   }
 
   const totalValue = positions.reduce((sum, p) => sum + p.value, 0);
@@ -221,14 +221,14 @@ export function positionsListMessage(positions: PositionSummary[]): string {
     .join('\n\n');
 
   return `
-📊 *POSITIONS* (${positions.length})
+📊 *ПОЗИЦИИ* (${positions.length})
 
 ${positionsList}
 
-*Summary*
-Total Value: ${formatCurrency(totalValue)}
-Total P&L: ${getPnLEmoji(totalPnL)} ${formatCurrency(totalPnL)}
-Avg P&L: ${formatPercent(avgPnLPercent)}
+*Итого*
+Общая стоимость: ${formatCurrency(totalValue)}
+Общий P&L: ${getPnLEmoji(totalPnL)} ${formatCurrency(totalPnL)}
+Средний P&L: ${formatPercent(avgPnLPercent)}
 `.trim();
 }
 
@@ -237,23 +237,23 @@ Avg P&L: ${formatPercent(avgPnLPercent)}
  */
 export function pnlMessage(stats: TradingStats): string {
   return `
-📈 *PROFIT & LOSS*
+📈 *ПРИБЫЛЬ И УБЫТКИ*
 
-*Today*
+*Сегодня*
 ${getPnLEmoji(stats.dailyPnL)} ${formatCurrency(stats.dailyPnL)}
 
-*This Week*
+*За неделю*
 ${getPnLEmoji(stats.weeklyPnL)} ${formatCurrency(stats.weeklyPnL)}
 
-*This Month*
+*За месяц*
 ${getPnLEmoji(stats.monthlyPnL)} ${formatCurrency(stats.monthlyPnL)}
 
-*Total*
+*Всего*
 ${getPnLEmoji(stats.totalPnL)} ${formatCurrency(stats.totalPnL)}
 
-*Statistics*
-Win Rate: ${formatPercent(stats.winRate * 100)}
-Total Trades: ${stats.totalTrades}
+*Статистика*
+Процент побед: ${formatPercent(stats.winRate * 100)}
+Всего сделок: ${stats.totalTrades}
 `.trim();
 }
 
@@ -268,17 +268,17 @@ export function signalMessage(signal: SignalSummary): string {
   const sourcesList = signal.sources.join(', ');
 
   return `
-${directionEmoji} *SIGNAL: ${signal.symbol}*
+${directionEmoji} *СИГНАЛ: ${signal.symbol}*
 
-Direction: ${signal.direction.toUpperCase()}
-Confidence: ${confidenceStars} (${formatPercent(signal.confidence * 100)})
-Score: ${formatNumber(signal.score, 1)}
+Направление: ${signal.direction.toUpperCase()}
+Уверенность: ${confidenceStars} (${formatPercent(signal.confidence * 100)})
+Оценка: ${formatNumber(signal.score, 1)}
 
-*Reasons*
+*Причины*
 ${reasonsList}
 
-Sources: ${sourcesList}
-Time: ${formatTimestamp(signal.timestamp)}
+Источники: ${sourcesList}
+Время: ${formatTimestamp(signal.timestamp)}
 `.trim();
 }
 
@@ -290,7 +290,7 @@ export function screeningMessage(screening: ScreeningSummary): string {
     .slice(0, 5)
     .map(
       (pick) =>
-        `${pick.rank}. *${pick.symbol}* - Score: ${formatNumber(pick.score, 1)} (${pick.sector})`,
+        `${pick.rank}. *${pick.symbol}* - Оценка: ${formatNumber(pick.score, 1)} (${pick.sector})`,
     )
     .join('\n');
 
@@ -298,21 +298,21 @@ export function screeningMessage(screening: ScreeningSummary): string {
     .slice(0, 3)
     .map(
       (sector) =>
-        `• ${sector.sector}: ${formatNumber(sector.score, 1)} (${sector.projects} projects)`,
+        `• ${sector.sector}: ${formatNumber(sector.score, 1)} (${sector.projects} проектов)`,
     )
     .join('\n');
 
   return `
-🔍 *SCREENING RESULTS*
+🔍 *РЕЗУЛЬТАТЫ СКРИНИНГА*
 
-Analyzed: ${screening.totalAnalyzed} projects
-Qualified: ${screening.qualified} projects
-Time: ${formatTimestamp(screening.timestamp)}
+Проанализировано: ${screening.totalAnalyzed} проектов
+Подходит: ${screening.qualified} проектов
+Время: ${formatTimestamp(screening.timestamp)}
 
-*Top Picks*
+*Лучшие выборы*
 ${topPicksList}
 
-*Top Sectors*
+*Лучшие секторы*
 ${sectorsList}
 `.trim();
 }
@@ -324,28 +324,28 @@ export function settingsMessage(settings: NotificationSettings): string {
   const checkbox = (enabled: boolean) => (enabled ? '✅' : '❌');
 
   return `
-⚙️ *NOTIFICATION SETTINGS*
+⚙️ *НАСТРОЙКИ УВЕДОМЛЕНИЙ*
 
-*🔔 Trade Alerts*
-${checkbox(settings.tradeAlerts.positionOpened)} Position opened
-${checkbox(settings.tradeAlerts.positionClosed)} Position closed
-${checkbox(settings.tradeAlerts.stopLossHit)} Stop Loss hit
-${checkbox(settings.tradeAlerts.takeProfitHit)} Take Profit hit
-${checkbox(settings.tradeAlerts.trailingStopUpdated)} Trailing stop updated
+*🔔 Торговые оповещения*
+${checkbox(settings.tradeAlerts.positionOpened)} Позиция открыта
+${checkbox(settings.tradeAlerts.positionClosed)} Позиция закрыта
+${checkbox(settings.tradeAlerts.stopLossHit)} Сработал стоп-лосс
+${checkbox(settings.tradeAlerts.takeProfitHit)} Сработал тейк-профит
+${checkbox(settings.tradeAlerts.trailingStopUpdated)} Обновлен трейлинг-стоп
 
-*⚠️ System Alerts*
-${checkbox(settings.systemAlerts.criticalErrors)} Critical errors
-${checkbox(settings.systemAlerts.dailyDrawdownLimit)} Daily drawdown limit
-${checkbox(settings.systemAlerts.positionLossThreshold > 0)} Position loss > ${settings.systemAlerts.positionLossThreshold}%
-${checkbox(settings.systemAlerts.apiRateLimits)} API rate limits
+*⚠️ Системные оповещения*
+${checkbox(settings.systemAlerts.criticalErrors)} Критические ошибки
+${checkbox(settings.systemAlerts.dailyDrawdownLimit)} Лимит дневной просадки
+${checkbox(settings.systemAlerts.positionLossThreshold > 0)} Убыток позиции > ${settings.systemAlerts.positionLossThreshold}%
+${checkbox(settings.systemAlerts.apiRateLimits)} Лимиты API
 
-*📊 Reports*
-${checkbox(settings.reports.dailySummary)} Daily summary (${settings.reports.dailySummaryTime} UTC)
-${checkbox(settings.reports.weeklySummary)} Weekly summary
-${checkbox(settings.reports.monthlySummary)} Monthly summary
+*📊 Отчеты*
+${checkbox(settings.reports.dailySummary)} Ежедневный (${settings.reports.dailySummaryTime} UTC)
+${checkbox(settings.reports.weeklySummary)} Еженедельный
+${checkbox(settings.reports.monthlySummary)} Ежемесячный
 
-*🔕 Quiet Hours*
-${checkbox(settings.quietHours.enabled)} ${settings.quietHours.enabled ? `${settings.quietHours.startTime} - ${settings.quietHours.endTime} UTC` : 'Disabled'}
+*🔕 Тихий режим*
+${checkbox(settings.quietHours.enabled)} ${settings.quietHours.enabled ? `${settings.quietHours.startTime} - ${settings.quietHours.endTime} UTC` : 'Выключен'}
 `.trim();
 }
 
@@ -356,16 +356,16 @@ export function notifyPositionOpened(position: PositionSummary): string {
   const sideEmoji = position.side === 'long' ? '📈' : '📉';
 
   return `
-🟢 *POSITION OPENED*
+🟢 *ПОЗИЦИЯ ОТКРЫТА*
 
 ${sideEmoji} ${position.side.toUpperCase()} ${position.symbol}
 
-Entry: ${formatCurrency(position.entryPrice)}
-Size: ${formatNumber(position.quantity, 4)}
-Value: ${formatCurrency(position.value)}
+Вход: ${formatCurrency(position.entryPrice)}
+Объем: ${formatNumber(position.quantity, 4)}
+Стоимость: ${formatCurrency(position.value)}
 
-${position.stopLoss ? `Stop Loss: ${formatCurrency(position.stopLoss)}` : ''}
-${position.takeProfit ? `Take Profit: ${formatCurrency(position.takeProfit)}` : ''}
+${position.stopLoss ? `Стоп-лосс: ${formatCurrency(position.stopLoss)}` : ''}
+${position.takeProfit ? `Тейк-профит: ${formatCurrency(position.takeProfit)}` : ''}
 `.trim();
 }
 
@@ -377,16 +377,16 @@ export function notifyPositionClosed(position: PositionSummary): string {
   const pnlEmoji = getPnLEmoji(position.unrealizedPnL);
 
   return `
-🔴 *POSITION CLOSED*
+🔴 *ПОЗИЦИЯ ЗАКРЫТА*
 
 ${sideEmoji} ${position.side.toUpperCase()} ${position.symbol}
 
-Entry: ${formatCurrency(position.entryPrice)}
-Exit: ${formatCurrency(position.currentPrice)}
+Вход: ${formatCurrency(position.entryPrice)}
+Выход: ${formatCurrency(position.currentPrice)}
 
 ${pnlEmoji} P&L: ${formatCurrency(position.unrealizedPnL)} (${formatPercent(position.unrealizedPnLPercent)})
 
-Duration: ${position.duration}
+Длительность: ${position.duration}
 `.trim();
 }
 
@@ -395,12 +395,12 @@ Duration: ${position.duration}
  */
 export function confirmationMessage(action: string, details: string): string {
   return `
-⚠️ *CONFIRMATION REQUIRED*
+⚠️ *ТРЕБУЕТСЯ ПОДТВЕРЖДЕНИЕ*
 
-Action: ${action}
+Действие: ${action}
 ${details}
 
-Enter your PIN to confirm:
+Введите PIN-код для подтверждения:
 `.trim();
 }
 
@@ -408,7 +408,7 @@ Enter your PIN to confirm:
  * Error message template
  */
 export function errorMessage(error: string): string {
-  return `❌ *Error*\n\n${error}`;
+  return `❌ *Ошибка*\n\n${error}`;
 }
 
 /**
