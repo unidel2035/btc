@@ -147,6 +147,12 @@ function loadPageData(page) {
     case 'analytics':
       loadAnalytics();
       break;
+    case 'chart':
+      // Очищаем предыдущий график если есть
+      cleanupStrategyChart();
+      // Инициализируем новый график
+      setTimeout(() => initStrategyChart(), 100);
+      break;
     case 'settings':
       loadSettings();
       break;

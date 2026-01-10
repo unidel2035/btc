@@ -5,6 +5,7 @@
     "positions": "Positions",
     "news": "News Feed",
     "analytics": "Analytics",
+    "chart": "Strategy Chart",
     "settings": "Settings"
   },
   "status": {
@@ -109,6 +110,24 @@
     "exit": "Exit",
     "opened": "Opened",
     "closed": "Closed"
+  },
+  "chart": {
+    "title": "Price Channel Strategy",
+    "subtitle": "Real-time visualization of Price Channel Breakout algorithm",
+    "start": "Start",
+    "pause": "Pause",
+    "reset": "Reset",
+    "currentState": "Current State",
+    "symbol": "Symbol",
+    "currentPrice": "Current Price",
+    "channelHigh": "Channel High",
+    "channelLow": "Channel Low",
+    "channelWidth": "Channel Width",
+    "signal": "Signal",
+    "lastSignal": "Last Signal",
+    "tradeHistory": "Trade History",
+    "waitingForBreakout": "Waiting for channel breakout...",
+    "noTrades": "No trades yet"
   },
   "settings": {
     "title": "Settings",

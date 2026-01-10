@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.11/i18next.min.js"></script>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   </head>
   <body>
     <div class="app">
@@ -40,6 +41,10 @@
           <a href="#analytics" class="nav-item" data-page="analytics">
             <span class="icon">📊</span>
             <span data-i18n="nav.analytics">Analytics</span>
+          </a>
+          <a href="#chart" class="nav-item" data-page="chart">
+            <span class="icon">📈</span>
+            <span data-i18n="nav.chart">Strategy Chart</span>
           </a>
           <a href="#settings" class="nav-item" data-page="settings">
             <span class="icon">⚙️</span>
@@ -213,6 +218,69 @@
           </div>
         </div>
 
+        <!-- Strategy Chart Page -->
+        <div class="page" id="chart-page">
+          <div class="page-header">
+            <h1 data-i18n="chart.title">Price Channel Strategy</h1>
+            <p data-i18n="chart.subtitle">Real-time visualization of Price Channel Breakout algorithm</p>
+          </div>
+
+          <div class="chart-layout">
+            <div class="chart-main">
+              <div class="chart-controls">
+                <button id="chartStart" class="btn btn-primary">▶ <span data-i18n="chart.start">Start</span></button>
+                <button id="chartPause" class="btn btn-secondary">⏸ <span data-i18n="chart.pause">Pause</span></button>
+                <button id="chartReset" class="btn btn-secondary">🔄 <span data-i18n="chart.reset">Reset</span></button>
+              </div>
+              <div id="tradingChart" class="trading-chart"></div>
+            </div>
+
+            <div class="chart-sidebar">
+              <div class="card">
+                <h3 data-i18n="chart.currentState">Current State</h3>
+                <div class="stat-row">
+                  <span class="stat-label" data-i18n="chart.symbol">Symbol</span>
+                  <span class="stat-value" id="chartSymbol">BTC/USDT</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label" data-i18n="chart.currentPrice">Current Price</span>
+                  <span class="stat-value" id="chartPrice">$50,000</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label" data-i18n="chart.channelHigh">Channel High</span>
+                  <span class="stat-value positive" id="chartChannelHigh">-</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label" data-i18n="chart.channelLow">Channel Low</span>
+                  <span class="stat-value negative" id="chartChannelLow">-</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label" data-i18n="chart.channelWidth">Channel Width</span>
+                  <span class="stat-value" id="chartChannelWidth">-</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label" data-i18n="chart.signal">Signal</span>
+                  <span id="chartSignalStatus"><span class="badge badge-neutral">No Signal</span></span>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 data-i18n="chart.lastSignal">Last Signal</h3>
+                <div id="chartLastSignal">
+                  <p class="text-muted" data-i18n="chart.waitingForBreakout">Waiting for channel breakout...</p>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 data-i18n="chart.tradeHistory">Trade History</h3>
+                <div id="chartTradeHistory" class="trade-history-list">
+                  <p class="text-muted" data-i18n="chart.noTrades">No trades yet</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Settings Page -->
         <div class="page" id="settings-page">
           <div class="page-header">
@@ -267,6 +335,7 @@
       </main>
     </div>
 
+    <script src="/chart.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>
