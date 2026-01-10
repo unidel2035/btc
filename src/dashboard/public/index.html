@@ -218,57 +218,113 @@
           </div>
         </div>
 
-        <!-- Strategy Chart Page -->
+        <!-- Enhanced Strategy Chart Page -->
         <div class="page" id="chart-page">
           <div class="page-header">
             <h1 data-i18n="chart.title">Price Channel Strategy</h1>
             <p data-i18n="chart.subtitle">Real-time visualization of Price Channel Breakout algorithm</p>
           </div>
 
-          <div class="chart-layout">
-            <div class="chart-main">
-              <div class="chart-settings">
-                <select id="exchangeSelect" class="chart-select">
-                  <option value="binance">Binance</option>
-                  <option value="bybit">Bybit</option>
-                  <option value="okx">OKX</option>
-                </select>
-
-                <select id="symbolSelect" class="chart-select">
-                  <option value="BTC/USDT">BTC/USDT</option>
-                  <option value="ETH/USDT">ETH/USDT</option>
-                  <option value="SOL/USDT">SOL/USDT</option>
-                  <option value="BNB/USDT">BNB/USDT</option>
-                  <option value="XRP/USDT">XRP/USDT</option>
-                </select>
-
-                <select id="timeframeSelect" class="chart-select">
-                  <option value="1m">1 минута</option>
-                  <option value="5m">5 минут</option>
-                  <option value="15m">15 минут</option>
-                  <option value="1h" selected>1 час</option>
-                  <option value="4h">4 часа</option>
-                  <option value="1d">1 день</option>
-                </select>
+          <div class="enhanced-chart-layout">
+            <!-- Left Panel: Order Book & Trades -->
+            <div class="chart-left-panel">
+              <div class="panel-tabs">
+                <button class="panel-tab active" data-tab="orderbook">Order Book</button>
+                <button class="panel-tab" data-tab="trades">Recent Trades</button>
+                <button class="panel-tab" data-tab="depth">Depth</button>
               </div>
-              <div class="chart-controls">
-                <button id="chartStart" class="btn btn-primary">▶ <span data-i18n="chart.start">Start</span></button>
-                <button id="chartPause" class="btn btn-secondary">⏸ <span data-i18n="chart.pause">Pause</span></button>
-                <button id="chartReset" class="btn btn-secondary">🔄 <span data-i18n="chart.reset">Reset</span></button>
+
+              <div class="panel-content active" id="orderbook-panel">
+                <div id="orderbookContainer" class="orderbook-container"></div>
               </div>
-              <div id="tradingChart" class="trading-chart"></div>
+
+              <div class="panel-content" id="trades-panel">
+                <div id="recentTradesContainer" class="trades-container"></div>
+              </div>
+
+              <div class="panel-content" id="depth-panel">
+                <canvas id="marketDepthChart" class="depth-chart"></canvas>
+              </div>
             </div>
 
-            <div class="chart-sidebar">
-              <div class="card">
+            <!-- Main Chart Area -->
+            <div class="chart-center-panel">
+              <div class="chart-toolbar">
+                <div class="chart-toolbar-section">
+                  <div class="chart-symbol">
+                    <select id="exchangeSelect" class="chart-select">
+                      <option value="binance">Binance</option>
+                      <option value="bybit">Bybit</option>
+                      <option value="okx">OKX</option>
+                    </select>
+                    <select id="symbolSelect" class="chart-select">
+                      <option value="BTC/USDT">BTC/USDT</option>
+                      <option value="ETH/USDT">ETH/USDT</option>
+                      <option value="SOL/USDT">SOL/USDT</option>
+                      <option value="BNB/USDT">BNB/USDT</option>
+                      <option value="XRP/USDT">XRP/USDT</option>
+                    </select>
+                    <span class="symbol-price" id="chartPrice">$50,000</span>
+                  </div>
+                </div>
+
+                <div class="chart-toolbar-section">
+                  <div class="timeframe-selector">
+                    <button class="timeframe-btn" data-timeframe="1m">1m</button>
+                    <button class="timeframe-btn" data-timeframe="5m">5m</button>
+                    <button class="timeframe-btn" data-timeframe="15m">15m</button>
+                    <button class="timeframe-btn active" data-timeframe="1h">1H</button>
+                    <button class="timeframe-btn" data-timeframe="4h">4H</button>
+                    <button class="timeframe-btn" data-timeframe="1D">1D</button>
+                    <!-- Hidden select for compatibility with chart.js -->
+                    <select id="timeframeSelect" style="display: none;">
+                      <option value="1m">1m</option>
+                      <option value="5m">5m</option>
+                      <option value="15m">15m</option>
+                      <option value="1h" selected>1h</option>
+                      <option value="4h">4h</option>
+                      <option value="1d">1d</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="chart-toolbar-section">
+                  <div class="chart-type-selector">
+                    <button class="chart-type-btn active" data-chart-type="candlestick" title="Candlestick">📊</button>
+                    <button class="chart-type-btn" data-chart-type="line" title="Line">📈</button>
+                    <button class="chart-type-btn" data-chart-type="area" title="Area">🗻</button>
+                    <button class="chart-type-btn" data-chart-type="bars" title="Bars">📉</button>
+                  </div>
+                </div>
+
+                <div class="chart-toolbar-section">
+                  <div class="indicator-selector">
+                    <button class="indicator-toggle" data-indicator="ma20">MA(20)</button>
+                    <button class="indicator-toggle" data-indicator="ma50">MA(50)</button>
+                    <button class="indicator-toggle" data-indicator="ema20">EMA(20)</button>
+                  </div>
+                </div>
+
+                <div class="chart-toolbar-section">
+                  <div class="chart-actions">
+                    <button id="chartStart" class="btn-icon" title="Start">▶</button>
+                    <button id="chartPause" class="btn-icon" title="Pause">⏸</button>
+                    <button id="chartReset" class="btn-icon" title="Reset">🔄</button>
+                    <button id="chartFullscreen" class="btn-icon" title="Fullscreen">⛶</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="tradingChartContainer" class="trading-chart-container"></div>
+            </div>
+
+            <!-- Right Panel: Info & Signals -->
+            <div class="chart-right-panel">
+              <div class="info-card">
                 <h3 data-i18n="chart.currentState">Current State</h3>
                 <div class="stat-row">
                   <span class="stat-label" data-i18n="chart.symbol">Symbol</span>
                   <span class="stat-value" id="chartSymbol">BTC/USDT</span>
-                </div>
-                <div class="stat-row">
-                  <span class="stat-label" data-i18n="chart.currentPrice">Current Price</span>
-                  <span class="stat-value" id="chartPrice">$50,000</span>
                 </div>
                 <div class="stat-row">
                   <span class="stat-label" data-i18n="chart.channelHigh">Channel High</span>
@@ -288,14 +344,14 @@
                 </div>
               </div>
 
-              <div class="card">
+              <div class="info-card">
                 <h3 data-i18n="chart.lastSignal">Last Signal</h3>
                 <div id="chartLastSignal">
                   <p class="text-muted" data-i18n="chart.waitingForBreakout">Waiting for channel breakout...</p>
                 </div>
               </div>
 
-              <div class="card">
+              <div class="info-card">
                 <h3 data-i18n="chart.tradeHistory">Trade History</h3>
                 <div id="chartTradeHistory" class="trade-history-list">
                   <p class="text-muted" data-i18n="chart.noTrades">No trades yet</p>
@@ -360,6 +416,10 @@
     </div>
 
     <script src="/chart.js"></script>
+    <script src="/chart-enhanced.js"></script>
+    <script src="/orderbook.js"></script>
+    <script src="/recent-trades.js"></script>
+    <script src="/market-depth.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>

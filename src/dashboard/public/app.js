@@ -151,15 +151,44 @@ function loadPageData(page) {
       loadAnalytics();
       break;
     case 'chart':
-      // Очищаем предыдущий график если есть
+      // Cleanup old charts
       cleanupStrategyChart();
-      // Инициализируем новый график
-      setTimeout(() => initStrategyChart(), 100);
+      cleanupEnhancedStrategyChart();
+      cleanupOrderBook();
+      cleanupRecentTrades();
+      cleanupMarketDepthChart();
+
+      // Initialize enhanced chart and panels
+      setTimeout(() => {
+        initEnhancedStrategyChart();
+        initOrderBook();
+        initRecentTrades();
+        initMarketDepthChart();
+        setupPanelTabs();
+      }, 100);
       break;
     case 'settings':
       loadSettings();
       break;
   }
+}
+
+// Setup panel tabs for chart page
+function setupPanelTabs() {
+  const tabs = document.querySelectorAll('.panel-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const targetTab = e.target.dataset.tab;
+
+      // Remove active class from all tabs and panels
+      document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+
+      // Add active class to clicked tab and corresponding panel
+      e.target.classList.add('active');
+      document.getElementById(`${targetTab}-panel`).classList.add('active');
+    });
+  });
 }
 
 // WebSocket
