@@ -279,7 +279,18 @@
               <div class="chart-toolbar">
                 <div class="chart-toolbar-section">
                   <div class="chart-symbol">
-                    <span class="symbol-name">BTC/USDT</span>
+                    <select id="exchangeSelect" class="chart-select">
+                      <option value="binance">Binance</option>
+                      <option value="bybit">Bybit</option>
+                      <option value="okx">OKX</option>
+                    </select>
+                    <select id="symbolSelect" class="chart-select">
+                      <option value="BTC/USDT">BTC/USDT</option>
+                      <option value="ETH/USDT">ETH/USDT</option>
+                      <option value="SOL/USDT">SOL/USDT</option>
+                      <option value="BNB/USDT">BNB/USDT</option>
+                      <option value="XRP/USDT">XRP/USDT</option>
+                    </select>
                     <span class="symbol-price" id="chartPrice">$50,000</span>
                   </div>
                 </div>
@@ -292,6 +303,15 @@
                     <button class="timeframe-btn active" data-timeframe="1h">1H</button>
                     <button class="timeframe-btn" data-timeframe="4h">4H</button>
                     <button class="timeframe-btn" data-timeframe="1D">1D</button>
+                    <!-- Hidden select for compatibility with chart.js -->
+                    <select id="timeframeSelect" style="display: none;">
+                      <option value="1m">1m</option>
+                      <option value="5m">5m</option>
+                      <option value="15m">15m</option>
+                      <option value="1h" selected>1h</option>
+                      <option value="4h">4h</option>
+                      <option value="1d">1d</option>
+                    </select>
                   </div>
                 </div>
 
